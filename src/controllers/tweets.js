@@ -12,6 +12,7 @@ const sidebar = require('../services/sidebar');
 const storage = require('../services/storage');
 const realtime = require('../services/realtime');
 const announce = require('../services/announce');
+const embedService = require('../services/embed');
 const schemas = require('../validators/schemas');
 const { notFound, forbidden, badRequest } = require('../utils/errors');
 const { wantsJson } = require('../middleware/auth');
@@ -97,7 +98,8 @@ exports.show = async (req, res) => {
     description: tweet.snippet,
     canonical: tweet.absoluteUrl,
     ogType: 'article',
-    ogImage: tweet.media.length > 0 && !tweet.media[0].isVideo ? `${config.baseUrl}${tweet.media[0].url}` : null,
+    // A protected account's Tweets are not public, so they carry no card.
+    embed: author.is_protected ? null : embedService.forTweet(tweet),
     noindex: author.is_protected,
     nav: null,
     bodyClass: 'page-permalink',

@@ -1,0 +1,44 @@
+<%# Link-preview metadata. Open Graph gives a chat client the bare card;
+    the Twitter card type is what makes the image large rather than a
+    thumbnail, theme-color is the stripe most clients draw down the side,
+    and the oEmbed link carries the two small lines above the title. %>
+<% var card = typeof embed === 'undefined' ? null : embed; %>
+<meta property="og:site_name" content="<%= brand.name %>">
+<meta property="og:type" content="<%= ogType %>">
+<% if (card) { %>
+  <meta property="og:title" content="<%= card.title %>">
+  <meta property="og:description" content="<%= card.description %>">
+  <meta property="og:url" content="<%= card.url %>">
+  <% if (card.image) { %>
+    <meta property="og:image" content="<%= card.image.url %>">
+    <meta property="og:image:alt" content="<%= card.image.alt %>">
+  <% } %>
+  <% if (card.video) { %>
+    <meta property="og:video" content="<%= card.video.url %>">
+    <meta property="og:video:secure_url" content="<%= card.video.url %>">
+    <meta property="og:video:type" content="<%= card.video.mime %>">
+  <% } %>
+
+  <meta name="twitter:card" content="<%= card.card %>">
+  <meta name="twitter:title" content="<%= card.title %>">
+  <meta name="twitter:description" content="<%= card.description %>">
+  <% if (card.image) { %>
+    <meta name="twitter:image" content="<%= card.image.url %>">
+    <meta name="twitter:image:alt" content="<%= card.image.alt %>">
+  <% } %>
+  <% if (card.video) { %>
+    <meta name="twitter:player:stream" content="<%= card.video.url %>">
+    <meta name="twitter:player:stream:content_type" content="<%= card.video.mime %>">
+  <% } %>
+
+  <link rel="alternate" type="application/json+oembed"
+        href="<%= card.oembed %>" title="<%= card.title %>">
+<% } else { %>
+  <meta property="og:title" content="<%= title %>">
+  <meta property="og:description" content="<%= description %>">
+  <% if (canonical) { %><meta property="og:url" content="<%= canonical %>"><% } %>
+  <% if (ogImage) { %><meta property="og:image" content="<%= ogImage %>"><% } %>
+  <meta name="twitter:card" content="<%= ogImage ? 'summary_large_image' : 'summary' %>">
+<% } %>
+<%# The accent, so a card is recognisably Twiq's before it is read. %>
+<meta name="theme-color" content="<%= (typeof profileTheme !== 'undefined' && profileTheme && profileTheme.accent) || '#3fa9e0' %>">

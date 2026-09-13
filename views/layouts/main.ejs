@@ -11,12 +11,7 @@
 <meta name="description" content="<%= description %>">
 <% if (noindex) { %><meta name="robots" content="noindex, nofollow"><% } %>
 <% if (canonical) { %><link rel="canonical" href="<%= canonical %>"><% } %>
-<meta property="og:site_name" content="<%= brand.name %>">
-<meta property="og:type" content="<%= ogType %>">
-<meta property="og:title" content="<%= title %>">
-<meta property="og:description" content="<%= description %>">
-<% if (canonical) { %><meta property="og:url" content="<%= canonical %>"><% } %>
-<% if (ogImage) { %><meta property="og:image" content="<%= ogImage %>"><% } %>
+<%- include('../partials/embed-meta') %>
 <link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="<%= asset('/css/twiq.css') %>">
 <% if (typeof profileTheme !== 'undefined' && profileTheme && profileTheme.accent) { %>

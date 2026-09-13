@@ -7,6 +7,7 @@ const tweetModel = require('../models/tweet');
 const graphModel = require('../models/graph');
 const listModel = require('../models/list');
 const present = require('../services/present');
+const embedService = require('../services/embed');
 const sidebar = require('../services/sidebar');
 const suggest = require('../services/suggest');
 const realtime = require('../services/realtime');
@@ -72,6 +73,8 @@ function seo(owner, extra = {}) {
       : `The latest Tweets from ${owner.display_name} (@${owner.username}) on ${config.brand.name}.`,
     canonical: `${config.baseUrl}/${owner.username}`,
     ogType: 'profile',
+    // Protected and suspended accounts get no card, the same as no index.
+    embed: owner.is_protected || owner.is_suspended ? null : embedService.forProfile(present.user(owner)),
     noindex: owner.is_protected || owner.is_suspended,
     ...extra,
   };

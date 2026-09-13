@@ -7,6 +7,7 @@ const connect = require('../controllers/connect');
 const discover = require('../controllers/discover');
 const search = require('../controllers/search');
 const tweets = require('../controllers/tweets');
+const oembed = require('../controllers/oembed');
 const pages = require('../controllers/pages');
 const status = require('../controllers/status');
 const { requireAuth } = require('../middleware/auth');
@@ -19,6 +20,9 @@ router.get('/home', requireAuth(), asyncHandler(home.home));
 router.get('/home/new-count', requireAuth(), asyncHandler(home.newCount));
 router.get('/who-to-follow', requireAuth(), asyncHandler(home.refreshWhoToFollow));
 router.post('/trends/location', requireAuth(), asyncHandler(home.changeTrendScope));
+
+// Public: chat clients fetch this when they find the oEmbed link tag.
+router.get('/oembed', asyncHandler(oembed.show));
 
 router.get('/compose', requireAuth(), asyncHandler(home.compose));
 router.get('/compose/tweet', requireAuth(), asyncHandler(home.compose));
