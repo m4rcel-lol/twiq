@@ -1,0 +1,86 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav') %>
+  <main class="content content-wide" id="main">
+    <section class="module">
+      <div class="module-header">
+        <h2>Content</h2>
+        <span class="module-action"><%= fmt.fullCount(total) %> matching</span>
+      </div>
+
+      <form class="admin-toolbar" method="get" action="/admin/content">
+        <label class="visually-hidden" for="c-q">Text</label>
+        <input id="c-q" type="search" name="q" value="<%= term %>" placeholder="text contains">
+
+        <label class="visually-hidden" for="c-author">Author</label>
+        <input id="c-author" type="text" name="author" value="<%= author %>" placeholder="author" maxlength="15">
+
+        <label class="visually-hidden" for="c-filter">Filter</label>
+        <select id="c-filter" name="filter">
+          <% [['any','Everything'],['reported','Reported'],['media','With media'],['replies','Replies'],['suspended','From suspended accounts']].forEach(function (o) { %>
+            <option value="<%= o[0] %>" <%= filter === o[0] ? 'selected' : '' %>><%= o[1] %></option>
+          <% }); %>
+        </select>
+
+        <label class="visually-hidden" for="c-sort">Sort</label>
+        <select id="c-sort" name="sort">
+          <% [['recent','Newest first'],['engagement','Most engagement'],['replies','Most replies']].forEach(function (o) { %>
+            <option value="<%= o[0] %>" <%= sort === o[0] ? 'selected' : '' %>><%= o[1] %></option>
+          <% }); %>
+        </select>
+
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        <a class="btn btn-sm" href="/admin/content">Reset</a>
+      </form>
+
+      <table class="admin-table">
+        <thead>
+          <tr><th>Author</th><th>Tweet</th><th class="admin-num">Engagement</th><th>Posted</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <% if (tweets.length === 0) { %>
+            <tr><td colspan="5" class="admin-muted">No Tweets match those filters.</td></tr>
+          <% } %>
+          <% tweets.forEach(function (t) { %>
+            <tr class="<%= t.report_count > 0 ? 'is-flagged' : '' %>">
+              <td class="admin-nowrap">
+                <a href="/admin/users/<%= t.username %>">@<%= t.username %></a>
+                <% if (t.is_suspended) { %><div><span class="pill pill-danger">suspended</span></div><% } %>
+              </td>
+              <td>
+                <a href="/<%= t.username %>/status/<%= t.id %>"><%= t.body || '(media only)' %></a>
+                <% if (t.report_count > 0) { %>
+                  <span class="pill pill-danger"><%= t.report_count %> report<%= t.report_count === 1 ? '' : 's' %></span>
+                <% } %>
+                <% if (t.has_media) { %><span class="pill">media</span><% } %>
+              </td>
+              <td class="admin-num admin-nowrap">
+                <%= fmt.fullCount(t.favorite_count) %> &middot; <%= fmt.fullCount(t.retweet_count) %> RT
+                &middot; <%= fmt.fullCount(t.reply_count) %> re
+              </td>
+              <td class="admin-nowrap admin-muted"><%= fmt.shortTimestamp(t.created_at) %></td>
+              <td class="admin-nowrap">
+                <form class="inline-form" method="post" action="/admin/tweets/<%= t.id %>/delete"
+                      data-confirm="Remove this Tweet by @<%= t.username %>?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="btn btn-sm">Remove</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+
+      <% if (page > 0 || hasMore) { %>
+        <div class="module-footer admin-pager">
+          <% var qs = 'q=' + encodeURIComponent(term) + '&author=' + encodeURIComponent(author) + '&filter=' + filter + '&sort=' + sort; %>
+          <% if (page > 0) { %><a href="/admin/content?<%= qs %>&amp;page=<%= page - 1 %>">&larr; Previous</a><% } %>
+          <span class="admin-muted">
+            <%= fmt.fullCount(page * perPage + 1) %>&ndash;<%= fmt.fullCount(page * perPage + tweets.length) %>
+            of <%= fmt.fullCount(total) %>
+          </span>
+          <% if (hasMore) { %><a href="/admin/content?<%= qs %>&amp;page=<%= page + 1 %>">Next &rarr;</a><% } %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div></div>

@@ -1,0 +1,10 @@
+<div class="error-shell">
+  <div class="code">400</div>
+  <h1>That request did not look right</h1>
+  <p><%= message %></p>
+  <div class="error-actions">
+    <a class="btn btn-primary" href="/">Back to <%= brand.name %></a>
+  </div>
+  <% if (stack) { %><pre><%= stack %></pre><% } %>
+</div>
+<%- include('../partials/page-footer') %>

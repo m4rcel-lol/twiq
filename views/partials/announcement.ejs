@@ -1,0 +1,20 @@
+<% if (typeof announcement !== 'undefined' && announcement) { %>
+  <div class="announcement announcement-<%= announcementLevel %>" role="status">
+    <div class="announcement-inner"><%= announcement %></div>
+  </div>
+<% } %>
+<% if (typeof maintenance !== 'undefined' && maintenance) { %>
+  <div class="announcement announcement-critical" role="status">
+    <div class="announcement-inner">
+      Maintenance mode is on &mdash; everyone but staff sees the maintenance page.
+      <a href="/admin/system">Turn it off</a>
+    </div>
+  </div>
+<% } %>
+<% if (typeof readOnly !== 'undefined' && readOnly) { %>
+  <div class="announcement announcement-warning" role="status">
+    <div class="announcement-inner">
+      <%= brand.name %> is read-only at the moment. You can read everything; posting is paused.
+    </div>
+  </div>
+<% } %>

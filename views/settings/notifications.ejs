@@ -1,0 +1,29 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/settings-nav') %>
+  <main class="content" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Notifications</h2></div>
+      <div class="module-body">
+        <form method="post" action="/settings/notifications">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <p style="font-size:13px;color:var(--muted-text);">Choose what shows up under Connect.</p>
+          <% var toggles = [
+               ['notify_follows', 'New followers'],
+               ['notify_mentions', 'Mentions'],
+               ['notify_replies', 'Replies'],
+               ['notify_retweets', 'Retweets of my Tweets'],
+               ['notify_favorites', 'Favorites of my Tweets'],
+               ['notify_messages', 'Direct Messages']
+             ]; %>
+          <% toggles.forEach(function (item) { %>
+            <div class="checkbox-row">
+              <input id="<%= item[0] %>" type="checkbox" name="<%= item[0] %>" <%= settings[item[0]] ? 'checked' : '' %>>
+              <label for="<%= item[0] %>"><%= item[1] %></label>
+            </div>
+          <% }); %>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Save changes</button></div>
+        </form>
+      </div>
+    </section>
+  </main>
+</div></div>

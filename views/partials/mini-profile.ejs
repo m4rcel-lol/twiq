@@ -1,0 +1,25 @@
+<section class="module mini-profile" aria-label="Your profile summary">
+  <div class="mini-profile-header"
+       style="<%= side.viewer.hasHeader ? ('background-image:url(' + side.viewer.headerUrl + ')') : '' %>"></div>
+  <div class="mini-profile-body">
+    <a href="<%= side.viewer.profileUrl %>">
+      <img class="mini-profile-avatar" src="<%= side.viewer.avatarUrl %>" alt="">
+    </a>
+    <a class="mini-profile-name" href="<%= side.viewer.profileUrl %>"><%= side.viewer.displayName %></a>
+    <span class="mini-profile-handle">@<%= side.viewer.username %></span>
+  </div>
+  <div class="stat-row">
+    <a href="<%= side.viewer.profileUrl %>">
+      <span class="stat-label">Tweets</span>
+      <span class="stat-value"><%= fmt.compactCount(side.viewer.counts.tweets) %></span>
+    </a>
+    <a href="<%= side.viewer.profileUrl %>/following">
+      <span class="stat-label">Following</span>
+      <span class="stat-value"><%= fmt.compactCount(side.viewer.counts.following) %></span>
+    </a>
+    <a href="<%= side.viewer.profileUrl %>/followers">
+      <span class="stat-label">Followers</span>
+      <span class="stat-value"><%= fmt.compactCount(side.viewer.counts.followers) %></span>
+    </a>
+  </div>
+</section>

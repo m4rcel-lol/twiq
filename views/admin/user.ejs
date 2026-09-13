@@ -1,0 +1,221 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav') %>
+  <main class="content content-wide" id="main">
+
+    <section class="module admin-identity">
+      <img class="admin-identity-avatar" src="<%= profile.avatarUrl %>" alt="">
+      <div class="admin-identity-body">
+        <h1>
+          <%= account.display_name %>
+          <% if (account.is_verified) { %><span class="pill pill-info">verified</span><% } %>
+          <% if (account.is_suspended) { %><span class="pill pill-danger">suspended</span><% } %>
+          <% if (account.is_protected) { %><span class="pill">protected</span><% } %>
+          <span class="pill <%= account.role === 'admin' ? 'pill-danger' : account.role === 'moderator' ? 'pill-info' : '' %>"><%= account.role %></span>
+        </h1>
+        <p class="admin-identity-meta">
+          <a href="/<%= account.username %>">@<%= account.username %></a> &middot;
+          <code><%= account.email %></code>
+          <%= account.email_verified_at ? '(confirmed)' : '(unconfirmed)' %> &middot;
+          joined <%= fmt.joinedDate(account.created_at) %> &middot;
+          last seen <%= account.last_login_at ? fmt.shortTimestamp(account.last_login_at) : 'never' %>
+        </p>
+        <% if (account.bio) { %><p class="admin-identity-bio"><%= account.bio %></p><% } %>
+        <% if (account.is_suspended && account.suspended_reason) { %>
+          <p class="admin-suspend-reason">Suspended: <%= account.suspended_reason %></p>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="admin-stat-grid admin-stat-grid-tight">
+      <div class="admin-stat-tile"><span class="label">Tweets</span><b><%= fmt.fullCount(account.tweet_count) %></b></div>
+      <div class="admin-stat-tile"><span class="label">Followers</span><b><%= fmt.fullCount(account.follower_count) %></b></div>
+      <div class="admin-stat-tile"><span class="label">Following</span><b><%= fmt.fullCount(account.following_count) %></b></div>
+      <div class="admin-stat-tile"><span class="label">Favorites</span><b><%= fmt.fullCount(account.favorite_count) %></b></div>
+      <div class="admin-stat-tile"><span class="label">Uploads</span><b><%= fmt.fullCount(account.media_count) %></b><span class="meta"><%= fmt.bytes(account.media_bytes) %></span></div>
+      <div class="admin-stat-tile<%= activeSessions > 0 ? '' : ' is-quiet' %>"><span class="label">Sessions</span><b><%= activeSessions %></b><span class="meta">signed in now</span></div>
+    </section>
+
+    <div class="admin-split">
+      <section class="module">
+        <div class="module-header"><h2>Moderation</h2></div>
+        <div class="module-body admin-actions">
+          <% if (isSelf) { %>
+            <p class="admin-muted">This is your own account. Manage it from <a href="/settings/account">settings</a>.</p>
+          <% } else { %>
+            <% if (account.is_suspended) { %>
+              <form method="post" action="/admin/users/<%= account.username %>/unsuspend">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-primary">Lift suspension</button>
+              </form>
+            <% } else if (account.role !== 'admin') { %>
+              <form method="post" action="/admin/users/<%= account.username %>/suspend"
+                    data-confirm="Suspend @<%= account.username %>? They will be signed out everywhere.">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <label class="form-label" for="reason">Reason (shown to them at sign-in)</label>
+                <input id="reason" type="text" name="reason" maxlength="500"
+                       placeholder="Violation of the Twiq rules">
+                <div class="form-actions"><button type="submit" class="btn btn-danger">Suspend account</button></div>
+              </form>
+            <% } %>
+
+            <form class="inline-form" method="post" action="/admin/users/<%= account.username %>/sign-out"
+                  data-confirm="End every session for @<%= account.username %>?">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-sm">Sign out everywhere</button>
+            </form>
+
+            <% if (isAdmin) { %>
+              <form class="inline-form" method="post" action="/admin/users/<%= account.username %>/verified">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="verified" value="<%= account.is_verified ? 'false' : 'true' %>">
+                <button type="submit" class="btn btn-sm"><%= account.is_verified ? 'Remove verification' : 'Mark verified' %></button>
+              </form>
+              <form class="inline-form" method="post" action="/admin/users/<%= account.username %>/reset-link"
+                    data-confirm="Generate a one-time password reset link for @<%= account.username %>?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-sm">Issue reset link</button>
+              </form>
+            <% } %>
+          <% } %>
+        </div>
+
+        <% if (isAdmin && !isSelf && account.role !== 'admin') { %>
+          <div class="module-body admin-danger-zone">
+            <h3>Role</h3>
+            <form method="post" action="/admin/users/<%= account.username %>/role" class="admin-inline-row">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <label class="visually-hidden" for="role">Role</label>
+              <select id="role" name="role">
+                <% ['user', 'moderator', 'admin'].forEach(function (r) { %>
+                  <option value="<%= r %>" <%= account.role === r ? 'selected' : '' %>><%= r %></option>
+                <% }); %>
+              </select>
+              <button type="submit" class="btn btn-sm">Change role</button>
+            </form>
+
+            <h3>Delete permanently</h3>
+            <p class="admin-muted">
+              Removes the profile, <%= fmt.fullCount(account.tweet_count) %> Tweets, messages, Lists and uploads.
+              This cannot be undone.
+            </p>
+            <form method="post" action="/admin/users/<%= account.username %>/delete" class="admin-inline-row"
+                  data-confirm="Permanently delete @<%= account.username %> and everything they posted?">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <label class="visually-hidden" for="confirm">Type the username to confirm</label>
+              <input id="confirm" type="text" name="confirm" placeholder="type <%= account.username %>" required>
+              <button type="submit" class="btn btn-danger btn-sm">Delete account</button>
+            </form>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="module">
+        <div class="module-header">
+          <h2>Reports against this account</h2>
+          <span class="module-action admin-muted"><%= fmt.fullCount(reportsByCount) %> filed by them</span>
+        </div>
+        <% if (reportsAgainst.length === 0) { %>
+          <div class="admin-empty">No reports.</div>
+        <% } else { %>
+          <table class="admin-table">
+            <tbody>
+              <% reportsAgainst.forEach(function (r) { %>
+                <tr>
+                  <td style="width:1%;"><span class="pill <%= r.status === 'open' ? 'pill-danger' : '' %>"><%= r.category %></span></td>
+                  <td>
+                    <%= r.details || 'No detail given.' %>
+                    <div class="admin-muted">
+                      by <%= r.reporter_username ? '@' + r.reporter_username : 'deleted account' %>
+                      &middot; <%= r.status %>
+                      <% if (r.target_tweet_id) { %>
+                        &middot; <a href="/<%= account.username %>/status/<%= r.target_tweet_id %>">Tweet</a>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="admin-nowrap"><%= fmt.shortTimestamp(r.created_at) %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </section>
+    </div>
+
+    <div class="admin-split">
+      <section class="module">
+        <div class="module-header">
+          <h2>Recent Tweets</h2>
+          <a class="module-action" href="/admin/content?author=<%= account.username %>">All content</a>
+        </div>
+        <% if (recentTweets.length === 0) { %>
+          <div class="admin-empty">Nothing posted.</div>
+        <% } else { %>
+          <table class="admin-table">
+            <tbody>
+              <% recentTweets.forEach(function (t) { %>
+                <tr>
+                  <td>
+                    <a href="/<%= account.username %>/status/<%= t.id %>"><%= t.body || '(media only)' %></a>
+                    <div class="admin-muted">
+                      <%= fmt.shortTimestamp(t.created_at) %>
+                      &middot; <%= t.favorite_count %> favs &middot; <%= t.retweet_count %> RT
+                      &middot; <%= t.reply_count %> replies
+                      <% if (t.has_media) { %>&middot; media<% } %>
+                    </div>
+                  </td>
+                  <td class="admin-nowrap">
+                    <form class="inline-form" method="post" action="/admin/tweets/<%= t.id %>/delete"
+                          data-confirm="Remove this Tweet?">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-sm">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </section>
+
+      <section class="module">
+        <div class="module-header"><h2>Recent sign-in attempts</h2></div>
+        <% if (logins.length === 0) { %>
+          <div class="admin-empty">No attempts recorded.</div>
+        <% } else { %>
+          <table class="admin-table">
+            <tbody>
+              <% logins.forEach(function (l) { %>
+                <tr>
+                  <td style="width:1%;"><span class="pill <%= l.succeeded ? 'pill-success' : 'pill-danger' %>"><%= l.succeeded ? 'ok' : 'failed' %></span></td>
+                  <td><code><%= l.ip_address || 'unknown' %></code></td>
+                  <td class="admin-nowrap admin-muted"><%= fmt.shortTimestamp(l.created_at) %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </section>
+    </div>
+
+    <section class="module">
+      <div class="module-header"><h2>Audit trail</h2></div>
+      <% if (auditTrail.length === 0) { %>
+        <div class="admin-empty">Nothing logged for this account.</div>
+      <% } else { %>
+        <table class="admin-table">
+          <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Detail</th></tr></thead>
+          <tbody>
+            <% auditTrail.forEach(function (row) { %>
+              <tr>
+                <td class="admin-nowrap"><%= fmt.shortTimestamp(row.created_at) %></td>
+                <td><%= row.actor_username ? '@' + row.actor_username : 'system' %></td>
+                <td><code><%= row.action %></code></td>
+                <td class="admin-muted"><code><%= JSON.stringify(row.metadata) %></code></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </section>
+  </main>
+</div></div>

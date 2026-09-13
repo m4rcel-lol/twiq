@@ -1,0 +1,11 @@
+<%
+  var showComposer = typeof railComposer === 'undefined' ? false : railComposer;
+  var showMini = typeof railMiniProfile === 'undefined' ? true : railMiniProfile;
+%>
+<% if (side && side.viewer) { %>
+  <% if (showMini) { %><%- include('mini-profile', { side: side }) %><% } %>
+  <% if (showComposer) { %><%- include('composer', {}) %><% } %>
+  <%- include('who-to-follow', { side: side }) %>
+  <%- include('trends', { side: side }) %>
+  <%- include('rail-footer') %>
+<% } %>

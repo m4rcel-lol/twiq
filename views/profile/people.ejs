@@ -1,0 +1,37 @@
+<%- include('../partials/profile-header', { profile: profile, isOwner: isOwner, tab: tab }) %>
+
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/profile-card', { profile: profile, isOwner: isOwner, photos: photos, followedBy: followedBy }) %>
+      <%- include('../partials/rail-footer') %>
+    </aside>
+    <main class="content" id="main">
+      <section class="module">
+        <div class="timeline-heading"><%= tab === 'followers' ? 'Followers' : 'Following' %></div>
+        <div class="people-list">
+          <% if (!canView) { %>
+            <div class="protected-notice">
+              <svg class="icon" style="width:28px;height:28px;" aria-hidden="true"><use href="#ic-lock"></use></svg>
+              <strong>This account is protected</strong>
+            </div>
+          <% } else if (people.length === 0) { %>
+            <div class="empty-state">
+              <strong><%= tab === 'followers' ? 'No followers yet' : 'Not following anybody yet' %></strong>
+            </div>
+          <% } else { %>
+            <% people.forEach(function (person) { %>
+              <%- include('../partials/user-row', { person: person }) %>
+            <% }); %>
+          <% } %>
+        </div>
+        <% if (page > 0 || hasMore) { %>
+          <div class="module-footer">
+            <% if (page > 0) { %><a href="<%= listUrl %>?page=<%= page - 1 %>">&larr; Previous</a><% } %>
+            <% if (hasMore) { %><a style="float:right;" href="<%= listUrl %>?page=<%= page + 1 %>">Next &rarr;</a><% } %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+  </div>
+</div>

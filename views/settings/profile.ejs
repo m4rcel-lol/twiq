@@ -1,0 +1,64 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/settings-nav') %>
+  <main class="content" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Profile</h2></div>
+      <div class="module-body">
+        <div class="settings-image-row">
+          <img class="avatar-preview" src="<%= profile.avatarUrl %>" alt="Your current profile photo">
+          <form method="post" action="/settings/profile/avatar" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label class="form-label" for="avatar">Profile photo</label>
+            <input id="avatar" type="file" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp" required>
+            <div class="form-actions"><button type="submit" class="btn btn-sm">Upload photo</button></div>
+          </form>
+        </div>
+
+        <div class="settings-image-row">
+          <img class="header-preview" src="<%= profile.headerUrl %>" alt="Your current header image">
+          <form method="post" action="/settings/profile/header" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label class="form-label" for="header">Header image</label>
+            <input id="header" type="file" name="header" accept="image/jpeg,image/png,image/gif,image/webp" required>
+            <div class="form-hint">A wide image works best - around 1500 by 500 pixels.</div>
+            <div class="form-actions"><button type="submit" class="btn btn-sm">Upload header</button></div>
+          </form>
+          <% if (profile.hasHeader) { %>
+            <form method="post" action="/settings/profile/header/delete">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-sm">Remove</button>
+            </form>
+          <% } %>
+        </div>
+
+        <hr>
+
+        <form method="post" action="/settings/profile">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-row">
+            <label class="form-label" for="display_name">Name</label>
+            <input id="display_name" type="text" name="display_name" value="<%= profile.displayName %>" maxlength="20" required>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="bio">Bio</label>
+            <textarea id="bio" name="bio" rows="3" maxlength="<%= brand.bioMaxLength %>"><%= profile.bio %></textarea>
+            <div class="form-hint"><%= brand.bioMaxLength %> characters maximum.</div>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="location">Location</label>
+            <input id="location" type="text" name="location" value="<%= profile.location %>" maxlength="30">
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="website">Website</label>
+            <input id="website" type="url" name="website" value="<%= profile.website %>" maxlength="200"
+                   placeholder="https://example.com">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a class="btn" href="/<%= profile.username %>">View my profile</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+</div></div>

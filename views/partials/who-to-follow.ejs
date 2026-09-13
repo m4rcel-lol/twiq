@@ -1,0 +1,13 @@
+<section class="module" aria-labelledby="wtf-heading">
+  <div class="module-header">
+    <h2 id="wtf-heading">Who to follow</h2>
+    <span class="module-action">
+      <button type="button" data-wtf-refresh data-page="<%= side.whoToFollowPage %>"
+              style="background:none;border:0;color:var(--link-color);cursor:pointer;font-size:12px;">Refresh</button>
+      &middot; <a href="/discover">View all</a>
+    </span>
+  </div>
+  <div data-wtf-list>
+    <%- include('who-to-follow-items', { whoToFollow: side.whoToFollow }) %>
+  </div>
+</section>

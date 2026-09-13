@@ -1,0 +1,2359 @@
+/* ==========================================================================
+   Twiq - desktop stylesheet
+   --------------------------------------------------------------------------
+   Twiq reconstructs the information density and proportions of a 2014-era
+   desktop web application: a 46px fixed top bar, a 290px left rail beside a
+   590px content column, 1px #e1e8ed hairlines, small controls, and Tweet
+   rows that pack a lot of reading into very little vertical space.
+
+   Layout grid
+     .wrapper        890px  = 290 rail + 10 gutter + 590 content
+     Everything below the top bar sits on that grid, including the profile
+     header, so the avatar always lines up with the left rail.
+   ========================================================================== */
+
+:root {
+  /* Branding - change these to re-skin Twiq. */
+  --twiq-blue: #3fa9e0;
+  --twiq-blue-dark: #2b87b8;
+  --twiq-blue-darker: #1f6b95;
+  --twiq-blue-pale: #e8f4fb;
+
+  --page-background: #f5f8fa;
+  --panel-background: #ffffff;
+  --panel-alt-background: #f9fbfd;
+  --border-color: #e1e8ed;
+  --border-strong: #ccd6dd;
+  --text-color: #292f33;
+  --muted-text: #8899a6;
+  --link-color: #0f7ab0;
+
+  --success: #19a974;
+  --retweet-green: #19a974;
+  --favorite-gold: #e8a33d;
+  --danger: #cc3333;
+  --warning: #e8a33d;
+
+  --rail-width: 290px;
+  --content-width: 590px;
+  --gutter: 10px;
+  --topbar-height: 46px;
+  --radius: 3px;
+  --radius-lg: 5px;
+
+  --font-stack: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  --shadow-panel: 0 1px 1px rgba(0, 0, 0, 0.06);
+  --shadow-menu: 0 1px 6px rgba(0, 0, 0, 0.28);
+
+  /* Surfaces and states. Every value a theme has to swap lives here, so the
+     components below never name a colour of their own. */
+  --field-background: #f5f8fa;
+  --row-hover: #f7fafc;
+  --nav-hover: #f7f9fa;
+  --hairline-soft: #f2f5f7;
+  --highlight-background: #fffdf4;
+  --unread-background: #f5fbff;
+  --avatar-ring: #ffffff;
+
+  --btn-face-top: #ffffff;
+  --btn-face-bottom: #f5f8fa;
+  --btn-face-hover: #e8eef2;
+  --btn-face-active: #e1e8ed;
+
+  --badge-background: #e1e8ed;
+  --badge-text: #66757f;
+  --code-text: #55606a;
+
+  --bubble-background: #f1f5f8;
+  --bubble-own-border: #bfe0f2;
+
+  --success-wash: #e7f6ef;
+  --success-border: #a8dcc5;
+  --success-text: #14684a;
+  --warning-wash: #fffaf2;
+  --warning-border: #f0d9a8;
+  --warning-text: #6b5a1e;
+  --danger-wash: #fdecea;
+  --danger-border: #f0b4ae;
+  --danger-text: #8c2018;
+
+  /* Kept apart from --twiq-blue: links and icons want a bright accent on a
+     dark ground, but a button carrying white text needs a deeper face. */
+  --btn-primary-top: #3fa9e0;
+  --btn-primary-bottom: #2b87b8;
+  --btn-primary-hover-top: #2b87b8;
+  --btn-primary-hover-bottom: #1f6b95;
+  --btn-primary-border: #2b87b8;
+
+  /* How long the incoming page takes to arrive, and the outgoing one to dim.
+     The whole sense of movement between pages is these two numbers. */
+  --page-enter-duration: 200ms; /* jQuery's "fast", which is where the eye learnt it */
+  --page-leave-duration: 140ms;
+
+  /* Stated rather than inherited: form controls and scrollbars stay light
+     even when the reader's system is dark. */
+  color-scheme: light;
+}
+
+/* =========================================================================
+   Dark theme
+   -------------------------------------------------------------------------
+   Only the tokens change. The neutrals carry a slight blue cast rather than
+   being flat grey, so the accent sits in the same family as the surfaces.
+
+   Light is the default: a document with no data-theme stamp is light, whatever
+   the reader's operating system says. Dark is opt-in, and "follow my system"
+   is its own stamp that the media query below acts on.
+   ========================================================================= */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] { color-scheme: dark; }
+  :root[data-theme="system"] {
+    --twiq-blue: #4fb4e8;
+    --twiq-blue-dark: #2f8dc0;
+    --twiq-blue-darker: #246f99;
+    --twiq-blue-pale: #17303d;
+
+    --page-background: #12171b;
+    --panel-background: #1b2229;
+    --panel-alt-background: #212a32;
+    --border-color: #2b343d;
+    --border-strong: #3b4650;
+    --text-color: #e3eaf0;
+    --muted-text: #8d9ca9;
+    --link-color: #63c0ee;
+
+    --success: #2fbd86;
+    --retweet-green: #2fbd86;
+    --favorite-gold: #f0b04a;
+    --danger: #e5615c;
+    --warning: #f0b04a;
+
+    --field-background: #141b21;
+    --row-hover: #202931;
+    --nav-hover: #202931;
+    --hairline-soft: #252e36;
+    --highlight-background: #23251c;
+    --unread-background: #15222c;
+    --avatar-ring: #1b2229;
+
+    --btn-face-top: #29333c;
+    --btn-face-bottom: #222b33;
+    --btn-face-hover: #313d47;
+    --btn-face-active: #384652;
+
+    --badge-background: #2b343d;
+    --badge-text: #9aa9b5;
+    --code-text: #9aa9b5;
+
+    --bubble-background: #222b33;
+    --bubble-own-border: #2d5568;
+
+    --success-wash: #14261f;
+    --success-border: #2c4c3d;
+    --success-text: #7fd9b0;
+    --warning-wash: #272117;
+    --warning-border: #4d4026;
+    --warning-text: #e6c184;
+    --danger-wash: #2a1a1a;
+    --danger-border: #57302f;
+    --danger-text: #f0a9a5;
+
+    --btn-primary-top: #2f8dc0;
+    --btn-primary-bottom: #21709e;
+    --btn-primary-hover-top: #21709e;
+    --btn-primary-hover-bottom: #195a80;
+    --btn-primary-border: #195a80;
+
+    --shadow-panel: 0 1px 1px rgba(0, 0, 0, 0.35);
+    --shadow-menu: 0 2px 10px rgba(0, 0, 0, 0.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --twiq-blue: #4fb4e8;
+  --twiq-blue-dark: #2f8dc0;
+  --twiq-blue-darker: #246f99;
+  --twiq-blue-pale: #17303d;
+
+  --page-background: #12171b;
+  --panel-background: #1b2229;
+  --panel-alt-background: #212a32;
+  --border-color: #2b343d;
+  --border-strong: #3b4650;
+  --text-color: #e3eaf0;
+  --muted-text: #8d9ca9;
+  --link-color: #63c0ee;
+
+  --success: #2fbd86;
+  --retweet-green: #2fbd86;
+  --favorite-gold: #f0b04a;
+  --danger: #e5615c;
+  --warning: #f0b04a;
+
+  --field-background: #141b21;
+  --row-hover: #202931;
+  --nav-hover: #202931;
+  --hairline-soft: #252e36;
+  --highlight-background: #23251c;
+  --unread-background: #15222c;
+  --avatar-ring: #1b2229;
+
+  --btn-face-top: #29333c;
+  --btn-face-bottom: #222b33;
+  --btn-face-hover: #313d47;
+  --btn-face-active: #384652;
+
+  --badge-background: #2b343d;
+  --badge-text: #9aa9b5;
+  --code-text: #9aa9b5;
+
+  --bubble-background: #222b33;
+  --bubble-own-border: #2d5568;
+
+  --success-wash: #14261f;
+  --success-border: #2c4c3d;
+  --success-text: #7fd9b0;
+  --warning-wash: #272117;
+  --warning-border: #4d4026;
+  --warning-text: #e6c184;
+  --danger-wash: #2a1a1a;
+  --danger-border: #57302f;
+  --danger-text: #f0a9a5;
+
+  --btn-primary-top: #2f8dc0;
+  --btn-primary-bottom: #21709e;
+  --btn-primary-hover-top: #21709e;
+  --btn-primary-hover-bottom: #195a80;
+  --btn-primary-border: #195a80;
+
+  --shadow-panel: 0 1px 1px rgba(0, 0, 0, 0.35);
+  --shadow-menu: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* --------------------------------------------------------------- base --- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--page-background);
+  color: var(--text-color);
+  font: 14px/18px var(--font-stack);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--link-color); text-decoration: none; }
+a:hover, a:focus { text-decoration: underline; }
+
+img { border: 0; vertical-align: middle; }
+
+h1, h2, h3, h4, h5 { margin: 0; font-weight: bold; }
+
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+p { margin: 0 0 10px; }
+
+hr { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
+
+:focus-visible {
+  outline: 2px solid var(--twiq-blue);
+  outline-offset: 1px;
+}
+
+/* An author rule that sets `display` beats the browser's own [hidden] rule,
+   which silently un-hid the notification badge. This settles it once. */
+[hidden] { display: none !important; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+.icon { display: inline-block; width: 16px; height: 16px; fill: currentColor; vertical-align: -3px; }
+.icon-sm { width: 13px; height: 13px; vertical-align: -2px; }
+.icon-lg { width: 20px; height: 20px; vertical-align: -4px; }
+
+/* ------------------------------------------------------------ top bar --- */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--topbar-height);
+  background: var(--panel-background);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  z-index: 500;
+}
+
+.topbar-inner {
+  width: 890px;
+  margin: 0 auto;
+  height: var(--topbar-height);
+  display: flex;
+  align-items: stretch;
+  position: relative;
+}
+
+.topbar-nav { display: flex; align-items: stretch; }
+
+.topbar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: var(--topbar-height);
+  padding: 0 12px;
+  color: var(--muted-text);
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+
+.topbar-nav a:hover { color: var(--twiq-blue); background: var(--nav-hover); }
+.topbar-nav a.is-active { color: var(--twiq-blue); border-bottom-color: var(--twiq-blue); }
+.topbar-nav a .icon { width: 15px; height: 15px; }
+
+.topbar-badge {
+  display: inline-block;
+  min-width: 16px;
+  padding: 0 4px;
+  margin-left: 3px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  line-height: 15px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.topbar-brand {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+}
+
+.topbar-brand a { display: block; line-height: 0; }
+.topbar-brand svg { height: 26px; width: auto; display: block; }
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 8px;
+}
+
+/* The search field is a sibling of the nav rather than part of the right-hand
+   cluster, so that on a phone it can move to the left of the first row.
+   The bar stretches its children, so this centres itself rather than sitting
+   flush against the top edge. */
+.search-form {
+  position: relative;
+  margin-left: auto;
+  align-self: center;
+  display: flex;
+  align-items: center;
+}
+
+/* Stands in for the field on a phone, where there is no room for it. */
+.search-link {
+  display: none;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--muted-text);
+  border-radius: var(--radius);
+}
+.search-link:hover { color: var(--twiq-blue); background: var(--nav-hover); }
+
+.search-form input[type="search"],
+.search-form input[type="text"] {
+  display: block;
+  width: 180px;
+  height: 26px;
+  padding: 0 26px 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 13px;
+  background: var(--field-background);
+  font: 12px/24px var(--font-stack);
+  color: var(--text-color);
+  -webkit-appearance: none;
+  appearance: none;
+  /* Declared here, not only on :focus, so it eases back as well as out. */
+  transition: width 120ms ease-out, background-color 120ms ease-out;
+}
+
+.search-form input::placeholder { color: var(--muted-text); opacity: 1; }
+/* The native clear affordance sits on top of the submit button otherwise. */
+.search-form input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+.search-form input:focus {
+  background: var(--panel-background);
+  border-color: var(--twiq-blue);
+  outline: none;
+  width: 220px;
+  box-shadow: 0 0 4px rgba(63, 169, 224, 0.35);
+}
+
+.search-form button {
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border: 0; background: none; cursor: pointer;
+  color: var(--muted-text);
+  padding: 0;
+  border-radius: 50%;
+}
+.search-form button:hover { color: var(--twiq-blue); }
+
+.typeahead {
+  position: absolute;
+  top: calc(100% + 5px); left: 0;
+  width: 260px;
+  background: var(--panel-background);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-menu);
+  z-index: 600;
+  display: none;
+}
+.typeahead.is-open { display: block; }
+.typeahead a {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 9px; color: var(--text-color); text-decoration: none;
+  border-bottom: 1px solid var(--hairline-soft);
+}
+.typeahead a:last-child { border-bottom: 0; }
+.typeahead a:hover, .typeahead a.is-highlighted { background: var(--twiq-blue-pale); }
+.typeahead img { width: 24px; height: 24px; border-radius: 2px; }
+.typeahead .name { font-weight: bold; font-size: 13px; }
+.typeahead .handle { color: var(--muted-text); font-size: 12px; }
+
+.topbar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  color: var(--muted-text);
+  border-radius: var(--radius);
+  position: relative;
+}
+.topbar-icon:hover { color: var(--twiq-blue); background: var(--nav-hover); text-decoration: none; }
+.topbar-icon .dot {
+  position: absolute; top: 3px; right: 3px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--danger); border: 1px solid var(--panel-background);
+}
+
+.topbar-avatar { width: 26px; height: 26px; border-radius: 2px; }
+
+/* --------------------------------------------------------------- menus --- */
+.menu { position: relative; }
+
+.menu-panel {
+  position: absolute;
+  right: 0; top: 34px;
+  min-width: 182px;
+  background: var(--panel-background);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-menu);
+  padding: 4px 0;
+  display: none;
+  z-index: 600;
+}
+.menu.is-open .menu-panel { display: block; }
+
+.menu-panel::before {
+  content: "";
+  position: absolute; top: -6px; right: 10px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid var(--border-strong);
+}
+
+.menu-panel a,
+.menu-panel button {
+  display: block;
+  width: 100%;
+  padding: 5px 12px;
+  font: 13px/18px var(--font-stack);
+  color: var(--text-color);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+.menu-panel a:hover, .menu-panel button:hover { background: var(--twiq-blue-pale); text-decoration: none; }
+.menu-panel .menu-divider { height: 1px; background: var(--border-color); margin: 4px 0; }
+.menu-panel .menu-heading {
+  padding: 4px 12px; font-size: 11px; font-weight: bold;
+  color: var(--muted-text); text-transform: uppercase; letter-spacing: 0.02em;
+}
+.menu-panel .is-destructive { color: var(--danger); }
+
+/* ------------------------------------------------------------- buttons --- */
+.btn {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 3px 11px 4px;
+  font: bold 13px/18px var(--font-stack);
+  color: var(--text-color);
+  background-color: var(--btn-face-bottom);
+  background-image: linear-gradient(var(--btn-face-top), var(--btn-face-bottom));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.btn:hover { background-image: linear-gradient(var(--btn-face-bottom), var(--btn-face-hover)); text-decoration: none; }
+.btn:active { background-image: none; background-color: var(--btn-face-active); box-shadow: inset 0 1px 2px rgba(0,0,0,0.12); }
+.btn[disabled], .btn.is-disabled { opacity: 0.45; cursor: default; box-shadow: none; }
+
+.btn-primary {
+  color: #fff;
+  border-color: var(--btn-primary-border);
+  background-color: var(--btn-primary-bottom);
+  background-image: linear-gradient(var(--btn-primary-top), var(--btn-primary-bottom));
+}
+.btn-primary:hover {
+  background-image: linear-gradient(var(--btn-primary-hover-top), var(--btn-primary-hover-bottom));
+}
+.btn-primary:active { background-image: none; background-color: var(--btn-primary-hover-bottom); }
+
+.btn-danger { color: #fff; border-color: #a82a2a; background-image: linear-gradient(#d94a4a, #c33); }
+.btn-danger:hover { background-image: linear-gradient(#c33, #a82a2a); }
+
+.btn-sm { padding: 1px 9px 2px; font-size: 12px; line-height: 17px; }
+.btn-lg { padding: 6px 18px 7px; font-size: 15px; line-height: 20px; }
+.btn-block { display: block; width: 100%; }
+
+/* Follow / Following toggle: hover on "Following" reveals "Unfollow". */
+.btn-follow { min-width: 92px; }
+.btn-follow .label-following,
+.btn-follow .label-unfollow { display: none; }
+.btn-follow.is-following { color: #fff; background-image: linear-gradient(var(--btn-primary-top), var(--btn-primary-bottom)); border-color: var(--btn-primary-border); }
+.btn-follow.is-following .label-follow { display: none; }
+.btn-follow.is-following .label-following { display: inline; }
+.btn-follow.is-following:hover { background-image: linear-gradient(#d94a4a, #c33); border-color: #a82a2a; }
+.btn-follow.is-following:hover .label-following { display: none; }
+.btn-follow.is-following:hover .label-unfollow { display: inline; }
+.btn-follow.is-pending { color: var(--muted-text); }
+
+/* ------------------------------------------------------------- layout --- */
+.wrapper {
+  width: 890px;
+  margin: 0 auto;
+  padding: 10px 0 40px;
+}
+
+.page-body { padding-top: calc(var(--topbar-height) + 10px); }
+
+.grid { display: flex; align-items: flex-start; gap: var(--gutter); }
+.rail { width: var(--rail-width); flex: 0 0 var(--rail-width); }
+.content { width: var(--content-width); flex: 0 0 var(--content-width); }
+.content-wide { flex: 1 1 auto; width: auto; }
+
+/* -------------------------------------------------------------- panels --- */
+.module {
+  background: var(--panel-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-panel);
+}
+
+.module-header {
+  padding: 7px 12px 6px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.module-header h2 { font-size: 14px; line-height: 18px; color: var(--text-color); }
+.module-header .module-action { font-size: 12px; font-weight: normal; }
+
+.module-body { padding: 10px 12px; }
+.module-footer {
+  padding: 6px 12px 7px;
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  background: var(--panel-alt-background);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.empty-state {
+  padding: 26px 20px;
+  text-align: center;
+  color: var(--muted-text);
+  font-size: 14px;
+}
+.empty-state strong { display: block; color: var(--text-color); font-size: 16px; margin-bottom: 5px; }
+
+/* ------------------------------------------------------- flash messages --- */
+.flash-stack { width: 890px; margin: 0 auto; padding-top: 6px; }
+.flash {
+  padding: 7px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  font-size: 13px;
+  background: var(--warning-wash);
+  color: var(--warning-text);
+}
+.flash-success { background: var(--success-wash); border-color: var(--success-border); color: var(--success-text); }
+.flash-error { background: var(--danger-wash); border-color: var(--danger-border); color: var(--danger-text); }
+
+/* -------------------------------------------------------- mini profile --- */
+.mini-profile { position: relative; overflow: hidden; }
+
+.mini-profile-header {
+  height: 60px;
+  background: var(--twiq-blue) center/cover no-repeat;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.mini-profile-body { padding: 0 12px 8px; }
+
+.mini-profile-avatar {
+  width: 48px; height: 48px;
+  border: 2px solid var(--avatar-ring);
+  border-radius: var(--radius);
+  margin-top: -24px;
+  position: relative;
+  display: block;
+  background: var(--panel-background);
+}
+
+.mini-profile-name {
+  display: block;
+  margin-top: 5px;
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+.mini-profile-name:hover { text-decoration: none; color: var(--twiq-blue); }
+.mini-profile-handle { display: block; font-size: 12px; color: var(--muted-text); }
+
+.stat-row { display: flex; border-top: 1px solid var(--border-color); }
+.stat-row a {
+  flex: 1 1 33.33%;
+  padding: 7px 10px 6px;
+  text-align: left;
+  color: var(--muted-text);
+  border-right: 1px solid var(--border-color);
+}
+.stat-row a:last-child { border-right: 0; }
+.stat-row a:hover { text-decoration: none; background: var(--panel-alt-background); }
+.stat-row a:hover .stat-value { color: var(--twiq-blue); }
+.stat-label {
+  display: block;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted-text);
+}
+.stat-value { display: block; font-size: 16px; font-weight: bold; line-height: 20px; color: var(--text-color); }
+
+/* ------------------------------------------------------------ composer --- */
+.composer { position: relative; }
+
+.composer-collapsed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  cursor: text;
+}
+.composer-collapsed img { width: 32px; height: 32px; border-radius: var(--radius); }
+.composer-collapsed span { color: var(--muted-text); font-size: 14px; }
+
+.composer-expanded { display: none; padding: 9px 12px 8px; }
+.composer.is-expanded .composer-expanded { display: block; }
+.composer.is-expanded .composer-collapsed { display: none; }
+
+.composer-row { display: flex; gap: 8px; }
+.composer-avatar { width: 32px; height: 32px; border-radius: var(--radius); flex: 0 0 32px; }
+
+.composer-textarea {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  padding: 4px 2px;
+  border: 0;
+  resize: none;
+  font: 14px/18px var(--font-stack);
+  color: var(--text-color);
+  background: transparent;
+  overflow: hidden;
+}
+.composer-textarea:focus { outline: none; }
+.composer-textarea::placeholder { color: var(--muted-text); }
+
+.composer-reply-context {
+  font-size: 12px;
+  color: var(--muted-text);
+  padding-bottom: 5px;
+}
+
+.composer-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 6px;
+}
+
+.composer-tool {
+  border: 0; background: none; padding: 2px; cursor: pointer;
+  color: var(--twiq-blue); line-height: 0; border-radius: var(--radius);
+}
+.composer-tool:hover { background: var(--twiq-blue-pale); }
+
+.composer-counter {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted-text);
+  min-width: 26px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.composer-counter.is-warning { color: var(--warning); }
+.composer-counter.is-over { color: var(--danger); font-weight: bold; }
+
+.composer-media-preview { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0 0; }
+.composer-media-preview figure { position: relative; margin: 0; }
+.composer-media-preview img,
+.composer-media-preview video { width: 88px; height: 66px; object-fit: cover; border: 1px solid var(--border-color); border-radius: var(--radius); }
+.composer-media-preview button {
+  position: absolute; top: -6px; right: -6px;
+  width: 18px; height: 18px; line-height: 16px;
+  border-radius: 50%; border: 1px solid var(--border-strong);
+  background: var(--panel-background); cursor: pointer; font-size: 12px; padding: 0;
+}
+
+/* ---------------------------------------------------------- tweet rows --- */
+.timeline { }
+
+.timeline-heading {
+  padding: 8px 12px 7px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.stream { }
+
+.tweet {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--panel-background);
+}
+.tweet:last-child { border-bottom: 0; }
+.tweet:hover { background: var(--row-hover); }
+.tweet.is-pinned, .tweet.is-highlighted { background: var(--highlight-background); }
+
+.tweet-avatar { flex: 0 0 48px; }
+.tweet-avatar img { width: 48px; height: 48px; border-radius: var(--radius); background: var(--badge-background); }
+
+.tweet-main { flex: 1 1 auto; min-width: 0; }
+
+.tweet-context {
+  font-size: 12px;
+  color: var(--muted-text);
+  padding-bottom: 2px;
+  margin-left: 0;
+}
+.tweet-context .icon { color: var(--muted-text); margin-right: 3px; }
+.tweet-context a { color: var(--muted-text); font-weight: bold; }
+
+.tweet-header { display: flex; align-items: baseline; gap: 4px; line-height: 18px; }
+
+.tweet-name {
+  font-weight: bold;
+  color: var(--text-color);
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tweet-name:hover { color: var(--twiq-blue); text-decoration: none; }
+.tweet-handle { color: var(--muted-text); font-size: 13px; }
+.tweet-handle:hover { text-decoration: none; color: var(--muted-text); }
+.tweet-sep { color: var(--muted-text); font-size: 12px; }
+.tweet-time { color: var(--muted-text); font-size: 12px; }
+.tweet-time:hover { color: var(--twiq-blue); }
+
+.tweet-text {
+  margin: 1px 0 0;
+  font-size: 14px;
+  line-height: 18px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.tweet.is-best .tweet-text { font-size: 22px; line-height: 27px; }
+
+.tweet-text a { color: var(--link-color); }
+.tweet-text .tw-hashtag s,
+.tweet-text .tw-mention s { text-decoration: none; }
+.tweet-text .tw-hashtag b,
+.tweet-text .tw-mention b { font-weight: normal; }
+
+.tweet-reply-line { font-size: 12px; color: var(--muted-text); padding-top: 2px; }
+
+.tweet-media { margin-top: 6px; }
+.tweet-media a, .tweet-media .media-item { display: block; }
+.tweet-media img, .tweet-media video {
+  max-width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  display: block;
+}
+.tweet-media.count-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.tweet-media.count-3, .tweet-media.count-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.tweet-media.count-2 img, .tweet-media.count-3 img, .tweet-media.count-4 img { height: 140px; object-fit: cover; width: 100%; }
+
+.tweet-stats { display: flex; gap: 20px; padding: 7px 0 2px; border-top: 1px solid var(--border-color); margin-top: 8px; }
+.tweet-stats .stat { font-size: 12px; color: var(--muted-text); }
+.tweet-stats .stat b { display: block; font-size: 15px; color: var(--text-color); }
+
+.tweet-actions {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding-top: 4px;
+  opacity: 0;
+  transition: opacity 80ms linear;
+}
+
+/* Reply is a bare <button> while retweet and favorite are wrapped in forms.
+   Without this the wrappers blockify differently and the icons sit at three
+   different heights. */
+/* The second selector outranks the later `.inline-form { display: inline }`
+   rule, which would otherwise blockify the two wrapped buttons differently
+   from the bare ones and leave them a pixel off. */
+.tweet-actions > *,
+.tweet-actions > .inline-form { display: flex; align-items: center; flex: 0 0 auto; }
+.tweet:hover .tweet-actions,
+.tweet:focus-within .tweet-actions,
+.tweet.is-open .tweet-actions { opacity: 1; }
+.tweet-actions.is-always-visible { opacity: 1; }
+
+.tweet-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 18px;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: var(--muted-text);
+  font: 12px/18px var(--font-stack);
+  text-decoration: none;
+}
+.tweet-action .icon { flex: 0 0 auto; }
+.tweet-action .count { line-height: 18px; }
+/* A Tweet with no retweets should not leave a gap where the number would be. */
+.tweet-action .count:empty { display: none; }
+.tweet-action:hover { text-decoration: none; }
+.tweet-action .count { font-weight: bold; min-width: 8px; }
+.tweet-action[data-action="reply"]:hover { color: var(--twiq-blue); }
+.tweet-action[data-action="retweet"]:hover,
+.tweet-action.is-active[data-action="retweet"] { color: var(--retweet-green); }
+.tweet-action[data-action="favorite"]:hover,
+.tweet-action.is-active[data-action="favorite"] { color: var(--favorite-gold); }
+.tweet-action[data-action="more"]:hover { color: var(--twiq-blue); }
+
+.tweet-inline-reply { display: none; padding: 8px 0 2px; border-top: 1px solid var(--border-color); margin-top: 7px; }
+.tweet.is-replying .tweet-inline-reply { display: block; }
+
+/* These are <svg> elements without the .icon class, so they need their own
+   fill:currentColor - without it they paint the default black. */
+.verified-badge,
+.protected-badge,
+.automated-badge { fill: currentColor; }
+.verified-badge { color: var(--twiq-blue); width: 14px; height: 14px; vertical-align: -2px; }
+.protected-badge { color: var(--muted-text); width: 12px; height: 12px; vertical-align: -1px; }
+/* Grey like the lock, not blue like the tick: it is a statement of fact
+   about the account, not a mark of standing. */
+.automated-badge { color: var(--muted-text); width: 13px; height: 13px; vertical-align: -2px; }
+
+.stream-footer { padding: 9px 12px; text-align: center; border-top: 1px solid var(--border-color); }
+.stream-footer a, .stream-footer button {
+  font-size: 13px; color: var(--link-color); background: none; border: 0; cursor: pointer;
+}
+
+.new-tweets-bar {
+  display: none;
+  padding: 8px 12px;
+  text-align: center;
+  background: var(--twiq-blue-pale);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--link-color);
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+  font-family: var(--font-stack);
+}
+.new-tweets-bar.is-visible { display: block; }
+
+/* -------------------------------------------------- who to follow rail --- */
+.wtf-item { display: flex; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border-color); }
+.wtf-item:last-child { border-bottom: 0; }
+.wtf-item img { width: 32px; height: 32px; border-radius: var(--radius); flex: 0 0 32px; }
+.wtf-body { flex: 1 1 auto; min-width: 0; }
+.wtf-name { font-weight: bold; font-size: 13px; color: var(--text-color); display: block; }
+.wtf-name:hover { color: var(--twiq-blue); text-decoration: none; }
+.wtf-handle { font-size: 12px; color: var(--muted-text); }
+.wtf-meta { font-size: 11px; color: var(--muted-text); margin-top: 2px; }
+.wtf-actions { flex: 0 0 auto; }
+
+/* -------------------------------------------------------------- trends --- */
+.trend-list li { border-bottom: 1px solid var(--hairline-soft); }
+.trend-list li:last-child { border-bottom: 0; }
+.trend-list a { display: block; padding: 5px 12px; color: var(--link-color); font-size: 14px; font-weight: bold; }
+.trend-list a:hover { background: var(--panel-alt-background); text-decoration: none; }
+.trend-list .trend-meta { display: block; font-size: 11px; font-weight: normal; color: var(--muted-text); }
+
+.trend-scope-form { padding: 8px 12px; border-top: 1px solid var(--border-color); display: none; }
+.trend-scope-form.is-open { display: block; }
+.trend-scope-form select { width: 100%; margin-bottom: 6px; font: 13px var(--font-stack); padding: 3px; }
+
+/* ------------------------------------------------------- rail footnote --- */
+.rail-footer { padding: 4px 2px 20px; font-size: 11px; color: var(--muted-text); line-height: 17px; }
+.rail-footer a { color: var(--muted-text); margin-right: 7px; display: inline-block; }
+.rail-footer a:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------- profile --- */
+.profile-header {
+  position: relative;
+  height: 380px;
+  background: var(--twiq-blue) center center / cover no-repeat;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+.profile-header.is-default {
+  background-image: linear-gradient(160deg, var(--twiq-blue), var(--twiq-blue-darker));
+}
+.profile-header-scrim {
+  position: absolute; inset: auto 0 0 0; height: 90px;
+  background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.22));
+  pointer-events: none;
+}
+
+.profile-bar {
+  background: var(--panel-background);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+}
+.profile-bar-inner {
+  width: 890px;
+  margin: 0 auto;
+  height: 60px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 300px;
+}
+
+.profile-avatar {
+  position: absolute;
+  left: 0;
+  bottom: -30px;
+  width: 200px;
+  height: 200px;
+  border: 5px solid var(--avatar-ring);
+  border-radius: var(--radius-lg);
+  background: var(--panel-background);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.15);
+  object-fit: cover;
+}
+
+.profile-stats { display: flex; }
+.profile-stats a, .profile-stats span.stat-item {
+  display: block;
+  padding: 3px 22px 3px 0;
+  margin-right: 8px;
+  color: var(--muted-text);
+  border-bottom: 3px solid transparent;
+}
+.profile-stats a:hover { text-decoration: none; }
+.profile-stats a:hover .stat-value { color: var(--twiq-blue); }
+.profile-stats a.is-active .stat-label,
+.profile-stats a.is-active .stat-value { color: var(--twiq-blue); }
+
+.profile-bar-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+
+.profile-tabs {
+  display: flex;
+  background: var(--panel-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-bottom: 0;
+}
+.profile-tabs a {
+  padding: 8px 14px 7px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--muted-text);
+  border-bottom: 2px solid transparent;
+}
+.profile-tabs a:hover { color: var(--twiq-blue); text-decoration: none; background: var(--panel-alt-background); }
+.profile-tabs a.is-active { color: var(--twiq-blue); border-bottom-color: var(--twiq-blue); }
+.profile-tabs + .module { border-top-left-radius: 0; border-top-right-radius: 0; }
+
+.page-profile .rail { padding-top: 44px; }
+
+.profile-card { padding: 0 0 10px; }
+.profile-card .profile-name { font-size: 22px; line-height: 26px; font-weight: bold; color: var(--text-color); }
+.profile-card .profile-handle { display: block; font-size: 14px; color: var(--muted-text); margin-top: 1px; }
+.profile-card .profile-bio { margin: 8px 0 6px; font-size: 14px; line-height: 18px; }
+.profile-card .profile-meta { font-size: 12px; color: var(--muted-text); line-height: 19px; }
+.profile-card .profile-meta .icon { margin-right: 4px; color: var(--muted-text); }
+.profile-card .profile-followed-by { margin-top: 8px; font-size: 12px; color: var(--muted-text); }
+.profile-card .profile-actions { margin-top: 10px; display: flex; gap: 6px; align-items: center; }
+
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 8px 12px 10px; }
+.photo-grid a { display: block; position: relative; padding-top: 100%; overflow: hidden; border-radius: 2px; }
+.photo-grid img, .photo-grid video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: var(--badge-background);
+}
+.photo-grid .play-badge {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.55); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.media-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 10px; }
+.media-grid a { position: relative; display: block; padding-top: 100%; border-radius: 2px; overflow: hidden; }
+.media-grid img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.people-list .person {
+  display: flex; gap: 10px; padding: 12px; border-bottom: 1px solid var(--border-color);
+}
+.people-list .person:last-child { border-bottom: 0; }
+.people-list .person img { width: 48px; height: 48px; border-radius: var(--radius); }
+.people-list .person-body { flex: 1 1 auto; min-width: 0; }
+.people-list .person-name { font-weight: bold; color: var(--text-color); }
+.people-list .person-name:hover { color: var(--twiq-blue); text-decoration: none; }
+.people-list .person-handle { color: var(--muted-text); font-size: 13px; }
+.people-list .person-bio { font-size: 13px; margin-top: 2px; }
+.people-list .person-actions { flex: 0 0 auto; }
+.follows-you {
+  display: inline-block; margin-left: 5px; padding: 0 4px;
+  background: var(--badge-background); color: var(--badge-text); font-size: 10px; line-height: 15px;
+  border-radius: 2px; font-weight: bold; vertical-align: 1px;
+}
+
+.protected-notice { padding: 30px 20px; text-align: center; color: var(--muted-text); }
+.protected-notice .icon { width: 28px; height: 28px; color: var(--border-strong); }
+.protected-notice strong { display: block; font-size: 16px; color: var(--text-color); margin: 8px 0 4px; }
+
+/* ------------------------------------------------------------- connect --- */
+.connect-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+.connect-tabs a {
+  padding: 9px 14px 8px; font-size: 13px; font-weight: bold; color: var(--muted-text);
+  border-bottom: 2px solid transparent;
+}
+.connect-tabs a.is-active { color: var(--twiq-blue); border-bottom-color: var(--twiq-blue); }
+.connect-tabs a:hover { text-decoration: none; color: var(--twiq-blue); }
+
+.notification {
+  display: flex; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--border-color);
+}
+.notification:last-child { border-bottom: 0; }
+.notification.is-unread { background: var(--unread-background); }
+.notification-icon { flex: 0 0 20px; padding-top: 2px; text-align: center; }
+.notification-icon .icon { width: 15px; height: 15px; }
+.notification.type-favorite .notification-icon { color: var(--favorite-gold); }
+.notification.type-retweet .notification-icon { color: var(--retweet-green); }
+.notification.type-follow .notification-icon,
+.notification.type-follow_request .notification-icon { color: var(--twiq-blue); }
+.notification.type-mention .notification-icon,
+.notification.type-reply .notification-icon { color: var(--muted-text); }
+.notification-body { flex: 1 1 auto; min-width: 0; }
+.notification-headline { font-size: 13px; line-height: 18px; }
+.notification-headline a { font-weight: bold; color: var(--text-color); }
+.notification-headline a:hover { color: var(--twiq-blue); text-decoration: none; }
+.notification-avatars { display: flex; gap: 4px; padding: 4px 0 2px; }
+.notification-avatars img { width: 32px; height: 32px; border-radius: var(--radius); }
+.notification-quote { color: var(--muted-text); font-size: 14px; line-height: 18px; margin-top: 3px; }
+.notification-time { color: var(--muted-text); font-size: 12px; }
+.notification-actions { margin-top: 6px; display: flex; gap: 6px; }
+
+/* ------------------------------------------------------------ messages --- */
+.dm-layout { display: flex; align-items: stretch; min-height: 520px; }
+.dm-list { width: 280px; flex: 0 0 280px; border-right: 1px solid var(--border-color); }
+.dm-thread { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
+
+.dm-list-item { display: flex; gap: 8px; padding: 9px 11px; border-bottom: 1px solid var(--border-color); }
+.dm-list-item:hover { background: var(--panel-alt-background); text-decoration: none; }
+.dm-list-item.is-active { background: var(--twiq-blue-pale); }
+.dm-list-item img { width: 36px; height: 36px; border-radius: var(--radius); flex: 0 0 36px; }
+.dm-list-body { flex: 1 1 auto; min-width: 0; }
+.dm-list-name { font-weight: bold; font-size: 13px; color: var(--text-color); }
+.dm-list-handle { font-size: 12px; color: var(--muted-text); }
+.dm-list-snippet {
+  font-size: 12px; color: var(--muted-text); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dm-list-item.is-unread .dm-list-snippet { color: var(--text-color); font-weight: bold; }
+.dm-unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--twiq-blue); margin-top: 6px; flex: 0 0 8px; }
+
+.dm-thread-header {
+  padding: 8px 12px; border-bottom: 1px solid var(--border-color);
+  display: flex; align-items: center; gap: 8px;
+}
+.dm-thread-header img { width: 28px; height: 28px; border-radius: var(--radius); }
+.dm-thread-header .name { font-weight: bold; font-size: 14px; }
+.dm-thread-header .handle { color: var(--muted-text); font-size: 12px; }
+.dm-thread-header .spacer { margin-left: auto; }
+.dm-back { display: none; align-items: center; color: var(--muted-text); padding: 2px; }
+.dm-back:hover { color: var(--twiq-blue); }
+
+.dm-messages { flex: 1 1 auto; padding: 12px; overflow-y: auto; max-height: 460px; }
+.dm-message { display: flex; gap: 8px; margin-bottom: 12px; }
+.dm-message img.avatar { width: 32px; height: 32px; border-radius: var(--radius); flex: 0 0 32px; }
+.dm-bubble {
+  max-width: 74%; padding: 7px 10px; border-radius: var(--radius-lg);
+  background: var(--bubble-background); border: 1px solid var(--border-color); font-size: 14px; line-height: 18px;
+}
+.dm-message.is-own { flex-direction: row-reverse; }
+.dm-message.is-own .dm-bubble { background: var(--twiq-blue-pale); border-color: var(--bubble-own-border); }
+.dm-bubble .dm-time { display: block; margin-top: 3px; font-size: 11px; color: var(--muted-text); }
+.dm-bubble img.dm-media { max-width: 100%; border-radius: var(--radius); margin-top: 5px; display: block; }
+
+.dm-compose { border-top: 1px solid var(--border-color); padding: 8px 12px; }
+.dm-compose textarea {
+  width: 100%; min-height: 46px; border: 1px solid var(--border-color); border-radius: var(--radius);
+  padding: 6px 8px; font: 14px/18px var(--font-stack); resize: vertical;
+}
+.dm-compose-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.dm-compose-row .counter { margin-left: auto; font-size: 12px; color: var(--muted-text); }
+
+/* A full-width field on the search page itself, since the top bar's field
+   collapses to an icon on a phone. */
+.page-search {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+}
+.page-search input[type="search"] { flex: 1 1 auto; }
+
+/* ------------------------------------------------- search and discover --- */
+.search-heading { padding: 9px 12px; border-bottom: 1px solid var(--border-color); }
+.search-heading h1 { font-size: 16px; line-height: 20px; }
+.search-heading .search-sub { font-size: 12px; color: var(--muted-text); }
+
+.discover-section { margin-bottom: 10px; }
+.discover-people { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border-color); }
+.discover-person { background: var(--panel-background); padding: 12px; text-align: center; }
+.discover-person img { width: 60px; height: 60px; border-radius: var(--radius); }
+.discover-person .name { display: block; font-weight: bold; margin-top: 6px; font-size: 13px; color: var(--text-color); }
+.discover-person .handle { display: block; font-size: 12px; color: var(--muted-text); margin-bottom: 6px; }
+.discover-person .bio {
+  font-size: 12px; color: var(--muted-text); line-height: 16px; height: 32px;
+  overflow: hidden; margin-bottom: 7px;
+}
+
+.trend-cards { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px; }
+.trend-card {
+  padding: 4px 10px 5px; border: 1px solid var(--border-color); border-radius: 14px;
+  background: var(--panel-alt-background); font-size: 13px; font-weight: bold; color: var(--link-color);
+}
+.trend-card:hover { background: var(--twiq-blue-pale); text-decoration: none; }
+.trend-card span { font-weight: normal; color: var(--muted-text); font-size: 11px; margin-left: 4px; }
+
+/* --------------------------------------------------------------- lists --- */
+.list-row { display: flex; gap: 10px; padding: 11px 12px; border-bottom: 1px solid var(--border-color); }
+.list-row:last-child { border-bottom: 0; }
+.list-row .list-body { flex: 1 1 auto; min-width: 0; }
+.list-name { font-weight: bold; font-size: 14px; color: var(--text-color); }
+.list-name:hover { color: var(--twiq-blue); text-decoration: none; }
+.list-meta { font-size: 12px; color: var(--muted-text); }
+.list-desc { font-size: 13px; margin-top: 2px; }
+.badge-private {
+  display: inline-block; margin-left: 5px; padding: 0 4px; background: var(--badge-background);
+  color: var(--badge-text); font-size: 10px; line-height: 15px; border-radius: 2px; font-weight: bold;
+}
+
+/* ------------------------------------------------------------- forms --- */
+.form-row { margin-bottom: 14px; }
+.form-row label.form-label {
+  display: block; font-size: 13px; font-weight: bold; margin-bottom: 3px; color: var(--text-color);
+}
+.form-row .form-hint { font-size: 12px; color: var(--muted-text); margin-top: 3px; line-height: 16px; }
+.form-row .form-error { font-size: 12px; color: var(--danger); margin-top: 3px; }
+
+input[type="text"], input[type="email"], input[type="password"], input[type="url"],
+input[type="search"], input[type="number"], textarea, select {
+  font: 14px/18px var(--font-stack);
+  color: var(--text-color);
+  background: var(--panel-background);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+select { background-image: none; padding-right: 8px; }
+input:focus, textarea:focus, select:focus {
+  border-color: var(--twiq-blue);
+  outline: none;
+  box-shadow: 0 0 4px rgba(63, 169, 224, 0.45);
+}
+input[type="checkbox"], input[type="radio"] { width: auto; margin-right: 5px; vertical-align: -1px; }
+
+.checkbox-row { display: flex; gap: 7px; align-items: flex-start; margin-bottom: 12px; }
+.checkbox-row input { margin-top: 3px; }
+.checkbox-row label { font-size: 13px; line-height: 18px; }
+.checkbox-row .form-hint { display: block; color: var(--muted-text); font-size: 12px; }
+
+.form-actions { padding-top: 6px; display: flex; align-items: center; gap: 8px; }
+.inline-form { display: inline; }
+
+.settings-nav li a {
+  display: block; padding: 7px 12px; font-size: 13px; color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+.settings-nav li:last-child a { border-bottom: 0; }
+.settings-nav li a:hover { background: var(--panel-alt-background); text-decoration: none; }
+.settings-nav li a.is-active {
+  background: var(--twiq-blue-pale); font-weight: bold; color: var(--twiq-blue-dark);
+  box-shadow: inset 3px 0 0 var(--twiq-blue);
+}
+
+.settings-image-row { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+.settings-image-row img.avatar-preview { width: 72px; height: 72px; border-radius: var(--radius); border: 1px solid var(--border-color); }
+.settings-image-row img.header-preview { width: 220px; height: 74px; object-fit: cover; border: 1px solid var(--border-color); border-radius: var(--radius); }
+
+.color-row { display: flex; gap: 10px; align-items: center; }
+.color-swatch { width: 34px; height: 26px; border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 0; }
+
+/* =========================================================================
+   Control panel
+   -------------------------------------------------------------------------
+   Internal tooling, so it runs wider than the 890px product grid and packs
+   more in - but on the same tokens, hairlines and small controls, so it
+   still reads as part of Twiq rather than a bolted-on dashboard.
+   ========================================================================= */
+.page-admin .wrapper { width: 1120px; }
+
+.admin-rail { position: sticky; top: calc(var(--topbar-height) + 10px); }
+.admin-nav a { display: flex; align-items: center; justify-content: space-between; }
+.admin-count {
+  min-width: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--danger); color: #fff;
+  font-size: 10px; line-height: 16px; font-weight: bold; text-align: center;
+}
+.admin-whoami { font-size: 12px; color: var(--muted-text); }
+.admin-whoami strong { color: var(--text-color); }
+.admin-whoami p { margin: 7px 0 0; line-height: 16px; }
+
+.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.admin-table th, .admin-table td {
+  padding: 8px 10px; border-bottom: 1px solid var(--border-color); text-align: left; vertical-align: top;
+}
+.admin-table thead th {
+  background: var(--panel-alt-background);
+  font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--muted-text); font-weight: bold; white-space: nowrap;
+}
+.admin-table tbody tr:last-child td { border-bottom: 0; }
+.admin-table tbody tr:hover td { background: var(--row-hover); }
+.admin-table code { font-size: 12px; color: var(--code-text); }
+.admin-table tr.is-suspended td { background: var(--danger-wash); }
+.admin-table tr.is-flagged td { background: var(--warning-wash); }
+.admin-num { text-align: right; font-variant-numeric: tabular-nums; }
+.admin-nowrap { white-space: nowrap; }
+.admin-muted { color: var(--muted-text); font-size: 12px; }
+.admin-bad { color: var(--danger); font-weight: bold; }
+.admin-ok { color: var(--success); }
+.admin-drift { color: var(--danger); }
+.admin-empty { padding: 22px 14px; text-align: center; color: var(--muted-text); font-size: 13px; }
+.admin-avatar { width: 28px; height: 28px; border-radius: var(--radius); display: block; }
+.admin-scroll { overflow-x: auto; }
+.admin-meta { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+.admin-note { line-height: 17px; }
+
+/* -- stat tiles --------------------------------------------------------- */
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.admin-stat-grid-tight { grid-template-columns: repeat(6, 1fr); }
+.admin-stat-tile { background: var(--panel-background); padding: 12px 14px 11px; position: relative; }
+.admin-stat-tile .label {
+  display: block; font-size: 10px; font-weight: bold; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--muted-text);
+}
+.admin-stat-tile b {
+  display: block; font-size: 26px; line-height: 30px; margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.admin-stat-tile .meta { display: block; font-size: 12px; color: var(--muted-text); }
+.admin-stat-tile.is-attention { background: var(--warning-wash); box-shadow: inset 3px 0 0 var(--warning); }
+.admin-stat-tile.is-quiet b { color: var(--muted-text); }
+.admin-stat-tile .sparkline { position: absolute; right: 12px; bottom: 10px; width: 86px; height: 24px; }
+
+.delta { font-weight: bold; font-size: 11px; }
+.delta.is-up { color: var(--success); }
+.delta.is-down { color: var(--danger); }
+.delta.is-flat { color: var(--muted-text); }
+
+/* -- charts ------------------------------------------------------------- */
+.chart-body { padding: 12px 14px 8px; }
+.chart { width: 100%; height: auto; display: block; }
+.chart-grid { stroke: var(--border-color); stroke-width: 1; }
+.chart-axis { fill: var(--muted-text); font: 10px var(--font-stack); }
+.chart-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart-line.chart-a { stroke: var(--twiq-blue); }
+.chart-line.chart-b { stroke: var(--favorite-gold); }
+.chart-area { stroke: none; }
+.chart-area.chart-a { fill: var(--twiq-blue); opacity: 0.1; }
+.chart-dot.chart-a { fill: var(--twiq-blue); }
+.chart-dot.chart-b { fill: var(--favorite-gold); }
+.chart-empty { padding: 24px; text-align: center; color: var(--muted-text); font-size: 13px; }
+.chart-legend { font-size: 12px; font-weight: normal; color: var(--muted-text); }
+.chart-legend .key {
+  display: inline-block; width: 10px; height: 3px; border-radius: 2px;
+  vertical-align: 3px; margin: 0 3px 0 8px;
+}
+.chart-legend .key.chart-a { background: var(--twiq-blue); }
+.chart-legend .key.chart-b { background: var(--favorite-gold); }
+
+/* -- layout helpers ----------------------------------------------------- */
+.admin-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.admin-split > .module { margin-bottom: 0; }
+.admin-split + .admin-split, .admin-split + .module { margin-top: 10px; }
+
+.admin-toolbar {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  padding: 9px 12px; border-bottom: 1px solid var(--border-color);
+  background: var(--panel-alt-background);
+}
+.admin-toolbar input[type="search"], .admin-toolbar input[type="text"] { width: 180px; }
+.admin-toolbar select { width: auto; }
+.admin-toolbar input, .admin-toolbar select { padding: 3px 7px; font-size: 13px; }
+
+.admin-tabs { font-size: 12px; font-weight: normal; }
+.admin-tabs a { margin-left: 9px; color: var(--muted-text); }
+.admin-tabs a.is-active { color: var(--twiq-blue); font-weight: bold; }
+
+.admin-pager { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+.admin-flags { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.admin-flags-link { font-size: 12px; }
+
+.admin-warning {
+  border-color: var(--warning-border); background: var(--warning-wash);
+}
+.admin-warning .module-body { font-size: 13px; line-height: 18px; }
+
+/* -- identity header ---------------------------------------------------- */
+.admin-identity { display: flex; gap: 14px; padding: 14px; align-items: flex-start; }
+.admin-identity-avatar { width: 72px; height: 72px; border-radius: var(--radius); flex: 0 0 72px; }
+.admin-identity-body { min-width: 0; }
+.admin-identity h1 { font-size: 20px; line-height: 26px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.admin-identity-meta { margin: 4px 0 0; font-size: 12px; color: var(--muted-text); }
+.admin-identity-bio { margin: 7px 0 0; font-size: 13px; }
+.admin-suspend-reason { margin: 7px 0 0; font-size: 13px; color: var(--danger); }
+
+.admin-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.admin-actions form { width: 100%; }
+.admin-actions .inline-form { width: auto; }
+.admin-danger-zone { border-top: 1px solid var(--border-color); }
+.admin-danger-zone h3 { font-size: 13px; margin: 10px 0 5px; }
+.admin-danger-zone h3:first-child { margin-top: 0; }
+.admin-inline-row { display: flex; gap: 6px; align-items: center; }
+.admin-inline-row input, .admin-inline-row select { width: auto; flex: 1 1 auto; }
+
+.admin-kv th {
+  width: 150px; background: transparent; text-transform: none; font-size: 12px;
+  color: var(--muted-text); font-weight: normal;
+}
+
+/* -- maintenance tasks -------------------------------------------------- */
+.admin-tasks { display: flex; flex-direction: column; gap: 0; padding: 0; }
+.admin-task {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 12px 14px; border-bottom: 1px solid var(--border-color);
+}
+.admin-task:last-child { border-bottom: 0; }
+.admin-task strong { font-size: 13px; }
+.admin-task p { margin: 3px 0 0; font-size: 12px; line-height: 17px; color: var(--muted-text); max-width: 62ch; }
+.admin-task form { flex: 0 0 auto; }
+
+.admin-form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.admin-form-actions { grid-column: 1 / -1; }
+
+/* -- announcement banner ------------------------------------------------ */
+.announcement { border-bottom: 1px solid var(--border-strong); background: var(--twiq-blue-pale); }
+.announcement-inner {
+  width: 890px; margin: 0 auto; padding: 7px 0;
+  font-size: 13px; line-height: 18px; color: var(--text-color);
+}
+.announcement-warning { background: var(--warning-wash); border-bottom-color: var(--warning-border); }
+.announcement-critical { background: var(--danger-wash); border-bottom-color: var(--danger-border); color: var(--danger-text); }
+.announcement-critical .announcement-inner { color: var(--danger-text); font-weight: bold; }
+
+.pill {
+  display: inline-block; padding: 0 6px; border-radius: 9px; font-size: 11px; line-height: 17px;
+  background: var(--badge-background); color: var(--code-text); font-weight: bold;
+}
+.pill-danger { background: var(--danger-wash); color: var(--danger-text); }
+.pill-success { background: var(--success-wash); color: var(--success-text); }
+.pill-info { background: var(--twiq-blue-pale); color: var(--twiq-blue-dark); }
+
+/* ------------------------------------------------------ auth + landing --- */
+.page-auth { background: var(--page-background); }
+
+.auth-shell { width: 420px; margin: 40px auto 60px; }
+.auth-shell .brand { text-align: center; margin-bottom: 18px; }
+.auth-shell .brand svg { height: 34px; width: auto; }
+.auth-shell .brand p { margin: 8px 0 0; color: var(--muted-text); font-size: 14px; }
+.auth-card { background: var(--panel-background); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px 20px 20px; box-shadow: var(--shadow-panel); }
+.auth-card h1 { font-size: 18px; margin-bottom: 12px; }
+.auth-alt { text-align: center; margin-top: 14px; font-size: 13px; color: var(--muted-text); }
+
+.landing-hero {
+  background: linear-gradient(160deg, var(--twiq-blue), var(--twiq-blue-darker));
+  color: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+}
+.landing-hero-inner { width: 890px; margin: 0 auto; padding: 34px 0 30px; display: flex; gap: 30px; align-items: flex-start; }
+.landing-copy { flex: 1 1 auto; }
+.landing-copy h1 { font-size: 30px; line-height: 36px; margin-bottom: 8px; }
+.landing-copy p { font-size: 15px; line-height: 21px; opacity: 0.94; max-width: 460px; }
+.landing-form { width: 290px; flex: 0 0 290px; background: var(--panel-background); color: var(--text-color); border-radius: var(--radius-lg); padding: 14px; }
+.landing-form h2 { font-size: 15px; margin-bottom: 8px; }
+.landing-columns { display: flex; gap: var(--gutter); width: 890px; margin: 10px auto 40px; align-items: flex-start; }
+
+/* -------------------------------------------------------- error pages --- */
+.error-shell { width: 620px; margin: 60px auto; text-align: center; }
+.error-shell .code { font-size: 60px; line-height: 60px; font-weight: bold; color: var(--border-strong); }
+.error-shell h1 { font-size: 22px; margin: 10px 0 6px; }
+.error-shell p { color: var(--muted-text); font-size: 14px; }
+.error-shell .error-actions { margin-top: 16px; }
+.error-shell pre {
+  text-align: left; background: var(--panel-background); border: 1px solid var(--border-color); padding: 10px;
+  overflow: auto; font-size: 11px; color: var(--code-text); border-radius: var(--radius); margin-top: 18px;
+}
+
+/* --------------------------------------------------------- lightbox --- */
+.lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.82); z-index: 900;
+  display: none; align-items: center; justify-content: center; padding: 40px;
+}
+.lightbox.is-open { display: flex; }
+.lightbox img, .lightbox video { max-width: 100%; max-height: 100%; border-radius: var(--radius); }
+.lightbox-close {
+  position: absolute; top: 14px; right: 18px; background: none; border: 0; color: #fff;
+  font-size: 26px; cursor: pointer; line-height: 1;
+}
+
+/* -------------------------------------------------------- permalink --- */
+.permalink-tweet { padding: 14px 16px 10px; }
+.permalink-tweet .permalink-header { display: flex; gap: 10px; align-items: flex-start; }
+.permalink-tweet .permalink-header img { width: 48px; height: 48px; border-radius: var(--radius); }
+.permalink-tweet .permalink-name { font-size: 15px; font-weight: bold; color: var(--text-color); display: block; }
+.permalink-tweet .permalink-handle { font-size: 13px; color: var(--muted-text); }
+.permalink-tweet .permalink-body { font-size: 26px; line-height: 32px; margin: 10px 0 8px; word-wrap: break-word; }
+.permalink-tweet .permalink-time { font-size: 12px; color: var(--muted-text); }
+.permalink-tweet .permalink-actions { margin-top: 10px; }
+.permalink-faces { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.permalink-faces img { width: 24px; height: 24px; border-radius: 2px; }
+
+.reply-list .tweet { padding-left: 12px; }
+
+/* A reply to a reply is stepped in under the one it answers, with a rule
+   down the left so the eye can follow a branch back to its parent. The step
+   is small - 24px, about half an avatar - because the column is only 590px
+   wide and four of them already eat a sixth of it. */
+.reply-list [class^="reply-depth-"] { position: relative; }
+.reply-list .reply-depth-1 { padding-left: 24px; }
+.reply-list .reply-depth-2 { padding-left: 48px; }
+.reply-list .reply-depth-3 { padding-left: 72px; }
+.reply-list .reply-depth-4 { padding-left: 96px; }
+.reply-list .reply-depth-1::before,
+.reply-list .reply-depth-2::before,
+.reply-list .reply-depth-3::before,
+.reply-list .reply-depth-4::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border-color);
+}
+.reply-list .reply-depth-1::before { left: 12px; }
+.reply-list .reply-depth-2::before { left: 36px; }
+.reply-list .reply-depth-3::before { left: 60px; }
+.reply-list .reply-depth-4::before { left: 84px; }
+
+/* The words of a Tweet are a click target for the Tweet itself. No media
+   query needed - a touch screen draws no cursor either way. */
+.tweet-text[data-open-tweet] { cursor: pointer; }
+
+/* ------------------------------------------------------------- quotes --- */
+/* The Tweet a quote points at, boxed underneath the quoter's own words.
+   Deliberately quieter than a Tweet proper - one size down, muted handle,
+   body clamped to three lines - so the quote reads first and the card reads
+   as something being referred to. */
+.quoted-tweet {
+  display: block;
+  margin: 7px 0 2px;
+  padding: 7px 9px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--panel-background);
+  color: var(--text-color);
+  font-size: 13px;
+  line-height: 17px;
+  text-decoration: none;
+}
+a.quoted-tweet:hover { background: var(--twiq-blue-pale); text-decoration: none; }
+
+.quoted-header { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+.quoted-avatar { width: 16px; height: 16px; border-radius: 2px; flex: 0 0 auto; }
+.quoted-name { font-weight: bold; font-size: 13px; }
+.quoted-handle, .quoted-time { color: var(--muted-text); font-size: 12px; font-weight: normal; }
+.quoted-time::before { content: "\00b7"; margin-right: 4px; }
+
+.quoted-body {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.quoted-media-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  color: var(--muted-text);
+  font-size: 12px;
+}
+.quoted-tweet.is-unavailable { color: var(--muted-text); font-style: italic; }
+
+/* The quote box is already inside a Tweet, so a nested one stays flat. */
+.quoted-tweet .quoted-tweet { display: none; }
+
+.compose-quote-preview { padding: 0 12px 10px; }
+
+/* Retweet is a two-way choice, so its control opens the same dropdown the
+   More menu uses. The panel hangs from the left because the control sits at
+   the left of the action row, not the right. */
+.menu-retweet .menu-panel { right: auto; left: -10px; min-width: 152px; }
+.menu-retweet .menu-panel::before { right: auto; left: 16px; }
+.menu-retweet .inline-form { display: block; }
+
+.retweet-choice { display: flex; gap: 26px; margin-top: 14px; }
+.retweet-choice p { margin: 6px 0 0; font-size: 12px; color: var(--muted-text); max-width: 220px; }
+
+/* --------------------------------------------------------- automation --- */
+.profile-automated {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--muted-text);
+}
+.automation-current {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+.automation-current .icon { color: var(--muted-text); flex: 0 0 auto; margin-top: 1px; }
+.form-divider { border: 0; border-top: 1px solid var(--border-color); margin: 16px 0; }
+
+/* ------------------------------------------------------------ responsive --- */
+/* Between the desktop grid and the phone layout the logo can no longer be
+   absolutely centred without colliding with the navigation, so it rejoins the
+   flow and is centred by the flexbox instead. */
+@media (max-width: 1000px) {
+  .topbar-inner { width: 100%; max-width: none; padding: 0 10px; }
+  .topbar-brand {
+    position: static;
+    transform: none;
+    flex: 1 1 auto;
+    justify-content: center;
+    min-width: 0;
+  }
+  .topbar-actions { flex: 0 0 auto; }
+}
+
+/* Drop the navigation labels before the bar runs out of room. */
+@media (max-width: 800px) {
+  .topbar-nav a { padding: 0 9px; gap: 0; }
+  .topbar-nav a .label { display: none; }
+  .search-form input[type="search"] { width: 130px; }
+  .search-form input:focus { width: 160px; }
+}
+
+@media (max-width: 920px) {
+  .wrapper, .flash-stack, .profile-bar-inner,
+  .landing-hero-inner, .landing-columns { width: 100%; max-width: 620px; padding-left: 10px; padding-right: 10px; }
+  .grid { flex-direction: column; }
+  .rail, .content { width: 100%; flex: 1 1 auto; }
+  .page-profile .rail { padding-top: 0; }
+  .profile-bar-inner { padding-left: 0; height: auto; flex-wrap: wrap; padding-top: 54px; padding-bottom: 8px; }
+  .profile-avatar { width: 110px; height: 110px; bottom: auto; top: -62px; border-width: 4px; }
+  .profile-header { height: 200px; }
+  .landing-hero-inner { flex-direction: column; }
+  .landing-form { width: 100%; flex: 1 1 auto; }
+  .dm-layout { flex-direction: column; }
+  .dm-list { width: 100%; flex: 1 1 auto; border-right: 0; border-bottom: 1px solid var(--border-color); }
+  .page-admin .wrapper { width: 100%; max-width: 620px; }
+  .admin-rail { position: static; }
+  .admin-split { grid-template-columns: 1fr; }
+  .admin-stat-grid, .admin-stat-grid-tight { grid-template-columns: repeat(2, 1fr); }
+  .admin-task { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .admin-form-grid { grid-template-columns: 1fr; }
+  .announcement-inner { width: 100%; max-width: 620px; padding-left: 10px; padding-right: 10px; }
+  .discover-people { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+
+
+
+@media print {
+  .topbar, .rail, .tweet-actions, .composer { display: none !important; }
+  body { background: var(--panel-background); }
+}
+
+/* Timestamp sits at the right edge of the Tweet header, as it did in 2014. */
+.tweet-header .tweet-time { margin-left: auto; padding-left: 8px; white-space: nowrap; }
+.tweet-header .tweet-name-wrap { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
+
+/* Native file inputs, dressed as the small 2014 buttons. Styling the real
+   control keeps browser validation and keyboard focus working. */
+input[type="file"] {
+  width: auto;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 12px/18px var(--font-stack);
+  color: var(--muted-text);
+  box-shadow: none;
+}
+input[type="file"]:focus { box-shadow: none; }
+input[type="file"]::file-selector-button {
+  margin-right: 8px;
+  padding: 3px 11px 4px;
+  font: bold 12px/17px var(--font-stack);
+  color: var(--text-color);
+  background-color: var(--btn-face-bottom);
+  background-image: linear-gradient(var(--btn-face-top), var(--btn-face-bottom));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+input[type="file"]::file-selector-button:hover {
+  background-image: linear-gradient(var(--btn-face-bottom), var(--btn-face-hover));
+}
+
+/* ------------------------------------------------------- static pages --- */
+.static-page { max-width: 620px; }
+.static-page h1 { font-size: 22px; line-height: 28px; margin-bottom: 10px; }
+.static-page h2 { font-size: 15px; margin: 16px 0 5px; }
+.static-page p, .static-page li { font-size: 14px; line-height: 20px; }
+.static-page ul { list-style: disc; padding-left: 20px; margin-bottom: 10px; }
+
+/* ---------------------------------------------------------- compose modal --- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(0, 0, 0, 0.4);
+  overflow-y: auto;
+  padding: 0 20px 40px;
+}
+.modal.is-open { display: block; }
+
+.modal-dialog {
+  width: 590px;
+  max-width: 100%;
+  margin: 60px auto 0;
+  background: var(--panel-background);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 7px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--panel-alt-background);
+}
+.modal-header h2 { font-size: 14px; line-height: 18px; }
+
+.modal-close {
+  border: 0;
+  background: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--muted-text);
+  line-height: 0;
+  border-radius: var(--radius);
+}
+.modal-close:hover { color: var(--text-color); background: var(--btn-face-hover); }
+.modal-close-label { display: none; font: 13px/18px var(--font-stack); color: var(--link-color); }
+
+.modal-body { padding: 2px 0 0; }
+/* The composer inside the dialog is already framed by the dialog itself. */
+.modal-body .composer { border: 0; box-shadow: none; margin: 0; }
+.modal-body .composer-expanded { padding: 12px 14px 10px; }
+.modal-body .composer-textarea { min-height: 86px; font-size: 16px; line-height: 21px; }
+.modal-body .composer-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
+.modal-body .composer-toolbar { padding-top: 8px; }
+.modal-body .btn { padding: 5px 16px 6px; font-size: 14px; }
+
+body.is-modal-open { overflow: hidden; }
+
+/* =========================================================================
+   Phone layout
+   -------------------------------------------------------------------------
+   A 2014 mobile-web treatment, not a modern app shell: a two-row bar over a
+   single full-bleed column. No bottom tab bar, no floating action button, no
+   drawer - all of those post-date the interface this reconstructs.
+   ========================================================================= */
+@media (max-width: 620px) {
+  :root { --topbar-height: 88px; }
+
+  /* ---- the bar: [search] [logo] [actions] over four full-width tabs ---- */
+  .topbar-inner { flex-wrap: wrap; padding: 0 6px; }
+
+  .search-link { order: 1; display: flex; }
+  .search-form { display: none; }
+
+  .topbar-brand {
+    order: 2;
+    position: static;
+    transform: none;
+    flex: 1 1 auto;
+    justify-content: center;
+    height: 44px;
+    min-width: 0;
+  }
+  .topbar-brand svg { width: 76px; }
+
+  .topbar-actions { order: 3; height: 44px; gap: 2px; padding-left: 0; }
+  .topbar-actions .btn { padding: 4px 8px; }
+  .topbar-icon { width: 30px; height: 30px; }
+
+  .topbar-nav {
+    order: 4;
+    flex: 0 0 100%;
+    border-top: 1px solid var(--border-color);
+  }
+  .topbar-nav a {
+    flex: 1 1 25%;
+    justify-content: center;
+    height: 44px;
+    padding: 0;
+  }
+  .topbar-nav a .label { display: none; }
+  .topbar-nav a .icon { width: 17px; height: 17px; }
+  .topbar-badge {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    margin-left: 3px;
+  }
+
+  /* ---- full-bleed rows: the panel edges are the screen edges ---------- */
+  .wrapper, .flash-stack { padding-left: 0; padding-right: 0; }
+  /* The first panel butts against the bar instead of showing a thin band. */
+  .wrapper { padding-top: 0; }
+  .module {
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+    margin-bottom: 8px;
+  }
+  .module-footer { border-radius: 0; }
+  .profile-tabs { border-left: 0; border-right: 0; border-radius: 0; }
+  .flash { border-left: 0; border-right: 0; border-radius: 0; }
+
+  /* ---- the timeline is the page, so it comes first -------------------- */
+  .page-home .content,
+  .page-connect .content,
+  .page-search .content,
+  .page-discover .content,
+  .page-lists .content { order: 1; }
+  .page-home .rail,
+  .page-connect .rail,
+  .page-search .rail,
+  .page-discover .rail,
+  .page-lists .rail { order: 2; }
+
+  /* Composing happens from the bar on a phone, so the rail box is redundant. */
+  .page-home .rail .composer { display: none; }
+  /* Who to follow and Trends are one tab away; a profile should be the person.
+     The footer would otherwise land mid-page, above the Tweets. */
+  .page-profile .rail-extras { display: none; }
+  .page-profile .rail-footer { display: none; }
+
+  /* ---- Tweets: bigger text, smaller avatars, tighter rows ------------- */
+  .tweet { padding: 11px 12px; }
+  .tweet-avatar { flex: 0 0 40px; }
+  .tweet-avatar img { width: 40px; height: 40px; }
+  .tweet-text { font-size: 15px; line-height: 20px; }
+  .tweet.is-best .tweet-text { font-size: 18px; line-height: 24px; }
+  .tweet-name { max-width: 150px; }
+  .permalink-tweet .permalink-body { font-size: 19px; line-height: 25px; }
+
+  /* ---- profile ------------------------------------------------------- */
+  .profile-header { height: 128px; }
+  .profile-avatar {
+    width: 64px;
+    height: 64px;
+    top: -32px;
+    bottom: auto;
+    left: 10px;
+    border-width: 3px;
+  }
+  .page-profile .rail { padding-top: 0; }
+  .profile-bar-inner {
+    padding: 40px 10px 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .profile-stats { width: 100%; overflow-x: auto; }
+  .profile-stats a,
+  .profile-stats span.stat-item {
+    flex: 1 1 20%;
+    min-width: 62px;
+    padding: 2px 0;
+    margin-right: 0;
+    text-align: center;
+  }
+  .profile-stats .stat-label { font-size: 9px; }
+  .profile-stats .stat-value { font-size: 15px; line-height: 18px; }
+  .profile-bar-actions { margin-left: 0; width: 100%; }
+  .profile-bar-actions form,
+  .profile-bar-actions .btn-follow { flex: 1 1 auto; width: 100%; }
+  .profile-card { padding: 0 12px 10px; }
+  .profile-tabs a { flex: 1 1 auto; text-align: center; padding: 9px 4px 8px; }
+
+  /* ---- compose becomes a full-screen sheet ---------------------------- */
+  .modal { padding: 0; }
+  .modal-dialog {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-header { height: 44px; padding: 0 10px; }
+  .modal-close { display: flex; align-items: center; }
+  .modal-close-label { display: inline; }
+  .modal-close .icon { display: none; }
+  .modal-body { flex: 1 1 auto; display: flex; }
+  .modal-body .composer { flex: 1 1 auto; display: flex; }
+  .modal-body .composer.is-expanded .composer-expanded {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    padding: 12px;
+  }
+  /* The toolbar stays directly under the text rather than pinned to the
+     bottom edge, where a software keyboard would cover it. */
+  .modal-body .composer-textarea { min-height: 140px; font-size: 16px; line-height: 21px; }
+
+  /* ---- Direct Messages: list and thread are separate screens ---------- */
+  .page-messages .dm-thread { display: none; }
+  .page-messages.has-thread .dm-list { display: none; }
+  .page-messages.has-thread .dm-thread { display: flex; }
+  .page-messages .dm-layout { min-height: 0; }
+  .dm-back { display: flex; }
+  .dm-messages { max-height: none; }
+  .dm-list { border-bottom: 0; }
+
+  /* ---- control panel -------------------------------------------------- */
+  .admin-stat-grid, .admin-stat-grid-tight { grid-template-columns: 1fr 1fr; border-radius: 0; border-left: 0; border-right: 0; }
+  .admin-stat-tile .sparkline { display: none; }
+  .admin-toolbar input[type="search"], .admin-toolbar input[type="text"] { width: 100%; }
+  .announcement-inner { padding-left: 12px; padding-right: 12px; }
+
+  /* ---- odds and ends -------------------------------------------------- */
+  .discover-people { grid-template-columns: 1fr; }
+  .auth-shell { width: 100%; padding: 0 10px; }
+  .page-search { flex-wrap: wrap; }
+  .dm-bubble { max-width: 80%; }
+}
+
+/* On a phone the bar keeps the logo mark, the icons and a compose button,
+   and drops the wordmark and the button's label - the last things that can
+   go without losing a function. */
+@media (max-width: 520px) {
+  .topbar-nav a { padding: 0 5px; }
+  .topbar-brand svg { width: 28px; }
+  .topbar-actions .btn .label { display: none; }
+  .topbar-actions .btn { padding: 3px 7px 4px; }
+  .search-form input[type="search"] { width: 94px; padding-right: 22px; }
+  .search-form input:focus { width: 110px; }
+  .topbar-icon { width: 26px; }
+}
+
+/* =========================================================================
+   Touch input
+   -------------------------------------------------------------------------
+   The Tweet actions are revealed on hover, which a touch screen never fires -
+   without this they are invisible and unreachable on a phone or tablet.
+   ========================================================================= */
+@media (hover: none) {
+  .tweet-actions {
+    opacity: 1;
+    gap: 0;
+    justify-content: space-between;
+    max-width: 260px;
+  }
+  .tweet-action {
+    height: 34px;
+    min-width: 44px;
+    justify-content: flex-start;
+  }
+  .tweet-actions .menu-panel { right: auto; left: 0; }
+  .tweet-actions .menu-panel::before { right: auto; left: 10px; }
+}
+
+/* =========================================================================
+   Maintenance page
+   -------------------------------------------------------------------------
+   A standalone takeover served with 503 while maintenance mode is on. It
+   shares the stylesheet but none of the product chrome: a dark bar with the
+   mark and a way back, then the notice and an illustration on deep blue.
+   ========================================================================= */
+.page-maintenance {
+  margin: 0;
+  min-height: 100vh;
+  background: #3f769d;
+  color: #fff;
+  font-family: var(--font-stack);
+  /* Two very soft rings, the way a flat illustration of this era was set. */
+  background-image:
+    radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.030) 0 34%, transparent 34.3%),
+    radial-gradient(circle at 50% 46%, rgba(255, 255, 255, 0.022) 0 24%, transparent 24.3%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.maintenance-bar { background: #2f3336; }
+.maintenance-bar-inner {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 18px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.maintenance-mark { color: #fff; line-height: 0; display: block; }
+.maintenance-mark:hover { color: var(--twiq-blue); }
+.maintenance-back {
+  color: #c9d2d8;
+  font-size: 13px;
+  font-weight: bold;
+  text-decoration: none;
+}
+.maintenance-back:hover { color: #fff; text-decoration: none; }
+
+.maintenance-main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 44px 18px 60px;
+  text-align: center;
+}
+.maintenance-main h1 {
+  font-size: 40px;
+  line-height: 46px;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+  text-wrap: balance;
+  margin: 0 0 12px;
+}
+.maintenance-lead {
+  font-size: 17px;
+  line-height: 24px;
+  margin: 0 auto 16px;
+  max-width: 640px;
+  color: rgba(255, 255, 255, 0.95);
+}
+.maintenance-lead a { color: #fff; text-decoration: none; }
+.maintenance-lead a:hover { text-decoration: underline; }
+
+.maintenance-legal {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 0 0 18px;
+}
+.maintenance-legal a { color: rgba(255, 255, 255, 0.62); margin-left: 8px; text-decoration: none; }
+.maintenance-legal a:hover { color: #fff; text-decoration: underline; }
+
+.maintenance-art { display: block; width: 100%; max-width: 640px; height: auto; margin: 10px auto 0; }
+
+/* -- the illustration --------------------------------------------------- */
+.art-bubble { fill: #fff; }
+.art-says {
+  fill: #2f3336;
+  font: bold 23px/1 var(--font-stack);
+  letter-spacing: 0.3px;
+}
+.art-snail-body { fill: #b9e3a1; }
+.art-shell { fill: #f2b551; }
+.art-shell-spiral { fill: none; stroke: #d2913a; stroke-width: 7; stroke-linecap: round; }
+.art-stalk { fill: none; stroke: #b9e3a1; stroke-width: 7; stroke-linecap: round; }
+.art-eye { fill: #2f3336; }
+.art-mouth { fill: #e0605c; }
+.art-letter rect { fill: #fff; }
+.art-letter path { fill: none; stroke: #c9d2d8; stroke-width: 3; stroke-linejoin: round; }
+.art-twiq { fill: #fff; }
+.art-limb { fill: none; stroke: #8f4a3c; stroke-width: 7; stroke-linecap: round; }
+.art-foot { fill: none; stroke: #8f4a3c; stroke-width: 7; stroke-linecap: round; }
+.art-frown { fill: none; stroke: #2f3336; stroke-width: 4; stroke-linecap: round; }
+
+@media (max-width: 620px) {
+  .maintenance-main { padding: 30px 14px 44px; }
+  .maintenance-main h1 { font-size: 27px; line-height: 33px; }
+  .maintenance-lead { font-size: 15px; line-height: 21px; }
+}
+
+/* A switch whose consequences reach the whole site gets a visible edge. */
+.admin-switch-danger {
+  padding: 9px 10px;
+  border: 1px solid #f0b4ae;
+  border-radius: var(--radius);
+  background: #fdf6f5;
+}
+
+/* =========================================================================
+   Status page
+   ------------------------------------------------------------------------- */
+.status-page { max-width: 720px; margin: 0 auto; }
+
+.status-headline {
+  background: var(--panel-background);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--success);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-panel);
+}
+.status-headline h1 { font-size: 24px; line-height: 30px; display: inline; }
+.status-headline p { margin: 6px 0 0; font-size: 13px; color: var(--muted-text); }
+.status-headline.status-degraded { border-left-color: var(--warning); }
+.status-headline.status-partial_outage { border-left-color: #e07b39; }
+.status-headline.status-major_outage { border-left-color: var(--danger); }
+.status-headline.status-maintenance { border-left-color: var(--twiq-blue); }
+
+.status-dot {
+  display: inline-block;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  margin-right: 7px;
+  vertical-align: 1px;
+  background: var(--muted-text);
+}
+.status-dot.is-operational { background: var(--success); }
+.status-dot.is-degraded { background: var(--warning); }
+.status-dot.is-partial { background: #e07b39; }
+.status-dot.is-major { background: var(--danger); }
+.status-dot.is-maintenance { background: var(--twiq-blue); }
+
+.status-components { border-top: 1px solid var(--border-color); }
+.status-component {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+.status-component:last-child { border-bottom: 0; }
+.status-component-name { font-size: 14px; font-weight: bold; }
+.status-component-desc { display: block; font-size: 12px; font-weight: normal; color: var(--muted-text); }
+.status-component-state { font-size: 13px; color: var(--muted-text); white-space: nowrap; }
+
+.status-incident { padding: 14px 16px; border-bottom: 1px solid var(--border-color); }
+.status-incident:last-child { border-bottom: 0; }
+.status-incident h3 { font-size: 16px; line-height: 21px; }
+.status-incident-meta { margin: 4px 0 0; font-size: 12px; color: var(--muted-text); }
+.status-incident.is-resolved h3 { color: var(--muted-text); }
+
+.status-updates { margin: 10px 0 0; padding-left: 14px; border-left: 2px solid var(--border-color); }
+.status-updates li { padding: 0 0 12px; }
+.status-updates li:last-child { padding-bottom: 0; }
+.status-update-label {
+  font-size: 11px; font-weight: bold; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-color);
+}
+.status-update-body { margin: 2px 0 0; font-size: 14px; line-height: 19px; }
+.status-update-time { margin: 2px 0 0; font-size: 12px; color: var(--muted-text); }
+
+.status-footnote {
+  font-size: 12px; color: var(--muted-text); line-height: 17px;
+  padding: 0 2px; margin-top: 12px;
+}
+
+/* -- the editor in the control panel ------------------------------------ */
+.status-editor-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 9px 12px; border-bottom: 1px solid var(--border-color);
+}
+.status-editor-row:last-child { border-bottom: 0; }
+.status-editor-row form { display: flex; gap: 6px; align-items: center; }
+.status-editor-row select { width: auto; padding: 3px 6px; font-size: 12px; }
+.status-editor-name { font-size: 13px; font-weight: bold; }
+.status-editor-name span { display: block; font-weight: normal; font-size: 12px; color: var(--muted-text); }
+
+@media (max-width: 620px) {
+  .status-component { flex-direction: column; gap: 3px; }
+  .status-editor-row { flex-direction: column; align-items: stretch; gap: 8px; }
+}
+
+.status-component-picker {
+  display: flex; flex-wrap: wrap; gap: 4px 14px;
+  padding: 6px 0 0; font-size: 13px;
+}
+.status-component-picker label { display: inline-flex; align-items: center; gap: 4px; }
+
+/* -- the theme picker in Design settings -------------------------------- */
+.theme-choice { display: flex; flex-wrap: wrap; gap: 8px; }
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1 1 190px;
+  padding: 9px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--panel-background);
+  cursor: pointer;
+}
+.theme-option:hover { border-color: var(--twiq-blue); }
+.theme-option.is-selected {
+  border-color: var(--twiq-blue);
+  box-shadow: inset 0 0 0 1px var(--twiq-blue);
+}
+.theme-option input { margin: 0; flex: 0 0 auto; }
+.theme-label { font-size: 13px; line-height: 17px; }
+.theme-label strong { display: block; }
+.theme-label span { color: var(--muted-text); font-size: 12px; }
+
+/* A miniature of the layout, so each option shows what it does. */
+.theme-swatch {
+  flex: 0 0 auto;
+  width: 42px; height: 30px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.theme-swatch .bar { display: block; height: 8px; }
+.theme-swatch .line {
+  display: block; height: 3px; margin: 4px 5px 0; border-radius: 2px;
+}
+.theme-swatch .line.short { width: 40%; }
+.theme-swatch-light { background: #f5f8fa; }
+.theme-swatch-light .bar { background: #fff; border-bottom: 1px solid #e1e8ed; }
+.theme-swatch-light .line { background: #ccd6dd; }
+.theme-swatch-dark { background: #12171b; }
+.theme-swatch-dark .bar { background: #1b2229; border-bottom: 1px solid #2b343d; }
+.theme-swatch-dark .line { background: #3b4650; }
+.theme-swatch-system { background: linear-gradient(115deg, #f5f8fa 0 50%, #12171b 50% 100%); }
+.theme-swatch-system .bar {
+  background: linear-gradient(115deg, #fff 0 50%, #1b2229 50% 100%);
+  border-bottom: 1px solid var(--border-color);
+}
+.theme-swatch-system .line { background: linear-gradient(115deg, #ccd6dd 0 50%, #3b4650 50% 100%); }
+
+/* =========================================================================
+   Loading and page transitions
+   -------------------------------------------------------------------------
+   Three pieces, all of which degrade to nothing without JavaScript:
+
+     1. a progress bar while a navigation is in flight
+     2. a short entry animation so a new page arrives rather than teleports
+     3. a spinner and a busy button state for every in-page fetch
+
+   Nothing here delays a request. The beat comes from the incoming page
+   animating in, which happens while the browser is painting anyway.
+
+   The motion is deliberately of its period. A page of this era faded in at
+   most - it never rose into place - so the entry keyframes carry no
+   transform, and every duration here is linear or stepped rather than
+   riding an easing curve. The throbber ticks through eight stops instead of
+   gliding, because in 2014 it was an animated GIF and that is what one
+   looked like.
+   ========================================================================= */
+/* -- 1. navigation progress --------------------------------------------- */
+.nav-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 900;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 100ms linear;
+}
+.nav-progress.is-active { opacity: 1; }
+.nav-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--twiq-blue);
+  transition: width 240ms linear;
+}
+
+/* -- 2. the incoming page ----------------------------------------------- */
+@keyframes page-enter {
+  from { opacity: 0; transform: none; }
+  to   { opacity: 1; transform: none; }
+}
+.page-body { animation: page-enter var(--page-enter-duration) linear both; }
+
+/* The outgoing page dims briefly. On a fast reply it is never seen, which
+   is the point: it only shows up when there is a wait worth explaining. */
+body.is-leaving .page-body {
+  opacity: 0.7;
+  transition: opacity var(--page-leave-duration) linear;
+}
+
+/* -- 3. spinners and busy controls -------------------------------------- */
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--twiq-blue);
+  border-radius: 50%;
+  animation: spin 800ms steps(8) infinite;
+  vertical-align: -2px;
+}
+.spinner-sm { width: 11px; height: 11px; border-width: 2px; }
+.spinner-lg { width: 20px; height: 20px; border-width: 2px; }
+.spinner-on-accent { border-color: rgba(255, 255, 255, 0.35); border-top-color: #fff; }
+
+.btn.is-busy, button.is-busy {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.btn.is-busy::after, button.is-busy::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 12px; height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--twiq-blue);
+  border-radius: 50%;
+  animation: spin 800ms steps(8) infinite;
+}
+.btn-primary.is-busy::after,
+.btn-danger.is-busy::after {
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+}
+
+/* A row of dimmed content while its replacement is on the way. */
+.is-loading { opacity: 0.45; pointer-events: none; transition: opacity 120ms linear; }
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 12px;
+  color: var(--muted-text);
+  font-size: 13px;
+}
+
+/* The typeahead field shows its own small indicator while it queries. */
+.search-form.is-querying button .icon { display: none; }
+.search-form.is-querying button::after {
+  content: "";
+  width: 11px; height: 11px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--twiq-blue);
+  border-radius: 50%;
+  animation: spin 800ms steps(8) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-body { animation: none; }
+  body.is-leaving .page-body { opacity: 1; }
+  .spinner,
+  .btn.is-busy::after,
+  button.is-busy::after,
+  .search-form.is-querying button::after { animation-duration: 2s; }
+  .nav-progress span { transition: none; }
+}
+
+/* The footer when a page has no sidebar to hang it in. */
+.page-footer {
+  padding: 14px 2px 24px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 17px;
+  color: var(--muted-text);
+}
+.page-footer a { color: var(--muted-text); margin: 0 6px; }
+.page-footer a:hover { text-decoration: underline; }
+.page-footer div { margin-top: 3px; }

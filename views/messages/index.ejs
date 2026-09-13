@@ -1,0 +1,122 @@
+<div class="wrapper">
+  <main class="content content-wide" id="main">
+    <section class="module">
+      <div class="module-header">
+        <h2>Direct Messages</h2>
+        <span class="module-action">
+          <button type="button" class="btn btn-sm" data-dm-new-toggle>New message</button>
+        </span>
+      </div>
+
+      <form class="module-body" method="post" action="/messages/new" data-dm-new-form hidden
+            style="border-bottom:1px solid var(--border-color);">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="form-label" for="dm-username">Send a message to</label>
+        <div style="display:flex;gap:6px;">
+          <input id="dm-username" type="text" name="username" placeholder="username" maxlength="15" required>
+          <button type="submit" class="btn btn-primary">Next</button>
+        </div>
+        <div class="form-hint">You can message people who follow you, and anyone who accepts messages from everyone.</div>
+      </form>
+
+      <div class="dm-layout">
+        <div class="dm-list">
+          <% if (conversations.length === 0) { %>
+            <div class="empty-state" style="padding:20px 14px;">
+              <strong>No messages</strong>
+              Direct Messages are private conversations.
+            </div>
+          <% } %>
+          <% conversations.forEach(function (item) { %>
+            <a class="dm-list-item<%= conversation && conversation.id === item.id ? ' is-active' : '' %><%= item.unreadCount > 0 ? ' is-unread' : '' %>"
+               href="<%= item.url %>">
+              <img src="<%= item.other.avatarUrl %>" alt="">
+              <div class="dm-list-body">
+                <span class="dm-list-name"><%= item.other.displayName %></span>
+                <span class="dm-list-handle">@<%= item.other.username %></span>
+                <div class="dm-list-snippet"><%= item.lastFromViewer ? 'You: ' : '' %><%= item.lastBody %></div>
+              </div>
+              <% if (item.unreadCount > 0) { %><span class="dm-unread-dot" aria-label="<%= item.unreadCount %> unread"></span><% } %>
+            </a>
+          <% }); %>
+        </div>
+
+        <div class="dm-thread">
+          <% if (!conversation) { %>
+            <div class="empty-state" style="margin:auto;">
+              <strong>Choose a conversation</strong>
+              Pick a conversation on the left, or start a new one.
+            </div>
+          <% } else { %>
+            <div class="dm-thread-header">
+              <a class="dm-back" href="/messages" aria-label="Back to all conversations">
+                <svg class="icon" aria-hidden="true"><use href="#ic-back"></use></svg>
+              </a>
+              <% if (other) { %>
+                <a href="<%= other.profileUrl %>"><img src="<%= other.avatarUrl %>" alt=""></a>
+                <div>
+                  <a class="name" href="<%= other.profileUrl %>"><%= other.displayName %></a>
+                  <span class="handle">@<%= other.username %></span>
+                </div>
+              <% } %>
+              <div class="spacer"></div>
+              <form method="post" action="/messages/<%= conversation.id %>/delete"
+                    data-confirm="Remove this conversation from your inbox?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-sm">Delete</button>
+              </form>
+            </div>
+
+            <div class="dm-messages" data-dm-messages data-conversation="<%= conversation.id %>"
+                 data-last-id="<%= messages.length > 0 ? messages[messages.length - 1].id : 0 %>">
+              <% if (messages.length === 0) { %>
+                <div class="empty-state"><strong>No messages yet</strong>Say hello.</div>
+              <% } %>
+              <% messages.forEach(function (item) { %>
+                <div class="dm-message<%= item.isOwn ? ' is-own' : '' %>" data-message-id="<%= item.id %>">
+                  <img class="avatar" src="<%= item.sender.avatarUrl %>" alt="">
+                  <div class="dm-bubble">
+                    <%- item.html %>
+                    <% if (item.media) { %>
+                      <% if (item.media.isVideo) { %>
+                        <video class="dm-media" src="<%= item.media.url %>" controls preload="metadata"></video>
+                      <% } else { %>
+                        <a href="<%= item.media.url %>" data-lightbox="<%= item.media.url %>">
+                          <img class="dm-media" src="<%= item.media.url %>" alt="Attached photo">
+                        </a>
+                      <% } %>
+                    <% } %>
+                    <% if (item.sharedTweetId) { %>
+                      <a href="/i/status/<%= item.sharedTweetId %>" style="display:block;margin-top:4px;font-size:12px;">Shared a Tweet</a>
+                    <% } %>
+                    <span class="dm-time"><time datetime="<%= item.timeIso %>" title="<%= item.timeLong %>"><%= item.timeShort %></time></span>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+
+            <div class="dm-compose">
+              <% if (canReply) { %>
+                <form method="post" action="/messages/<%= conversation.id %>" enctype="multipart/form-data" data-dm-form>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <label class="visually-hidden" for="dm-body">Your message</label>
+                  <textarea id="dm-body" name="body" rows="2" maxlength="1000"
+                            placeholder="Send a Direct Message..." data-dm-input></textarea>
+                  <div class="dm-compose-row">
+                    <input type="file" name="media" accept="image/jpeg,image/png,image/gif,image/webp"
+                           aria-label="Attach a photo">
+                    <span class="counter" data-dm-counter>1000</span>
+                    <button type="submit" class="btn btn-primary btn-sm">Send</button>
+                  </div>
+                </form>
+              <% } else { %>
+                <p style="font-size:13px;color:var(--muted-text);margin:0;"><%= replyBlockedReason %></p>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/page-footer') %>
+</div>

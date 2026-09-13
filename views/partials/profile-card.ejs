@@ -1,0 +1,77 @@
+<div class="profile-card">
+  <h1 class="profile-name"><%= profile.displayName %>
+    <% if (profile.isVerified) { %>
+      <svg class="verified-badge" style="width:18px;height:18px;" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+    <% } %>
+    <% if (profile.isAutomated) { %>
+      <svg class="automated-badge" style="width:17px;height:17px;" role="img" aria-label="Automated account"><use href="#ic-robot"></use></svg>
+    <% } %>
+  </h1>
+  <span class="profile-handle">@<%= profile.username %>
+    <% if (profile.isProtected) { %>
+      <svg class="protected-badge" role="img" aria-label="Protected account"><use href="#ic-lock"></use></svg>
+    <% } %>
+    <% if (profile.relationship && profile.relationship.followed_by) { %>
+      <span class="follows-you">Follows you</span>
+    <% } %>
+  </span>
+
+  <% if (profile.bioHtml) { %>
+    <p class="profile-bio"><%- profile.bioHtml %></p>
+  <% } %>
+
+  <%# Sits directly under the description, as its own line rather than part
+      of the meta row: it is a statement about the account, not a detail. %>
+  <% if (profile.automatedBy) { %>
+    <p class="profile-automated">
+      <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-robot"></use></svg>
+      Automated by <a href="<%= profile.automatedBy.profileUrl %>">@<%= profile.automatedBy.username %></a>
+    </p>
+  <% } %>
+
+  <div class="profile-meta">
+    <% if (profile.location) { %>
+      <div><svg class="icon icon-sm" aria-hidden="true"><use href="#ic-marker"></use></svg><%= profile.location %></div>
+    <% } %>
+    <% if (profile.website) { %>
+      <div><svg class="icon icon-sm" aria-hidden="true"><use href="#ic-link"></use></svg>
+        <a href="<%= profile.website %>" rel="nofollow noopener noreferrer" target="_blank"><%= profile.websiteLabel %></a>
+      </div>
+    <% } %>
+    <div><svg class="icon icon-sm" aria-hidden="true"><use href="#ic-calendar"></use></svg>Joined <%= profile.joined %></div>
+  </div>
+
+  <% if (followedBy && followedBy.users.length > 0) { %>
+    <div class="profile-followed-by">
+      Followed by
+      <% followedBy.users.forEach(function (person, index) { %>
+        <a href="<%= person.profileUrl %>"><%= person.displayName %></a><%= index < followedBy.users.length - 1 ? ',' : '' %>
+      <% }); %>
+      <% if (followedBy.total > followedBy.users.length) { %>
+        and <a href="/<%= profile.username %>/followers"><%= followedBy.total - followedBy.users.length %> others</a>
+      <% } %>
+    </div>
+  <% } %>
+
+</div>
+
+<% if (photos && photos.length > 0) { %>
+  <section class="module" aria-labelledby="photos-heading">
+    <div class="module-header">
+      <h2 id="photos-heading">Photos and videos</h2>
+      <a class="module-action" href="/<%= profile.username %>/media">View all</a>
+    </div>
+    <div class="photo-grid">
+      <% photos.forEach(function (item) { %>
+        <a href="<%= item.tweetUrl %>">
+          <% if (item.isVideo) { %>
+            <video src="<%= item.url %>" preload="metadata" muted></video>
+            <span class="play-badge"><svg class="icon icon-sm" aria-hidden="true"><use href="#ic-play"></use></svg></span>
+          <% } else { %>
+            <img src="<%= item.url %>" alt="<%= item.alt || ('Photo by @' + profile.username) %>" loading="lazy">
+          <% } %>
+        </a>
+      <% }); %>
+    </div>
+  </section>
+<% } %>

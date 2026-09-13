@@ -1,0 +1,26 @@
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/rail', { side: side, railComposer: false }) %>
+    </aside>
+    <main class="content" id="main">
+      <section class="module">
+        <div class="timeline-heading">
+          <%= replyTo ? 'Reply' : (quoting ? 'Quote Tweet' : 'Compose new Tweet') %>
+        </div>
+        <% if (replyTo) { %>
+          <%- include('../partials/tweet', { tweet: replyTo, context: 'permalink' }) %>
+        <% } %>
+        <%# A quote shows the original as the card it will become, not as a
+            full Tweet, so the writer sees what the result will look like. %>
+        <% if (quoting) { %>
+          <div class="compose-quote-preview">
+            <%- include('../partials/quoted-tweet', { quoted: quoting, unavailable: false }) %>
+          </div>
+        <% } %>
+      </section>
+      <%- include('../partials/composer', {
+            replyTo: replyTo, prefill: prefill, expanded: true, quoting: quoting }) %>
+    </main>
+  </div>
+</div>

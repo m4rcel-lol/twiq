@@ -1,0 +1,12 @@
+<div class="error-shell">
+  <div class="code">500</div>
+  <h1>Something is technically wrong</h1>
+  <p>
+    Thanks for noticing - we are already looking into it. Try again in a moment.
+  </p>
+  <div class="error-actions">
+    <a class="btn btn-primary" href="/">Back to <%= brand.name %></a>
+  </div>
+  <% if (stack) { %><pre><%= stack %></pre><% } %>
+</div>
+<%- include('../partials/page-footer') %>

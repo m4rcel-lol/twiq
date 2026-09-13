@@ -1,0 +1,50 @@
+<div class="auth-shell">
+  <div class="brand">
+    <a href="/" aria-label="<%= brand.name %> home">
+      <img src="/images/logo.svg" alt="<%= brand.name %>" height="34">
+    </a>
+    <p><%= brand.tagline %></p>
+  </div>
+  <div class="auth-card">
+    <h1>Join <%= brand.name %> today</h1>
+    <% if (closed) { %>
+      <p style="font-size:14px;line-height:19px;">
+        <%= brand.name %> is not accepting new accounts at the moment.
+        If you already have one, you can <a href="/login">sign in</a>.
+      </p>
+    <% } else { %>
+    <%- include('../partials/form-errors', { errors: errors }) %>
+    <form method="post" action="/register" autocomplete="on">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="form-row">
+        <label class="form-label" for="display_name">Full name</label>
+        <input id="display_name" type="text" name="display_name" maxlength="20" required
+               autocomplete="name" value="<%= values.display_name || '' %>">
+        <% if (errors && errors.fields.display_name) { %><div class="form-error"><%= errors.fields.display_name %></div><% } %>
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="username">Username</label>
+        <input id="username" type="text" name="username" maxlength="15" required
+               pattern="[A-Za-z0-9_]{1,15}" autocomplete="username" value="<%= values.username || '' %>">
+        <div class="form-hint">Letters, numbers and underscores. This becomes <%= baseUrl %>/yourname</div>
+        <% if (errors && errors.fields.username) { %><div class="form-error"><%= errors.fields.username %></div><% } %>
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="email">Email</label>
+        <input id="email" type="email" name="email" maxlength="254" required
+               autocomplete="email" value="<%= values.email || '' %>">
+        <% if (errors && errors.fields.email) { %><div class="form-error"><%= errors.fields.email %></div><% } %>
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="password">Password</label>
+        <input id="password" type="password" name="password" minlength="8" required autocomplete="new-password">
+        <div class="form-hint">At least 8 characters.</div>
+        <% if (errors && errors.fields.password) { %><div class="form-error"><%= errors.fields.password %></div><% } %>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Sign up for <%= brand.name %></button>
+    </form>
+    <% } %>
+  </div>
+  <div class="auth-alt">Already have an account? <a href="/login">Sign in</a></div>
+</div>
+<%- include('../partials/page-footer') %>

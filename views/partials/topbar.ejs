@@ -1,0 +1,117 @@
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+    <nav class="topbar-nav" aria-label="Primary">
+      <% if (currentUser) { %>
+        <a href="/home" class="<%= nav === 'home' ? 'is-active' : '' %>">
+          <svg class="icon" aria-hidden="true"><use href="#ic-home"></use></svg>
+          <span class="label">Home</span>
+        </a>
+        <a href="/connect" class="<%= nav === 'connect' ? 'is-active' : '' %>">
+          <svg class="icon" aria-hidden="true"><use href="#ic-at"></use></svg>
+          <span class="label">Connect</span>
+          <% if (unreadNotifications > 0) { %>
+            <span class="topbar-badge" data-badge="notifications"><%= unreadNotifications > 99 ? '99+' : unreadNotifications %></span>
+          <% } else { %>
+            <span class="topbar-badge" data-badge="notifications" hidden></span>
+          <% } %>
+        </a>
+        <a href="/discover" class="<%= nav === 'discover' ? 'is-active' : '' %>">
+          <svg class="icon" aria-hidden="true"><use href="#ic-compass"></use></svg>
+          <span class="label">Discover</span>
+        </a>
+        <a href="/<%= currentUser.username %>" class="<%= nav === 'me' ? 'is-active' : '' %>">
+          <svg class="icon" aria-hidden="true"><use href="#ic-user"></use></svg>
+          <span class="label">Me</span>
+        </a>
+      <% } else { %>
+        <a href="/discover" class="<%= nav === 'discover' ? 'is-active' : '' %>">
+          <svg class="icon" aria-hidden="true"><use href="#ic-compass"></use></svg>
+          <span class="label">Discover</span>
+        </a>
+      <% } %>
+    </nav>
+
+    <div class="topbar-brand">
+      <a href="<%= currentUser ? '/home' : '/' %>" aria-label="<%= brand.name %> home">
+        <svg viewBox="0 0 104 30" aria-hidden="true" focusable="false" width="104" height="30"
+             preserveAspectRatio="xMinYMid slice">
+          <g fill="var(--twiq-blue)">
+            <path d="M14 2C7.4 2 2 6.9 2 12.9c0 3.5 1.9 6.7 4.8 8.7v5.2l5-3a14.6 14.6 0 0 0 2.2.2c6.6 0 12-4.9 12-10.9C26 6.9 20.6 2 14 2z"/>
+          </g>
+          <circle cx="9" cy="13" r="1.8" fill="#fff"/>
+          <circle cx="14" cy="13" r="1.8" fill="#fff"/>
+          <circle cx="19" cy="13" r="1.8" fill="#fff"/>
+          <text x="32" y="22" font-family="Helvetica Neue,Helvetica,Arial,sans-serif" font-size="21"
+                font-weight="bold" letter-spacing="-0.6" fill="var(--twiq-blue)">twiq</text>
+        </svg>
+      </a>
+    </div>
+
+    <a class="search-link" href="/search" aria-label="Search <%= brand.name %>">
+      <svg class="icon" aria-hidden="true"><use href="#ic-search"></use></svg>
+    </a>
+
+    <form class="search-form" action="/search" method="get" role="search" data-typeahead>
+        <label class="visually-hidden" for="topbar-search">Search <%= brand.name %></label>
+        <input id="topbar-search" type="search" name="q" placeholder="Search <%= brand.name %>"
+               autocomplete="off" maxlength="140"
+               value="<%= typeof q !== 'undefined' && q ? q : '' %>">
+        <button type="submit" aria-label="Search">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-search"></use></svg>
+        </button>
+      <div class="typeahead" data-typeahead-results role="listbox" aria-label="Search suggestions"></div>
+    </form>
+
+    <div class="topbar-actions">
+      <% if (currentUser) { %>
+        <a href="/messages" class="topbar-icon" title="Direct Messages" aria-label="Direct Messages">
+          <svg class="icon" aria-hidden="true"><use href="#ic-mail"></use></svg>
+          <span class="dot" data-badge="messages" <%= unreadMessages > 0 ? '' : 'hidden' %>></span>
+        </a>
+
+        <div class="menu" data-menu>
+          <button type="button" class="topbar-icon" data-menu-toggle aria-haspopup="true" aria-expanded="false"
+                  title="Settings and help" aria-label="Account menu">
+            <img class="topbar-avatar" src="<%= currentUser.avatarUrl %>" alt="">
+          </button>
+          <div class="menu-panel" role="menu">
+            <div class="menu-heading">@<%= currentUser.username %></div>
+            <a href="/<%= currentUser.username %>" role="menuitem">View profile</a>
+            <a href="/<%= currentUser.username %>/favorites" role="menuitem">Favorites</a>
+            <a href="/lists" role="menuitem">Lists</a>
+            <% if (pendingFollowRequests > 0) { %>
+              <a href="/settings/requests" role="menuitem">Follower requests (<%= pendingFollowRequests %>)</a>
+            <% } %>
+            <div class="menu-divider"></div>
+            <form action="/settings/design/theme" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" role="menuitem">
+                <%= theme === 'dark' ? 'Switch to light' : 'Switch to dark' %>
+              </button>
+            </form>
+            <a href="/settings/profile" role="menuitem">Edit profile</a>
+            <a href="/settings/account" role="menuitem">Settings</a>
+            <% if (currentUser.isStaff) { %>
+              <a href="/admin" role="menuitem">Admin</a>
+            <% } %>
+            <div class="menu-divider"></div>
+            <form action="/logout" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" role="menuitem">Sign out</button>
+            </form>
+          </div>
+        </div>
+
+        <a href="/compose" class="btn btn-primary btn-sm" data-compose-open>
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-quill"></use></svg>
+          <span class="label">Tweet</span>
+        </a>
+      <% } else { %>
+        <a href="/login" class="btn btn-sm">Sign in</a>
+        <% if (registrationEnabled) { %>
+          <a href="/register" class="btn btn-primary btn-sm">Sign up</a>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+</header>

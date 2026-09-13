@@ -1,0 +1,243 @@
+<%
+  var UPDATE_LABEL = {
+    investigating: 'Investigating', identified: 'Identified', monitoring: 'Monitoring',
+    resolved: 'Resolved', scheduled: 'Scheduled', in_progress: 'In progress', completed: 'Completed'
+  };
+%>
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav') %>
+  <main class="content content-wide" id="main">
+
+    <div class="admin-flags">
+      <span class="pill <%= overall.key === 'operational' ? 'pill-success' : 'pill-danger' %>">
+        Public page reads: <%= overall.label %>
+      </span>
+      <a class="admin-flags-link" href="/status" target="_blank" rel="noopener">Open /status</a>
+    </div>
+
+    <section class="module">
+      <div class="module-header">
+        <h2>Components</h2>
+        <form class="inline-form" method="post" action="/admin/status/all-clear"
+              data-confirm="Set every component back to operational?">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-sm">All clear</button>
+        </form>
+      </div>
+
+      <% components.forEach(function (component) { %>
+        <div class="status-editor-row">
+          <span class="status-editor-name">
+            <%= component.name %>
+            <% if (component.description) { %><span><%= component.description %></span><% } %>
+          </span>
+          <form method="post" action="/admin/status/components/<%= component.id %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label class="visually-hidden" for="cs-<%= component.id %>">Status for <%= component.name %></label>
+            <select id="cs-<%= component.id %>" name="status">
+              <% componentStatuses.forEach(function (value) { %>
+                <option value="<%= value %>" <%= component.status === value ? 'selected' : '' %>><%= labels[value] %></option>
+              <% }); %>
+            </select>
+            <button type="submit" class="btn btn-sm">Set</button>
+            <% if (isAdmin) { %>
+          </form>
+          <form class="inline-form" method="post" action="/admin/status/components/<%= component.id %>/delete"
+                data-confirm="Remove <%= component.name %> from the status page?">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Remove</button>
+            <% } %>
+          </form>
+        </div>
+      <% }); %>
+
+      <div class="module-body">
+        <form method="post" action="/admin/status/components" class="admin-inline-row">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label class="visually-hidden" for="new-component">Component name</label>
+          <input id="new-component" type="text" name="name" placeholder="Component name" maxlength="60" required>
+          <label class="visually-hidden" for="new-component-desc">Description</label>
+          <input id="new-component-desc" type="text" name="description" placeholder="What it covers" maxlength="160">
+          <label class="visually-hidden" for="new-component-pos">Position</label>
+          <input id="new-component-pos" type="number" name="position" value="<%= components.length %>" min="0" style="width:70px;flex:0 0 auto;">
+          <button type="submit" class="btn btn-sm">Add</button>
+        </form>
+      </div>
+    </section>
+
+    <% if (open.length > 0) { %>
+      <section class="module">
+        <div class="module-header"><h2>Open right now</h2></div>
+        <% open.forEach(function (incident) { %>
+          <div class="status-incident">
+            <h3><%= incident.title %></h3>
+            <p class="status-incident-meta">
+              <span class="pill <%= incident.is_scheduled ? 'pill-info' : 'pill-danger' %>">
+                <%= UPDATE_LABEL[incident.status] || incident.status %>
+              </span>
+              <%= incident.is_scheduled ? 'Scheduled' : 'Started' %> <%= fmt.longTimestamp(incident.started_at) %>
+              <% if (incident.component_names.length > 0) { %>
+                &middot; <%= incident.component_names.join(', ') %>
+              <% } %>
+            </p>
+
+            <form method="post" action="/admin/status/incidents/<%= incident.id %>/update" style="margin-top:10px;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div class="form-row">
+                <label class="form-label" for="upd-<%= incident.id %>">Post an update</label>
+                <textarea id="upd-<%= incident.id %>" name="body" rows="2" maxlength="2000" required
+                          placeholder="What has changed since the last update?"></textarea>
+              </div>
+              <div class="admin-inline-row">
+                <label class="visually-hidden" for="upd-status-<%= incident.id %>">New status</label>
+                <select id="upd-status-<%= incident.id %>" name="status">
+                  <% (incident.is_scheduled ? scheduledStatuses : incidentStatuses).forEach(function (value) { %>
+                    <option value="<%= value %>" <%= incident.status === value ? 'selected' : '' %>><%= UPDATE_LABEL[value] %></option>
+                  <% }); %>
+                </select>
+                <label class="visually-hidden" for="upd-comp-<%= incident.id %>">Set affected components to</label>
+                <select id="upd-comp-<%= incident.id %>" name="component_status">
+                  <option value="">Leave components as they are</option>
+                  <% componentStatuses.forEach(function (value) { %>
+                    <option value="<%= value %>">Set affected to: <%= labels[value] %></option>
+                  <% }); %>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Post update</button>
+              </div>
+              <p class="admin-muted admin-note" style="margin-top:6px;">
+                Resolving an incident puts its components back to operational unless you choose otherwise.
+              </p>
+            </form>
+
+            <%- include('../partials/status-updates', {
+                  updates: incident.updates.map(function (u) {
+                    return Object.assign({}, u, { timeLong: fmt.longTimestamp(u.created_at) });
+                  }),
+                  UPDATE_LABEL: UPDATE_LABEL }) %>
+          </div>
+        <% }); %>
+      </section>
+    <% } %>
+
+    <section class="module">
+      <div class="module-header"><h2>Publish an incident</h2></div>
+      <div class="module-body">
+        <form method="post" action="/admin/status/incidents">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="form-row">
+            <label class="form-label" for="inc-title">Title</label>
+            <input id="inc-title" type="text" name="title" maxlength="120" required
+                   placeholder="Direct Messages are slow to send">
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="inc-body">First update</label>
+            <textarea id="inc-body" name="body" rows="3" maxlength="2000" required
+                      placeholder="We are looking into reports that Direct Messages take a long time to send."></textarea>
+          </div>
+
+          <div class="admin-form-grid">
+            <div>
+              <label class="form-label" for="inc-status">Status</label>
+              <select id="inc-status" name="status">
+                <% incidentStatuses.forEach(function (value) { %>
+                  <option value="<%= value %>"><%= UPDATE_LABEL[value] %></option>
+                <% }); %>
+                <% scheduledStatuses.forEach(function (value) { %>
+                  <option value="<%= value %>"><%= UPDATE_LABEL[value] %> (maintenance)</option>
+                <% }); %>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="inc-impact">Impact</label>
+              <select id="inc-impact" name="impact">
+                <% impacts.forEach(function (value) { %>
+                  <option value="<%= value %>" <%= value === 'minor' ? 'selected' : '' %>><%= value %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="inc-comp-status">Set affected components to</label>
+              <select id="inc-comp-status" name="component_status">
+                <option value="">Leave them as they are</option>
+                <% componentStatuses.forEach(function (value) { %>
+                  <option value="<%= value %>"><%= labels[value] %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Affected components</label>
+              <div class="status-component-picker">
+                <% components.forEach(function (component) { %>
+                  <label>
+                    <input type="checkbox" name="components" value="<%= component.id %>">
+                    <%= component.name %>
+                  </label>
+                <% }); %>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkbox-row" style="margin-top:12px;">
+            <input id="inc-scheduled" type="checkbox" name="is_scheduled">
+            <label for="inc-scheduled">This is planned maintenance
+              <span class="form-hint">
+                Shows under "Scheduled maintenance" instead of "Open incidents". Pick a
+                maintenance status above, and give it a window below.
+              </span>
+            </label>
+          </div>
+
+          <div class="admin-form-grid">
+            <div>
+              <label class="form-label" for="inc-from">Window from</label>
+              <input id="inc-from" type="datetime-local" name="scheduled_for">
+            </div>
+            <div>
+              <label class="form-label" for="inc-until">Window until</label>
+              <input id="inc-until" type="datetime-local" name="scheduled_until">
+            </div>
+          </div>
+
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Publish to /status</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="module">
+      <div class="module-header"><h2>History</h2></div>
+      <table class="admin-table">
+        <thead><tr><th>Started</th><th>Incident</th><th>Impact</th><th>Status</th><th>Components</th><th>Updates</th><% if (isAdmin) { %><th></th><% } %></tr></thead>
+        <tbody>
+          <% if (incidents.length === 0) { %>
+            <tr><td colspan="7" class="admin-muted">Nothing has been published yet.</td></tr>
+          <% } %>
+          <% incidents.forEach(function (incident) { %>
+            <tr>
+              <td class="admin-nowrap"><%= fmt.shortTimestamp(incident.started_at) %></td>
+              <td><%= incident.title %></td>
+              <td><span class="pill"><%= incident.impact %></span></td>
+              <td>
+                <span class="pill <%= incident.resolved_at ? 'pill-success' : 'pill-danger' %>">
+                  <%= UPDATE_LABEL[incident.status] || incident.status %>
+                </span>
+              </td>
+              <td class="admin-muted"><%= incident.component_names.join(', ') || '—' %></td>
+              <td class="admin-num"><%= incident.updates.length %></td>
+              <% if (isAdmin) { %>
+                <td>
+                  <form class="inline-form" method="post" action="/admin/status/incidents/<%= incident.id %>/delete"
+                        data-confirm="Remove this incident from the status page and its history?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn btn-sm">Delete</button>
+                  </form>
+                </td>
+              <% } %>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div></div>

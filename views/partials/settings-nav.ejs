@@ -1,0 +1,20 @@
+<aside class="rail">
+  <section class="module">
+    <div class="module-header"><h2>Settings</h2></div>
+    <ul class="settings-nav">
+      <% sections.forEach(function (item) { %>
+        <li><a href="<%= item.href %>" class="<%= section === item.key ? 'is-active' : '' %>"><%= item.label %></a></li>
+      <% }); %>
+    </ul>
+  </section>
+  <section class="module">
+    <div class="module-body" style="font-size:12px;color:var(--muted-text);">
+      Signed in as <a href="/<%= currentUser.username %>">@<%= currentUser.username %></a>.
+      <form method="post" action="/logout" style="margin-top:8px;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn btn-sm">Sign out</button>
+      </form>
+    </div>
+  </section>
+  <%- include('rail-footer') %>
+</aside>

@@ -1,0 +1,29 @@
+<% if (whoToFollow.length === 0) { %>
+  <div class="empty-state" style="padding:14px 12px;font-size:13px;">
+    No suggestions right now. Try <a href="/discover">Discover</a>.
+  </div>
+<% } %>
+<% whoToFollow.forEach(function (person) { %>
+  <div class="wtf-item">
+    <a href="<%= person.profileUrl %>" tabindex="-1" aria-hidden="true">
+      <img src="<%= person.avatarUrl %>" alt="">
+    </a>
+    <div class="wtf-body">
+      <a class="wtf-name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
+      <% if (person.isVerified) { %>
+        <svg class="verified-badge" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+      <% } %>
+      <span class="wtf-handle">@<%= person.username %></span>
+      <% if (person.mutualCount > 0 && person.mutualNames.length > 0) { %>
+        <div class="wtf-meta">
+          Followed by <%= person.mutualNames.join(' and ') %><%= person.mutualCount > person.mutualNames.length ? ' and ' + (person.mutualCount - person.mutualNames.length) + ' others' : '' %>
+        </div>
+      <% } else if (person.bio) { %>
+        <div class="wtf-meta"><%= person.bio.length > 48 ? person.bio.slice(0, 48) + '...' : person.bio %></div>
+      <% } %>
+    </div>
+    <div class="wtf-actions">
+      <%- include('follow-button', { person: { username: person.username, relationship: null, viewerFollows: false, isProtected: false } }) %>
+    </div>
+  </div>
+<% }); %>

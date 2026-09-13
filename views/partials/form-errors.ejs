@@ -1,0 +1,11 @@
+<% if (errors && errors.messages && errors.messages.length > 0) { %>
+  <div class="flash flash-error" role="alert">
+    <% if (errors.messages.length === 1) { %>
+      <%= errors.messages[0] %>
+    <% } else { %>
+      <ul style="padding-left:16px;list-style:disc;">
+        <% errors.messages.forEach(function (message) { %><li><%= message %></li><% }); %>
+      </ul>
+    <% } %>
+  </div>
+<% } %>

@@ -1,0 +1,169 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav', { openReports: headline.open_reports }) %>
+  <main class="content content-wide" id="main">
+
+    <% if (settings.maintenance || settings.read_only || !settings.registration_open || settings.announcement) { %>
+      <div class="admin-flags">
+        <% if (settings.maintenance) { %><span class="pill pill-danger">Maintenance mode &mdash; the site is down</span><% } %>
+        <% if (settings.read_only) { %><span class="pill pill-danger">Read-only mode</span><% } %>
+        <% if (!settings.registration_open) { %><span class="pill pill-danger">Sign-ups closed</span><% } %>
+        <% if (settings.announcement) { %><span class="pill pill-info">Announcement live</span><% } %>
+        <% if (isAdmin) { %><a class="admin-flags-link" href="/admin/system">Change</a><% } %>
+      </div>
+    <% } %>
+
+    <section class="admin-stat-grid">
+      <div class="admin-stat-tile">
+        <span class="label">Accounts</span>
+        <b><%= fmt.fullCount(headline.users) %></b>
+        <span class="meta">
+          <% if (deltas.users.pct !== null) { %>
+            <span class="delta is-<%= deltas.users.dir %>"><%= deltas.users.dir === 'up' ? '▲' : deltas.users.dir === 'down' ? '▼' : '•' %> <%= Math.abs(deltas.users.pct) %>%</span>
+          <% } %>
+          <%= fmt.fullCount(headline.users_7d) %> in 7 days
+        </span>
+        <%- signupSpark %>
+      </div>
+
+      <div class="admin-stat-tile">
+        <span class="label">Tweets</span>
+        <b><%= fmt.fullCount(headline.tweets) %></b>
+        <span class="meta">
+          <% if (deltas.tweets.pct !== null) { %>
+            <span class="delta is-<%= deltas.tweets.dir %>"><%= deltas.tweets.dir === 'up' ? '▲' : deltas.tweets.dir === 'down' ? '▼' : '•' %> <%= Math.abs(deltas.tweets.pct) %>%</span>
+          <% } %>
+          <%= fmt.fullCount(headline.tweets_7d) %> in 7 days
+        </span>
+        <%- tweetSpark %>
+      </div>
+
+      <div class="admin-stat-tile">
+        <span class="label">Active people</span>
+        <b><%= fmt.fullCount(active.day) %></b>
+        <span class="meta"><%= fmt.fullCount(active.week) %> this week &middot; <%= fmt.fullCount(active.month) %> this month</span>
+      </div>
+
+      <div class="admin-stat-tile<%= headline.open_reports > 0 ? ' is-attention' : '' %>">
+        <span class="label">Open reports</span>
+        <b><%= fmt.fullCount(headline.open_reports) %></b>
+        <span class="meta"><a href="/admin/reports">Review the queue</a></span>
+      </div>
+
+      <div class="admin-stat-tile<%= headline.suspended > 0 ? ' is-attention' : '' %>">
+        <span class="label">Suspended</span>
+        <b><%= fmt.fullCount(headline.suspended) %></b>
+        <span class="meta"><a href="/admin/users?status=suspended">View accounts</a></span>
+      </div>
+
+      <div class="admin-stat-tile">
+        <span class="label">Signed-in sessions</span>
+        <b><%= fmt.fullCount(sessions.active) %></b>
+        <span class="meta"><%= fmt.fullCount(sessions.expired) %> expired, not yet pruned</span>
+      </div>
+    </section>
+
+    <section class="module">
+      <div class="module-header">
+        <h2>Last 30 days</h2>
+        <span class="chart-legend">
+          <span class="key chart-a"></span> Tweets
+          <span class="key chart-b"></span> Signups
+        </span>
+      </div>
+      <div class="module-body chart-body">
+        <%- activityChart %>
+      </div>
+    </section>
+
+    <div class="admin-split">
+      <section class="module">
+        <div class="module-header">
+          <h2>Open reports</h2>
+          <a class="module-action" href="/admin/reports">All reports</a>
+        </div>
+        <% if (reports.length === 0) { %>
+          <div class="admin-empty">Nothing waiting. The queue is clear.</div>
+        <% } else { %>
+          <table class="admin-table">
+            <tbody>
+              <% reports.forEach(function (report) { %>
+                <tr>
+                  <td style="width:1%;"><span class="pill pill-danger"><%= report.category %></span></td>
+                  <td>
+                    <% if (report.target_tweet_id) { %>
+                      <a href="/<%= report.target_tweet_username %>/status/<%= report.target_tweet_id %>">Tweet by @<%= report.target_tweet_username %></a>
+                    <% } else if (report.target_username) { %>
+                      <a href="/admin/users/<%= report.target_username %>">@<%= report.target_username %></a>
+                    <% } %>
+                    <% if (report.details) { %><div class="admin-muted"><%= report.details %></div><% } %>
+                  </td>
+                  <td class="admin-nowrap"><%= fmt.shortTimestamp(report.created_at) %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </section>
+
+      <section class="module">
+        <div class="module-header">
+          <h2>Busiest this week</h2>
+          <a class="module-action" href="/admin/content?sort=engagement">Browse content</a>
+        </div>
+        <% if (mostActive.length === 0) { %>
+          <div class="admin-empty">Nobody has Tweeted in the last seven days.</div>
+        <% } else { %>
+          <table class="admin-table">
+            <tbody>
+              <% mostActive.forEach(function (person) { %>
+                <tr>
+                  <td style="width:1%;"><img class="admin-avatar" src="<%= person.avatarUrl %>" alt=""></td>
+                  <td>
+                    <a href="/admin/users/<%= person.username %>">@<%= person.username %></a>
+                    <% if (person.is_suspended) { %><span class="pill pill-danger">suspended</span><% } %>
+                    <div class="admin-muted"><%= person.display_name %></div>
+                  </td>
+                  <td class="admin-num"><%= fmt.fullCount(person.tweets) %> Tweets</td>
+                  <td class="admin-num admin-muted"><%= fmt.fullCount(person.favorites_received) %> favs</td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </section>
+    </div>
+
+    <% if (driftCount > 0 && isAdmin) { %>
+      <section class="module admin-warning">
+        <div class="module-body">
+          <strong><%= driftCount %> account<%= driftCount === 1 ? '' : 's' %> with drifted counters.</strong>
+          A Tweet or follower total does not match the rows behind it - usually a crash mid-transaction.
+          <a href="/admin/system">Recount them on the System page.</a>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="module">
+      <div class="module-header">
+        <h2>Recent administrative actions</h2>
+        <a class="module-action" href="/admin/audit">Full audit log</a>
+      </div>
+      <table class="admin-table">
+        <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th></tr></thead>
+        <tbody>
+          <% if (audit.length === 0) { %>
+            <tr><td colspan="4" class="admin-muted">Nothing logged yet.</td></tr>
+          <% } %>
+          <% audit.forEach(function (row) { %>
+            <tr>
+              <td class="admin-nowrap"><%= fmt.shortTimestamp(row.created_at) %></td>
+              <td><%= row.actor_username ? '@' + row.actor_username : 'system' %></td>
+              <td><code><%= row.action %></code></td>
+              <td class="admin-muted"><%= row.target_type || '' %> <%= row.target_id || '' %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div></div>

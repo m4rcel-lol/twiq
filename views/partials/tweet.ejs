@@ -1,0 +1,197 @@
+<%
+  var ctx = typeof context === 'undefined' ? 'timeline' : context;
+  var viewer = typeof currentUser === 'undefined' ? null : currentUser;
+%>
+<article class="tweet<%= tweet.isBest ? ' is-best' : '' %><%= (tweet.isPinned && ctx === 'profile') ? ' is-pinned' : '' %>"
+         data-tweet-id="<%= tweet.id %>"
+         data-tweet-author="<%= tweet.author.username %>">
+  <div class="tweet-avatar">
+    <a href="<%= tweet.author.profileUrl %>" tabindex="-1" aria-hidden="true">
+      <img src="<%= tweet.author.avatarUrl %>" alt="" width="48" height="48">
+    </a>
+  </div>
+  <div class="tweet-main">
+    <% if (tweet.retweetedBy) { %>
+      <div class="tweet-context">
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-retweet"></use></svg>
+        <a href="/<%= tweet.retweetedBy.username %>"><%= tweet.retweetedBy.displayName %></a> retweeted
+      </div>
+    <% } else if (tweet.isPinned && ctx === 'profile') { %>
+      <div class="tweet-context">
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-pin"></use></svg>
+        Pinned Tweet
+      </div>
+    <% } %>
+
+    <div class="tweet-header">
+      <span class="tweet-name-wrap">
+        <a class="tweet-name" href="<%= tweet.author.profileUrl %>"><%= tweet.author.displayName %></a>
+        <% if (tweet.author.isVerified) { %>
+          <svg class="verified-badge" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+        <% } %>
+        <% if (tweet.author.isAutomated) { %>
+          <svg class="automated-badge" role="img" aria-label="Automated account"><use href="#ic-robot"></use></svg>
+        <% } %>
+        <% if (tweet.author.isProtected) { %>
+          <svg class="protected-badge" role="img" aria-label="Protected account"><use href="#ic-lock"></use></svg>
+        <% } %>
+        <a class="tweet-handle" href="<%= tweet.author.profileUrl %>">@<%= tweet.author.username %></a>
+      </span>
+      <a class="tweet-time" href="<%= tweet.permalink %>">
+        <time datetime="<%= tweet.timeIso %>" title="<%= tweet.timeLong %>"><%= tweet.timeShort %></time>
+      </a>
+    </div>
+
+    <% if (tweet.replyTo) { %>
+      <div class="tweet-reply-line">in reply to <a href="/<%= tweet.replyTo.username %>">@<%= tweet.replyTo.username %></a></div>
+    <% } %>
+
+    <%# Clicking the words opens the Tweet. The timestamp above is the real
+        link, so this works without JavaScript and without nesting anchors
+        inside the mentions and hashtags in the body. %>
+    <p class="tweet-text" data-open-tweet="<%= tweet.permalink %>"><%- tweet.html %></p>
+
+    <% if (tweet.quoted || tweet.quotedUnavailable) { %>
+      <%- include('quoted-tweet', { quoted: tweet.quoted, unavailable: tweet.quotedUnavailable }) %>
+    <% } %>
+
+    <% if (tweet.hasMedia) { %>
+      <div class="tweet-media count-<%= tweet.media.length %>">
+        <% tweet.media.forEach(function (item) { %>
+          <% if (item.isVideo) { %>
+            <video src="<%= item.url %>" controls preload="metadata" playsinline></video>
+          <% } else { %>
+            <a href="<%= item.url %>" data-lightbox="<%= item.url %>" data-lightbox-kind="image">
+              <img src="<%= item.url %>" alt="<%= item.alt || ('Photo attached to a Tweet by @' + tweet.author.username) %>" loading="lazy">
+            </a>
+          <% } %>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <div class="tweet-actions<%= ctx === 'permalink' ? ' is-always-visible' : '' %>">
+      <% if (viewer) { %>
+        <button type="button" class="tweet-action" data-action="reply" aria-label="Reply to this Tweet">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-reply"></use></svg>
+          <span class="count" data-count="replies"><%= tweet.counts.replies > 0 ? tweet.counts.replies : '' %></span>
+        </button>
+
+        <div class="menu menu-retweet" data-menu>
+          <a class="tweet-action<%= tweet.viewerRetweeted ? ' is-active' : '' %>"
+             href="/tweets/<%= tweet.id %>/retweet" data-menu-toggle
+             aria-haspopup="true" aria-expanded="false"
+             aria-label="<%= tweet.viewerRetweeted ? 'Retweet options - you retweeted this' : 'Retweet or quote' %>">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-retweet"></use></svg>
+            <span class="count" data-count="retweets"><%= tweet.counts.retweets > 0 ? tweet.counts.retweets : '' %></span>
+          </a>
+          <div class="menu-panel" role="menu">
+            <form class="inline-form" method="post"
+                  action="/tweets/<%= tweet.id %>/<%= tweet.viewerRetweeted ? 'unretweet' : 'retweet' %>"
+                  data-interaction="retweet">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" role="menuitem" data-action="retweet"
+                      aria-pressed="<%= tweet.viewerRetweeted ? 'true' : 'false' %>">
+                <%= tweet.viewerRetweeted ? 'Undo Retweet' : 'Retweet' %>
+              </button>
+            </form>
+            <a role="menuitem" href="/compose?quote=<%= tweet.id %>">Quote Tweet</a>
+          </div>
+        </div>
+
+        <form class="inline-form" method="post"
+              action="/tweets/<%= tweet.id %>/<%= tweet.viewerFavorited ? 'unfavorite' : 'favorite' %>"
+              data-interaction="favorite">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="tweet-action<%= tweet.viewerFavorited ? ' is-active' : '' %>"
+                  data-action="favorite"
+                  aria-pressed="<%= tweet.viewerFavorited ? 'true' : 'false' %>"
+                  aria-label="<%= tweet.viewerFavorited ? 'Unfavorite' : 'Favorite' %>">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-star"></use></svg>
+            <span class="count" data-count="favorites"><%= tweet.counts.favorites > 0 ? tweet.counts.favorites : '' %></span>
+          </button>
+        </form>
+
+        <div class="menu" data-menu>
+          <button type="button" class="tweet-action" data-action="more" data-menu-toggle
+                  aria-haspopup="true" aria-expanded="false" aria-label="More options for this Tweet">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-more"></use></svg>
+          </button>
+          <div class="menu-panel" role="menu">
+            <button type="button" role="menuitem" data-copy-link="<%= baseUrl %><%= tweet.permalink %>">Copy link to Tweet</button>
+            <a role="menuitem" href="/messages?share=<%= tweet.id %>">Share via Direct Message</a>
+            <a role="menuitem" href="<%= tweet.permalink %>">Open Tweet</a>
+            <div class="menu-divider"></div>
+            <% if (tweet.isOwn) { %>
+              <% if (tweet.isPinned) { %>
+                <form method="post" action="/tweets/<%= tweet.id %>/unpin">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" role="menuitem">Unpin from profile</button>
+                </form>
+              <% } else { %>
+                <form method="post" action="/tweets/<%= tweet.id %>/pin">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" role="menuitem">Pin to your profile</button>
+                </form>
+              <% } %>
+              <form method="post" action="/tweets/<%= tweet.id %>/delete"
+                    data-confirm="Delete this Tweet? This cannot be undone.">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" role="menuitem" class="is-destructive">Delete Tweet</button>
+              </form>
+            <% } else { %>
+              <a role="menuitem" href="/tweets/<%= tweet.id %>/report">Report Tweet</a>
+              <form method="post" action="/<%= tweet.author.username %>/mute">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" role="menuitem">Mute @<%= tweet.author.username %></button>
+              </form>
+              <form method="post" action="/<%= tweet.author.username %>/block"
+                    data-confirm="Block @<%= tweet.author.username %>?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" role="menuitem" class="is-destructive">Block @<%= tweet.author.username %></button>
+              </form>
+              <% if (viewer.isStaff) { %>
+                <div class="menu-divider"></div>
+                <form method="post" action="/admin/tweets/<%= tweet.id %>/delete"
+                      data-confirm="Remove this Tweet as a moderator?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" role="menuitem" class="is-destructive">Remove (moderator)</button>
+                </form>
+              <% } %>
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <%# Signed out the row keeps exactly the same shape - icon plus count,
+            no stray labels - and every control invites a sign-in. %>
+        <a class="tweet-action" href="/login" data-action="reply" aria-label="Sign in to reply">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-reply"></use></svg>
+          <span class="count"><%= tweet.counts.replies > 0 ? tweet.counts.replies : '' %></span>
+        </a>
+        <a class="tweet-action" href="/login" data-action="retweet" aria-label="Sign in to retweet">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-retweet"></use></svg>
+          <span class="count"><%= tweet.counts.retweets > 0 ? tweet.counts.retweets : '' %></span>
+        </a>
+        <a class="tweet-action" href="/login" data-action="favorite" aria-label="Sign in to favorite">
+          <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-star"></use></svg>
+          <span class="count"><%= tweet.counts.favorites > 0 ? tweet.counts.favorites : '' %></span>
+        </a>
+      <% } %>
+    </div>
+
+    <% if (viewer) { %>
+      <div class="tweet-inline-reply">
+        <form method="post" action="/tweets" data-inline-reply>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="in_reply_to" value="<%= tweet.id %>">
+          <label class="visually-hidden" for="reply-<%= tweet.id %>">Reply to @<%= tweet.author.username %></label>
+          <textarea id="reply-<%= tweet.id %>" name="body" class="composer-textarea" rows="2" maxlength="<%= brand.tweetHardLimit %>"
+                    placeholder="Reply to @<%= tweet.author.username %>">@<%= tweet.author.username %> </textarea>
+          <div class="composer-toolbar">
+            <span class="composer-counter" data-counter><%= brand.tweetMaxLength %></span>
+            <button type="submit" class="btn btn-primary btn-sm">Reply</button>
+          </div>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</article>

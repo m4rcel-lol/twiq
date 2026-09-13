@@ -1,0 +1,11 @@
+<div class="error-shell">
+  <div class="code">403</div>
+  <h1>You are not allowed to see this</h1>
+  <p><%= message %></p>
+  <div class="error-actions">
+    <a class="btn btn-primary" href="/">Back to <%= brand.name %></a>
+    <a class="btn" href="/login">Sign in</a>
+  </div>
+  <% if (stack) { %><pre><%= stack %></pre><% } %>
+</div>
+<%- include('../partials/page-footer') %>

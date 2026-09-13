@@ -1,0 +1,32 @@
+<aside class="rail admin-rail">
+  <section class="module">
+    <div class="module-header">
+      <h2><%= brand.name %> control panel</h2>
+    </div>
+    <ul class="settings-nav admin-nav">
+      <% adminNav.forEach(function (item) { %>
+        <li>
+          <a href="<%= item.href %>" class="<%= section === item.key ? 'is-active' : '' %>">
+            <%= item.label %>
+            <% if (item.key === 'reports' && typeof openReports !== 'undefined' && openReports > 0) { %>
+              <span class="admin-count"><%= openReports %></span>
+            <% } %>
+          </a>
+        </li>
+      <% }); %>
+      <li><a href="/home">&larr; Back to <%= brand.name %></a></li>
+    </ul>
+  </section>
+  <section class="module">
+    <div class="module-body admin-whoami">
+      Signed in as <strong>@<%= currentUser.username %></strong>
+      <span class="pill <%= isAdmin ? 'pill-danger' : 'pill-info' %>"><%= currentUser.role %></span>
+      <p>
+        <%= isAdmin
+          ? 'You can change roles, settings and delete accounts.'
+          : 'Moderators can suspend accounts and remove content. System settings need an administrator.' %>
+        Every action here is written to the audit log.
+      </p>
+    </div>
+  </section>
+</aside>

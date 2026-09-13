@@ -1,0 +1,71 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav', { openReports: counts.open }) %>
+  <main class="content content-wide" id="main">
+    <section class="module">
+      <div class="module-header">
+        <h2>Reports</h2>
+        <span class="module-action admin-tabs">
+          <% [['open', counts.open], ['resolved', counts.resolved], ['dismissed', counts.dismissed], ['all', null]].forEach(function (o) { %>
+            <a href="/admin/reports?status=<%= o[0] %>" class="<%= status === o[0] ? 'is-active' : '' %>">
+              <%= o[0] %><% if (o[1] !== null) { %> (<%= o[1] %>)<% } %>
+            </a>
+          <% }); %>
+        </span>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr><th>Filed</th><th>Category</th><th>Target</th><th>Detail</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <% if (reports.length === 0) { %>
+            <tr><td colspan="6" class="admin-muted">No reports with this status.</td></tr>
+          <% } %>
+          <% reports.forEach(function (report) { %>
+            <tr>
+              <td class="admin-nowrap">
+                <%= fmt.shortTimestamp(report.created_at) %>
+                <div class="admin-muted"><%= report.reporter_username ? '@' + report.reporter_username : 'deleted' %></div>
+              </td>
+              <td><span class="pill <%= report.status === 'open' ? 'pill-danger' : '' %>"><%= report.category %></span></td>
+              <td>
+                <% if (report.target_tweet_id) { %>
+                  <a href="/<%= report.target_tweet_username %>/status/<%= report.target_tweet_id %>">Tweet by @<%= report.target_tweet_username %></a>
+                  <div class="admin-muted"><%= report.target_body %></div>
+                <% } else if (report.target_username) { %>
+                  <a href="/admin/users/<%= report.target_username %>">@<%= report.target_username %></a>
+                <% } %>
+              </td>
+              <td><%= report.details %></td>
+              <td><span class="pill <%= report.status === 'open' ? 'pill-danger' : 'pill-success' %>"><%= report.status %></span></td>
+              <td class="admin-nowrap">
+                <% if (report.status === 'open') { %>
+                  <form class="inline-form" method="post" action="/admin/reports/<%= report.id %>/resolve">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="status" value="resolved">
+                    <button type="submit" class="btn btn-sm">Resolve</button>
+                  </form>
+                  <form class="inline-form" method="post" action="/admin/reports/<%= report.id %>/resolve">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="status" value="dismissed">
+                    <button type="submit" class="btn btn-sm">Dismiss</button>
+                  </form>
+                <% } %>
+                <% if (report.target_tweet_id) { %>
+                  <form class="inline-form" method="post" action="/admin/tweets/<%= report.target_tweet_id %>/delete"
+                        data-confirm="Remove this Tweet?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove Tweet</button>
+                  </form>
+                <% } %>
+                <% if (report.target_username) { %>
+                  <a class="btn btn-sm" href="/admin/users/<%= report.target_username %>">Open account</a>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div></div>

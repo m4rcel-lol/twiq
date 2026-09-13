@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<%# Only the three real modes reach the attribute. Light is the default and
+    needs none; anything else - a stray local of the same name, say - is
+    ignored rather than written out as a value no stylesheet can match. %>
+<% var themeMode = typeof theme === 'string' && (theme === 'dark' || theme === 'system') ? theme : null; %>
+<html lang="en"<% if (themeMode) { %> data-theme="<%= themeMode %>"<% } %>>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= title %></title>
+<meta name="description" content="<%= description %>">
+<% if (noindex) { %><meta name="robots" content="noindex, nofollow"><% } %>
+<% if (canonical) { %><link rel="canonical" href="<%= canonical %>"><% } %>
+<meta property="og:site_name" content="<%= brand.name %>">
+<meta property="og:title" content="<%= title %>">
+<meta property="og:description" content="<%= description %>">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="<%= asset('/css/twiq.css') %>">
+</head>
+<body class="<%= bodyClass %>" data-csrf="<%= csrfToken %>"
+      data-tweet-max="<%= brand.tweetMaxLength %>">
+<div class="nav-progress" data-nav-progress aria-hidden="true"><span></span></div>
+<%- include('../partials/icons') %>
+<%- include('../partials/topbar') %>
+<div class="page-body">
+  <%- include('../partials/announcement') %>
+  <%- include('../partials/flash') %>
+  <%- body %>
+</div>
+<script src="<%= asset('/js/twiq.js') %>" defer></script>
+</body>
+</html>

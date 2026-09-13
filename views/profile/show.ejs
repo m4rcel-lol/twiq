@@ -1,0 +1,57 @@
+<%- include('../partials/profile-header', { profile: profile, isOwner: isOwner, tab: tab }) %>
+
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/profile-card', { profile: profile, isOwner: isOwner, photos: photos, followedBy: followedBy }) %>
+      <% if (side && side.viewer) { %>
+        <%# Supplementary on a profile - hidden on a phone, where the page
+            should be the person, not the sidebar. %>
+        <div class="rail-extras">
+          <%- include('../partials/who-to-follow', { side: side }) %>
+          <%- include('../partials/trends', { side: side }) %>
+        </div>
+      <% } %>
+      <%- include('../partials/rail-footer') %>
+    </aside>
+
+    <main class="content" id="main">
+      <nav class="profile-tabs" aria-label="Tweet filters">
+        <a href="/<%= profile.username %>" class="<%= tab === 'tweets' ? 'is-active' : '' %>">Tweets</a>
+        <a href="/<%= profile.username %>?tab=replies" class="<%= tab === 'replies' ? 'is-active' : '' %>">Tweets &amp; replies</a>
+        <a href="/<%= profile.username %>/media" class="<%= tab === 'media' ? 'is-active' : '' %>">Photos &amp; videos</a>
+      </nav>
+
+      <section class="module timeline">
+        <div class="stream" data-stream>
+          <% if (profile.isSuspended) { %>
+            <div class="empty-state">
+              <strong>Account suspended</strong>
+              This account has been suspended for breaking the <%= brand.name %> rules.
+            </div>
+          <% } else if (!canView) { %>
+            <div class="protected-notice">
+              <svg class="icon" aria-hidden="true" style="width:28px;height:28px;"><use href="#ic-lock"></use></svg>
+              <strong>These Tweets are protected</strong>
+              <p>Only approved followers can see @<%= profile.username %>'s Tweets.
+                <% if (currentUser) { %>Send a follow request to see them.<% } else { %><a href="/login">Sign in</a> to send a follow request.<% } %>
+              </p>
+            </div>
+          <% } else { %>
+            <% if (pinned) { %>
+              <%- include('../partials/tweet', { tweet: pinned, context: 'profile' }) %>
+            <% } %>
+            <% if (tweets.length === 0 && !pinned) { %>
+              <div class="empty-state">
+                <strong><%= isOwner ? 'You have not Tweeted yet' : '@' + profile.username + ' has not Tweeted yet' %></strong>
+                <%= isOwner ? 'Your Tweets will show up here.' : 'When they do, their Tweets will show up here.' %>
+              </div>
+            <% } else { %>
+              <%- include('../partials/timeline-items', { tweets: tweets, nextCursor: nextCursor, timelineUrl: timelineUrl, context: 'profile' }) %>
+            <% } %>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

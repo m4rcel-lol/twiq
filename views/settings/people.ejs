@@ -1,0 +1,28 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/settings-nav') %>
+  <main class="content" id="main">
+    <section class="module">
+      <div class="module-header"><h2><%= section === 'blocked' ? 'Blocked accounts' : 'Muted accounts' %></h2></div>
+      <div class="people-list">
+        <% if (people.length === 0) { %>
+          <div class="empty-state"><strong><%= emptyMessage %></strong></div>
+        <% } %>
+        <% people.forEach(function (person) { %>
+          <div class="person">
+            <a href="<%= person.profileUrl %>"><img src="<%= person.avatarUrl %>" alt=""></a>
+            <div class="person-body">
+              <a class="person-name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
+              <a class="person-handle" href="<%= person.profileUrl %>">@<%= person.username %></a>
+            </div>
+            <div class="person-actions">
+              <form method="post" action="<%= actionPath(person.username) %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-sm"><%= actionLabel %></button>
+              </form>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+  </main>
+</div></div>

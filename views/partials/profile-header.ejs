@@ -1,0 +1,94 @@
+<%
+  var rel = profile.relationship || {};
+  var statTab = typeof tab === 'undefined' ? 'tweets' : tab;
+  var isTweetsTab = ['tweets', 'replies', 'media'].indexOf(statTab) !== -1;
+%>
+<div class="profile-header<%= profile.hasHeader ? '' : ' is-default' %>"
+     <% if (profile.hasHeader) { %>style="background-image:url('<%= profile.headerUrl %>')"<% } %>
+     role="img" aria-label="<%= profile.displayName %>'s header image">
+  <div class="profile-header-scrim"></div>
+</div>
+
+<div class="profile-bar">
+  <div class="profile-bar-inner">
+    <img class="profile-avatar" src="<%= profile.avatarUrl %>"
+         alt="<%= profile.displayName %>" width="200" height="200">
+
+    <nav class="profile-stats" aria-label="Profile statistics">
+      <a href="/<%= profile.username %>" class="<%= isTweetsTab ? 'is-active' : '' %>">
+        <span class="stat-label">Tweets</span>
+        <span class="stat-value"><%= fmt.compactCount(profile.counts.tweets) %></span>
+      </a>
+      <a href="/<%= profile.username %>/following" class="<%= statTab === 'following' ? 'is-active' : '' %>">
+        <span class="stat-label">Following</span>
+        <span class="stat-value"><%= fmt.compactCount(profile.counts.following) %></span>
+      </a>
+      <a href="/<%= profile.username %>/followers" class="<%= statTab === 'followers' ? 'is-active' : '' %>">
+        <span class="stat-label">Followers</span>
+        <span class="stat-value"><%= fmt.compactCount(profile.counts.followers) %></span>
+      </a>
+      <a href="/<%= profile.username %>/favorites" class="<%= statTab === 'favorites' ? 'is-active' : '' %>">
+        <span class="stat-label">Favorites</span>
+        <span class="stat-value"><%= fmt.compactCount(profile.counts.favorites) %></span>
+      </a>
+      <a href="/<%= profile.username %>/lists" class="<%= statTab === 'lists' ? 'is-active' : '' %>">
+        <span class="stat-label">Lists</span>
+        <span class="stat-value"><%= fmt.compactCount(profile.counts.lists) %></span>
+      </a>
+    </nav>
+
+    <div class="profile-bar-actions">
+      <% if (isOwner) { %>
+        <a class="btn btn-sm" href="/settings/profile">Edit profile</a>
+      <% } else if (currentUser) { %>
+        <%- include('follow-button', { person: profile, buttonSize: 'btn-sm' }) %>
+        <div class="menu" data-menu>
+          <button type="button" class="btn btn-sm" data-menu-toggle aria-haspopup="true" aria-expanded="false"
+                  aria-label="More actions for @<%= profile.username %>">
+            <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-more"></use></svg>
+          </button>
+          <div class="menu-panel" role="menu">
+            <a role="menuitem" href="/compose?text=%40<%= profile.username %>%20">Tweet to @<%= profile.username %></a>
+            <form method="post" action="/messages/new">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="username" value="<%= profile.username %>">
+              <button type="submit" role="menuitem">Send a Direct Message</button>
+            </form>
+            <a role="menuitem" href="/lists">Add or remove from Lists</a>
+            <div class="menu-divider"></div>
+            <% if (rel.muting) { %>
+              <form method="post" action="/<%= profile.username %>/unmute">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" role="menuitem">Unmute @<%= profile.username %></button>
+              </form>
+            <% } else { %>
+              <form method="post" action="/<%= profile.username %>/mute">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" role="menuitem">Mute @<%= profile.username %></button>
+              </form>
+            <% } %>
+            <% if (rel.blocking) { %>
+              <form method="post" action="/<%= profile.username %>/unblock">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" role="menuitem">Unblock @<%= profile.username %></button>
+              </form>
+            <% } else { %>
+              <form method="post" action="/<%= profile.username %>/block"
+                    data-confirm="Block @<%= profile.username %>? They will not be able to follow you or see your Tweets.">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" role="menuitem" class="is-destructive">Block @<%= profile.username %></button>
+              </form>
+            <% } %>
+            <a role="menuitem" class="is-destructive" href="/<%= profile.username %>/report">Report @<%= profile.username %></a>
+            <% if (currentUser.isStaff) { %>
+              <div class="menu-divider"></div>
+              <a role="menuitem" href="/admin/users?q=<%= profile.username %>">Open in admin</a>
+            <% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <a class="btn btn-primary btn-sm" href="/login">Follow</a>
+      <% } %>
+    </div>
+  </div>
+</div>

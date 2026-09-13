@@ -1,0 +1,62 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav') %>
+  <main class="content content-wide" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Audit log</h2></div>
+
+      <form class="admin-toolbar" method="get" action="/admin/audit">
+        <label class="visually-hidden" for="a-actor">Actor</label>
+        <input id="a-actor" type="text" name="actor" value="<%= actor %>" placeholder="username" maxlength="15">
+        <label class="visually-hidden" for="a-action">Action</label>
+        <select id="a-action" name="action">
+          <option value="">Every action</option>
+          <% actions.forEach(function (name) { %>
+            <option value="<%= name %>" <%= action === name ? 'selected' : '' %>><%= name %></option>
+          <% }); %>
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        <a class="btn btn-sm" href="/admin/audit">Reset</a>
+      </form>
+
+      <div class="admin-scroll">
+        <table class="admin-table">
+          <thead><tr><th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Metadata</th><th>IP</th></tr></thead>
+          <tbody>
+            <% if (logs.length === 0) { %>
+              <tr><td colspan="6" class="admin-muted">Nothing matches those filters.</td></tr>
+            <% } %>
+            <% logs.forEach(function (row) { %>
+              <tr>
+                <td class="admin-nowrap">
+                  <time datetime="<%= fmt.isoDate(row.created_at) %>" title="<%= fmt.longTimestamp(row.created_at) %>">
+                    <%= fmt.shortTimestamp(row.created_at) %>
+                  </time>
+                </td>
+                <td class="admin-nowrap"><%= row.actor_username ? '@' + row.actor_username : 'system' %></td>
+                <td><code><%= row.action %></code></td>
+                <td class="admin-nowrap admin-muted">
+                  <% if (row.target_type === 'user' && row.metadata && row.metadata.username) { %>
+                    <a href="/admin/users/<%= row.metadata.username %>">@<%= row.metadata.username %></a>
+                  <% } else { %>
+                    <%= row.target_type || '' %> <%= row.target_id || '' %>
+                  <% } %>
+                </td>
+                <td class="admin-meta"><code><%= JSON.stringify(row.metadata) %></code></td>
+                <td class="admin-nowrap admin-muted"><code><%= row.ip_address || '' %></code></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if (page > 0 || hasMore) { %>
+        <div class="module-footer admin-pager">
+          <% var qs = 'actor=' + encodeURIComponent(actor) + '&action=' + encodeURIComponent(action); %>
+          <% if (page > 0) { %><a href="/admin/audit?<%= qs %>&amp;page=<%= page - 1 %>">&larr; Newer</a><% } %>
+          <span class="admin-muted">page <%= page + 1 %></span>
+          <% if (hasMore) { %><a href="/admin/audit?<%= qs %>&amp;page=<%= page + 1 %>">Older &rarr;</a><% } %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div></div>

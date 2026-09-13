@@ -1,0 +1,258 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav') %>
+  <main class="content content-wide" id="main">
+
+    <section class="module">
+      <div class="module-header"><h2>Site controls</h2></div>
+      <div class="module-body">
+        <form method="post" action="/admin/system/settings">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="checkbox-row">
+            <input id="registration_open" type="checkbox" name="registration_open"
+                   <%= settings.registration_open ? 'checked' : '' %>>
+            <label for="registration_open">Accept new accounts
+              <span class="form-hint">Turning this off hides the sign-up form and refuses registrations, without taking the site down.</span>
+            </label>
+          </div>
+
+          <div class="checkbox-row">
+            <input id="read_only" type="checkbox" name="read_only" <%= settings.read_only ? 'checked' : '' %>>
+            <label for="read_only">Read-only mode
+              <span class="form-hint">People can read everything but cannot Tweet, reply, favorite, retweet, follow or send messages. Moderators are unaffected.</span>
+            </label>
+          </div>
+
+          <div class="checkbox-row admin-switch-danger">
+            <input id="maintenance" type="checkbox" name="maintenance" <%= settings.maintenance ? 'checked' : '' %>>
+            <label for="maintenance">Maintenance mode
+              <span class="form-hint">
+                Takes the whole site down and serves a maintenance page with a 503.
+                Signing in, signing out and this control panel stay reachable, and staff
+                keep seeing the site normally &mdash; so you can always turn it back off.
+              </span>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="maintenance_message">Maintenance message (optional)</label>
+            <input id="maintenance_message" type="text" name="maintenance_message" maxlength="280"
+                   value="<%= settings.maintenance_message %>"
+                   placeholder="We expect to be back shortly...">
+            <div class="form-hint">
+              Replaces the second line of the maintenance page. Leave empty for the default,
+              which links to the status page below.
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="status_url">Status page link</label>
+            <input id="status_url" type="text" name="status_url" maxlength="200"
+                   value="<%= settings.status_url %>" placeholder="/help">
+            <div class="form-hint">Where &ldquo;<%= brand.name %> Status&rdquo; points on the maintenance page.</div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="announcement">Site announcement</label>
+            <input id="announcement" type="text" name="announcement" maxlength="280"
+                   value="<%= settings.announcement %>"
+                   placeholder="Maintenance tonight at 23:00 UTC.">
+            <div class="form-hint">Shown as a banner under the top bar on every page. Leave empty to remove it.</div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="announcement_level">Banner tone</label>
+            <select id="announcement_level" name="announcement_level">
+              <% [['info','Information'],['warning','Warning'],['critical','Critical']].forEach(function (o) { %>
+                <option value="<%= o[0] %>" <%= settings.announcement_level === o[0] ? 'selected' : '' %>><%= o[1] %></option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save controls</button>
+          <% if (settings.maintenance) { %>
+            <a class="btn btn-sm" href="/" target="_blank" rel="noopener">Preview the page</a>
+          <% } %>
+        </div>
+        </form>
+      </div>
+    </section>
+
+    <div class="admin-split">
+      <section class="module">
+        <div class="module-header"><h2>Runtime</h2></div>
+        <table class="admin-table admin-kv">
+          <tbody>
+            <tr><th>Environment</th><td><span class="pill <%= runtime.env === 'production' ? 'pill-success' : '' %>"><%= runtime.env %></span></td></tr>
+            <tr><th>Node</th><td><code><%= runtime.node %></code></td></tr>
+            <tr><th>Uptime</th><td><%= Math.floor(runtime.uptime / 3600) %>h <%= Math.floor((runtime.uptime % 3600) / 60) %>m</td></tr>
+            <tr><th>Memory</th><td><%= fmt.bytes(runtime.memory) %> resident</td></tr>
+            <tr><th>Base URL</th><td><code><%= runtime.baseUrl %></code></td></tr>
+            <tr><th>Database pool</th><td><%= runtime.pool.total %> open, <%= runtime.pool.idle %> idle, <%= runtime.pool.waiting %> waiting</td></tr>
+            <tr><th>Tweet limit</th><td><%= runtime.tweetMaxLength %> characters</td></tr>
+            <tr><th>Upload limit</th><td><%= fmt.bytes(runtime.uploadMax) %> &middot; <code><%= runtime.storageDriver %></code> storage</td></tr>
+            <tr><th>WebSockets</th><td><%= runtime.websockets ? 'enabled' : 'disabled' %></td></tr>
+            <tr><th>Sessions</th><td><%= fmt.fullCount(sessions.active) %> active, <%= fmt.fullCount(sessions.expired) %> expired</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="module">
+        <div class="module-header"><h2>Stored media</h2></div>
+        <table class="admin-table admin-kv">
+          <tbody>
+            <tr><th>Files</th><td><%= fmt.fullCount(storageStats.files) %> &middot; <%= fmt.bytes(storageStats.bytes) %></td></tr>
+            <tr><th>Photos</th><td><%= fmt.fullCount(storageStats.photos) %></td></tr>
+            <tr><th>GIFs</th><td><%= fmt.fullCount(storageStats.gifs) %></td></tr>
+            <tr><th>Videos</th><td><%= fmt.fullCount(storageStats.videos) %></td></tr>
+            <tr>
+              <th>Unreferenced</th>
+              <td>
+                <% if (storageStats.orphanFiles > 0) { %>
+                  <strong><%= fmt.fullCount(storageStats.orphanFiles) %></strong> files, <%= fmt.bytes(storageStats.orphanBytes) %>
+                  <div class="admin-muted">Uploaded over a day ago and never attached to anything.</div>
+                <% } else { %>
+                  None
+                <% } %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="module">
+      <div class="module-header"><h2>Maintenance</h2></div>
+      <div class="module-body admin-tasks">
+        <div class="admin-task">
+          <div>
+            <strong>Recount member totals</strong>
+            <p>
+              Tweet, follower, following, favorite and List counts are kept as columns and
+              updated inside each transaction. This puts any that have drifted back in step.
+              <% if (drift.length > 0) { %>
+                <span class="admin-drift"><%= drift.length %> account<%= drift.length === 1 ? '' : 's' %> currently adrift.</span>
+              <% } else { %>
+                <span class="admin-ok">Everything is in step.</span>
+              <% } %>
+            </p>
+          </div>
+          <form method="post" action="/admin/system/maintenance/recount">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Recount</button>
+          </form>
+        </div>
+
+        <div class="admin-task">
+          <div>
+            <strong>Delete unreferenced uploads</strong>
+            <p>
+              Removes files uploaded over a day ago that were never attached to a Tweet,
+              a message, an avatar, a header or a background &mdash; and their rows.
+              <% if (storageStats.orphanFiles > 0) { %>
+                <span class="admin-drift"><%= fmt.fullCount(storageStats.orphanFiles) %> waiting, <%= fmt.bytes(storageStats.orphanBytes) %>.</span>
+              <% } %>
+            </p>
+          </div>
+          <form method="post" action="/admin/system/maintenance/media"
+                data-confirm="Permanently delete unreferenced uploads?">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm" <%= storageStats.orphanFiles === 0 ? 'disabled' : '' %>>Clean up</button>
+          </form>
+        </div>
+
+        <div class="admin-task">
+          <div>
+            <strong>Prune expired sessions</strong>
+            <p>
+              Session rows outlive their cookies. <%= fmt.fullCount(sessions.expired) %> expired row<%= sessions.expired === 1 ? '' : 's' %> can go.
+            </p>
+          </div>
+          <form method="post" action="/admin/system/maintenance/sessions">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm" <%= sessions.expired === 0 ? 'disabled' : '' %>>Prune</button>
+          </form>
+        </div>
+
+        <div class="admin-task">
+          <div>
+            <strong>Prune old sign-in attempts</strong>
+            <p>Sign-in records feed the brute-force lockout. Anything older than 30 days is dead weight.</p>
+          </div>
+          <form method="post" action="/admin/system/maintenance/logins">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Prune</button>
+          </form>
+        </div>
+
+        <div class="admin-task">
+          <div>
+            <strong>Recompute worldwide trends</strong>
+            <p>Trends refresh on a ten-minute timer. This runs it now.</p>
+          </div>
+          <form method="post" action="/admin/system/maintenance/trends">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Recompute</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <% if (drift.length > 0) { %>
+      <section class="module">
+        <div class="module-header"><h2>Counters that have drifted</h2></div>
+        <div class="admin-scroll">
+          <table class="admin-table">
+            <thead><tr><th>Account</th><th>Tweets</th><th>Followers</th><th>Following</th><th>Favorites</th><th>Lists</th></tr></thead>
+            <tbody>
+              <% drift.forEach(function (row) { %>
+                <tr>
+                  <td><a href="/admin/users/<%= row.username %>">@<%= row.username %></a></td>
+                  <td class="<%= row.tweet_count !== row.actual_tweets ? 'admin-bad' : '' %>"><%= row.tweet_count %> &rarr; <%= row.actual_tweets %></td>
+                  <td class="<%= row.follower_count !== row.actual_followers ? 'admin-bad' : '' %>"><%= row.follower_count %> &rarr; <%= row.actual_followers %></td>
+                  <td class="<%= row.following_count !== row.actual_following ? 'admin-bad' : '' %>"><%= row.following_count %> &rarr; <%= row.actual_following %></td>
+                  <td class="<%= row.favorite_count !== row.actual_favorites ? 'admin-bad' : '' %>"><%= row.favorite_count %> &rarr; <%= row.actual_favorites %></td>
+                  <td class="<%= row.list_count !== row.actual_lists ? 'admin-bad' : '' %>"><%= row.list_count %> &rarr; <%= row.actual_lists %></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    <% } %>
+
+    <div class="admin-split">
+      <section class="module">
+        <div class="module-header"><h2>Largest tables</h2></div>
+        <table class="admin-table">
+          <thead><tr><th>Table</th><th class="admin-num">Rows</th><th class="admin-num">Size</th></tr></thead>
+          <tbody>
+            <% dbStats.forEach(function (row) { %>
+              <tr>
+                <td><code><%= row.table_name %></code></td>
+                <td class="admin-num"><%= fmt.fullCount(row.rows) %></td>
+                <td class="admin-num"><%= fmt.bytes(row.bytes) %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="module">
+        <div class="module-header"><h2>Migrations</h2></div>
+        <table class="admin-table">
+          <thead><tr><th>Migration</th><th>Applied</th></tr></thead>
+          <tbody>
+            <% migrations.forEach(function (row) { %>
+              <tr>
+                <td><code><%= row.name %></code></td>
+                <td class="admin-nowrap admin-muted"><%= fmt.shortTimestamp(row.applied_at) %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+</div></div>

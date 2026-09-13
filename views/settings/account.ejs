@@ -1,0 +1,76 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/settings-nav') %>
+  <main class="content" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Account</h2></div>
+      <div class="module-body">
+        <form method="post" action="/settings/account">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-row">
+            <label class="form-label" for="username">Username</label>
+            <input id="username" type="text" name="username" value="<%= account.username %>"
+                   maxlength="15" pattern="[A-Za-z0-9_]{1,15}" required>
+            <div class="form-hint">Your profile lives at <%= baseUrl %>/<%= account.username %></div>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="email">Email address</label>
+            <input id="email" type="email" name="email" value="<%= account.email %>" maxlength="254" required>
+            <div class="form-hint">
+              <% if (account.emailVerified) { %>
+                Confirmed.
+              <% } else { %>
+                Not confirmed yet.
+              <% } %>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="language">Language</label>
+            <select id="language" name="language">
+              <option value="en" <%= settings.language === 'en' ? 'selected' : '' %>>English</option>
+              <option value="de" <%= settings.language === 'de' ? 'selected' : '' %>>Deutsch</option>
+              <option value="fr" <%= settings.language === 'fr' ? 'selected' : '' %>>Français</option>
+              <option value="es" <%= settings.language === 'es' ? 'selected' : '' %>>Español</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="timezone">Time zone</label>
+            <input id="timezone" type="text" name="timezone" value="<%= settings.timezone %>" maxlength="60">
+          </div>
+          <div class="checkbox-row">
+            <input id="is_protected" type="checkbox" name="is_protected" <%= account.isProtected ? 'checked' : '' %>>
+            <label for="is_protected">Protect my Tweets
+              <span class="form-hint">Only people you approve can see your Tweets.</span>
+            </label>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Save changes</button></div>
+        </form>
+      </div>
+      <% if (!account.emailVerified) { %>
+        <div class="module-footer">
+          <form method="post" action="/settings/account/resend-verification" class="inline-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Resend confirmation email</button>
+          </form>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="module">
+      <div class="module-header"><h2>Deactivate your account</h2></div>
+      <div class="module-body">
+        <p style="font-size:13px;color:var(--muted-text);">
+          Deleting your account removes your profile, Tweets, Direct Messages and Lists permanently.
+        </p>
+        <form method="post" action="/settings/account/delete"
+              data-confirm="Permanently delete your account and everything in it?">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-row">
+            <label class="form-label" for="delete-password">Confirm your password</label>
+            <input id="delete-password" type="password" name="password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-danger">Delete my account</button>
+        </form>
+      </div>
+    </section>
+  </main>
+</div></div>

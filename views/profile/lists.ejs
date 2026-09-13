@@ -1,0 +1,29 @@
+<%- include('../partials/profile-header', { profile: profile, isOwner: isOwner, tab: 'lists' }) %>
+
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/profile-card', { profile: profile, isOwner: isOwner, photos: photos, followedBy: followedBy }) %>
+      <%- include('../partials/rail-footer') %>
+    </aside>
+    <main class="content" id="main">
+      <section class="module">
+        <div class="timeline-heading">Lists</div>
+        <% if (lists.length === 0) { %>
+          <div class="empty-state"><strong>No Lists yet</strong>Lists group accounts into their own timeline.</div>
+        <% } else { %>
+          <% lists.forEach(function (list) { %>
+            <div class="list-row">
+              <div class="list-body">
+                <a class="list-name" href="<%= list.url %>"><%= list.name %></a>
+                <% if (list.isPrivate) { %><span class="badge-private">Private</span><% } %>
+                <div class="list-meta"><%= fmt.fullCount(list.memberCount) %> members</div>
+                <% if (list.description) { %><div class="list-desc"><%= list.description %></div><% } %>
+              </div>
+            </div>
+          <% }); %>
+        <% } %>
+      </section>
+    </main>
+  </div>
+</div>

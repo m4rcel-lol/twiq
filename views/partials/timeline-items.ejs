@@ -1,0 +1,9 @@
+<% tweets.forEach(function (tweet) { %>
+  <%- include('tweet', { tweet: tweet, context: typeof context === 'undefined' ? 'timeline' : context }) %>
+<% }); %>
+<% if (nextCursor) { %>
+  <div class="stream-footer" data-stream-footer>
+    <a href="<%= timelineUrl %><%= timelineUrl.indexOf('?') === -1 ? '?' : '&' %>cursor=<%= nextCursor %>"
+       data-load-more data-cursor="<%= nextCursor %>" data-url="<%= timelineUrl %>">Load more Tweets</a>
+  </div>
+<% } %>

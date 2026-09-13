@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= brand.name %> is down for maintenance</title>
+<meta name="description" content="<%= brand.name %> is down for maintenance. <%= customMessage || 'We expect to be back shortly.' %>">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/images/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="<%= asset('/css/twiq.css') %>">
+</head>
+<body class="page-maintenance">
+  <header class="maintenance-bar">
+    <div class="maintenance-bar-inner">
+      <a class="maintenance-mark" href="/" aria-label="<%= brand.name %>">
+        <svg viewBox="0 0 28 30" aria-hidden="true" width="26" height="28">
+          <path fill="currentColor" d="M14 2C7.4 2 2 6.9 2 12.9c0 3.5 1.9 6.7 4.8 8.7v5.2l5-3a14.6 14.6 0 0 0 2.2.2c6.6 0 12-4.9 12-10.9C26 6.9 20.6 2 14 2z"/>
+          <circle cx="9" cy="13" r="1.8" fill="#2b3a46"/>
+          <circle cx="14" cy="13" r="1.8" fill="#2b3a46"/>
+          <circle cx="19" cy="13" r="1.8" fill="#2b3a46"/>
+        </svg>
+      </a>
+      <a class="maintenance-back" href="/">Back home &rarr;</a>
+    </div>
+  </header>
+
+  <main class="maintenance-main" id="main">
+    <h1><%= brand.name %> is currently down for maintenance.</h1>
+    <p class="maintenance-lead">
+      <% if (customMessage) { %>
+        <%= customMessage %>
+      <% } else { %>
+        We expect to be back shortly. For more information, check out
+        <a href="<%= statusUrl %>"><strong><%= brand.name %> Status</strong></a>.
+        Thanks for your patience!
+      <% } %>
+    </p>
+    <p class="maintenance-legal">
+      &copy; <%= new Date().getUTCFullYear() %> <%= brand.name %>
+      <a href="/about">About</a>
+      <a href="/help">Help</a>
+      <a href="/terms">Terms</a>
+      <a href="/privacy">Privacy</a>
+    </p>
+
+    <%- include('partials/maintenance-art') %>
+  </main>
+</body>
+</html>

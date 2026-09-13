@@ -1,0 +1,30 @@
+<%- include('../partials/profile-header', { profile: profile, isOwner: isOwner, tab: 'favorites' }) %>
+
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/profile-card', { profile: profile, isOwner: isOwner, photos: photos, followedBy: followedBy }) %>
+      <%- include('../partials/rail-footer') %>
+    </aside>
+    <main class="content" id="main">
+      <section class="module timeline">
+        <div class="timeline-heading">Favorites</div>
+        <div class="stream" data-stream>
+          <% if (!canView) { %>
+            <div class="protected-notice">
+              <svg class="icon" style="width:28px;height:28px;" aria-hidden="true"><use href="#ic-lock"></use></svg>
+              <strong>These Tweets are protected</strong>
+            </div>
+          <% } else if (tweets.length === 0) { %>
+            <div class="empty-state">
+              <strong>No favorites yet</strong>
+              Tweets @<%= profile.username %> favorites will show up here.
+            </div>
+          <% } else { %>
+            <%- include('../partials/timeline-items', { tweets: tweets, nextCursor: nextCursor, timelineUrl: timelineUrl }) %>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

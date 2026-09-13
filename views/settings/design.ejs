@@ -1,0 +1,72 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/settings-nav') %>
+  <main class="content" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Design</h2></div>
+      <div class="module-body">
+        <form method="post" action="/settings/design" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-row">
+            <label class="form-label">Theme</label>
+            <div class="theme-choice">
+              <% [
+                   ['light', 'Light', 'The default. The original Twiq, on white.'],
+                   ['dark', 'Dark', 'The same layout on a dark ground.'],
+                   ['system', 'Follow my system', 'Matches whatever your device is set to.']
+                 ].forEach(function (option) { %>
+                <label class="theme-option<%= design.mode === option[0] ? ' is-selected' : '' %>">
+                  <input type="radio" name="theme" value="<%= option[0] %>"
+                         <%= design.mode === option[0] ? 'checked' : '' %>>
+                  <span class="theme-swatch theme-swatch-<%= option[0] %>" aria-hidden="true">
+                    <span class="bar"></span><span class="line"></span><span class="line short"></span>
+                  </span>
+                  <span class="theme-label">
+                    <strong><%= option[1] %></strong>
+                    <span><%= option[2] %></span>
+                  </span>
+                </label>
+              <% }); %>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="accent_color">Accent colour</label>
+            <div class="color-row">
+              <input class="color-swatch" id="accent_color_picker" type="color" value="<%= design.accent %>"
+                     data-color-sync="accent_color" aria-label="Pick an accent colour">
+              <input id="accent_color" type="text" name="accent_color" value="<%= design.accent %>"
+                     pattern="#[0-9a-fA-F]{6}" maxlength="7" required>
+            </div>
+            <div class="form-hint">Links, buttons and the <%= brand.name %> logo use this colour on your pages.</div>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="background_color">Background colour</label>
+            <div class="color-row">
+              <input class="color-swatch" id="background_color_picker" type="color" value="<%= design.background %>"
+                     data-color-sync="background_color" aria-label="Pick a background colour">
+              <input id="background_color" type="text" name="background_color" value="<%= design.background %>"
+                     pattern="#[0-9a-fA-F]{6}" maxlength="7" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="background">Background image</label>
+            <input id="background" type="file" name="background" accept="image/jpeg,image/png,image/gif,image/webp">
+          </div>
+          <div class="checkbox-row">
+            <input id="background_tile" type="checkbox" name="background_tile" <%= design.tile ? 'checked' : '' %>>
+            <label for="background_tile">Tile the background image</label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+          </div>
+        </form>
+        <% if (design.backgroundUrl) { %>
+          <form method="post" action="/settings/design/background/delete" style="margin-top:8px;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Remove background image</button>
+          </form>
+        <% } %>
+      </div>
+    </section>
+  </main>
+</div></div>

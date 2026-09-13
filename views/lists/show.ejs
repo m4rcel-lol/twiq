@@ -1,0 +1,107 @@
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <section class="module">
+        <div class="module-body">
+          <h1 style="font-size:20px;line-height:24px;"><%= list.name %></h1>
+          <% if (list.isPrivate) { %><span class="badge-private">Private</span><% } %>
+          <div class="list-meta" style="margin-top:4px;">
+            by <a href="/<%= list.ownerUsername %>">@<%= list.ownerUsername %></a>
+            &middot; <%= fmt.fullCount(list.memberCount) %> members
+          </div>
+          <% if (list.description) { %><p style="margin-top:8px;font-size:13px;"><%= list.description %></p><% } %>
+        </div>
+      </section>
+
+      <% if (isOwner) { %>
+        <section class="module">
+          <div class="module-header"><h2>Add a member</h2></div>
+          <div class="module-body">
+            <form method="post" action="/lists/<%= list.id %>/members">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div style="display:flex;gap:6px;">
+                <input type="text" name="username" placeholder="username" maxlength="15" required
+                       aria-label="Username to add">
+                <button type="submit" class="btn btn-primary btn-sm">Add</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="module">
+          <div class="module-header"><h2>Edit List</h2></div>
+          <div class="module-body">
+            <form method="post" action="/lists/<%= list.id %>/update">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div class="form-row">
+                <label class="form-label" for="edit-name">Name</label>
+                <input id="edit-name" type="text" name="name" value="<%= list.name %>" maxlength="25" required>
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="edit-desc">Description</label>
+                <input id="edit-desc" type="text" name="description" value="<%= list.description %>" maxlength="160">
+              </div>
+              <div class="checkbox-row">
+                <input id="edit-private" type="checkbox" name="is_private" <%= list.isPrivate ? 'checked' : '' %>>
+                <label for="edit-private">Private</label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Save</button>
+              </div>
+            </form>
+            <form method="post" action="/lists/<%= list.id %>/delete" data-confirm="Delete this List?"
+                  style="margin-top:8px;">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-danger btn-sm">Delete List</button>
+            </form>
+          </div>
+        </section>
+      <% } %>
+      <%- include('../partials/rail-footer') %>
+    </aside>
+
+    <main class="content" id="main">
+      <nav class="profile-tabs" aria-label="List views">
+        <a href="/lists/<%= list.id %>" class="<%= tab === 'timeline' ? 'is-active' : '' %>">Timeline</a>
+        <a href="/lists/<%= list.id %>/members" class="<%= tab === 'members' ? 'is-active' : '' %>">Members</a>
+      </nav>
+      <section class="module">
+        <% if (tab === 'members') { %>
+          <div class="people-list">
+            <% if (members.length === 0) { %>
+              <div class="empty-state"><strong>No members yet</strong>Add accounts to build this List's timeline.</div>
+            <% } %>
+            <% members.forEach(function (person) { %>
+              <div class="person">
+                <a href="<%= person.profileUrl %>"><img src="<%= person.avatarUrl %>" alt=""></a>
+                <div class="person-body">
+                  <a class="person-name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
+                  <a class="person-handle" href="<%= person.profileUrl %>">@<%= person.username %></a>
+                  <% if (person.bioHtml) { %><div class="person-bio"><%- person.bioHtml %></div><% } %>
+                </div>
+                <div class="person-actions">
+                  <% if (isOwner) { %>
+                    <form method="post" action="/lists/<%= list.id %>/members/<%= person.username %>/delete">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-sm">Remove</button>
+                    </form>
+                  <% } else { %>
+                    <%- include('../partials/follow-button', { person: person }) %>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="stream" data-stream>
+            <% if (tweets.length === 0) { %>
+              <div class="empty-state"><strong>No Tweets yet</strong>Add members and their Tweets will appear here.</div>
+            <% } else { %>
+              <%- include('../partials/timeline-items', { tweets: tweets, nextCursor: nextCursor, timelineUrl: timelineUrl }) %>
+            <% } %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+  </div>
+</div>

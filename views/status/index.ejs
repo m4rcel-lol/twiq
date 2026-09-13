@@ -1,0 +1,125 @@
+<%
+  var DOT = {
+    operational: 'is-operational', degraded: 'is-degraded',
+    partial_outage: 'is-partial', major_outage: 'is-major', maintenance: 'is-maintenance'
+  };
+  var UPDATE_LABEL = {
+    investigating: 'Investigating', identified: 'Identified', monitoring: 'Monitoring',
+    resolved: 'Resolved', scheduled: 'Scheduled', in_progress: 'In progress', completed: 'Completed'
+  };
+  var IMPACT_LABEL = { none: 'No impact', minor: 'Minor', major: 'Major', critical: 'Critical' };
+%>
+<div class="wrapper">
+  <main class="content content-wide status-page" id="main">
+
+    <section class="status-headline status-<%= overall.key %>">
+      <span class="status-dot <%= DOT[overall.key] %>"></span>
+      <h1><%= overall.label %></h1>
+      <p>
+        <% if (maintenance) { %>
+          <%= brand.name %> is down for planned maintenance. This page stays up while it is.
+        <% } else if (overall.key === 'operational') { %>
+          Everything is running normally. Checked <%= checkedAt %>.
+        <% } else { %>
+          We know about it and we are working on it. Updates below.
+        <% } %>
+      </p>
+    </section>
+
+    <% if (scheduled.length > 0) { %>
+      <section class="module">
+        <div class="module-header"><h2>Scheduled maintenance</h2></div>
+        <% scheduled.forEach(function (incident) { %>
+          <article class="status-incident">
+            <h3><%= incident.title %></h3>
+            <p class="status-incident-meta">
+              <span class="pill pill-info"><%= UPDATE_LABEL[incident.status] || incident.status %></span>
+              <% if (incident.scheduledForLong) { %>
+                <%= incident.scheduledForLong %><% if (incident.scheduledUntilLong) { %> &rarr; <%= incident.scheduledUntilLong %><% } %>
+              <% } %>
+              <% if (incident.component_names.length > 0) { %>
+                &middot; <%= incident.component_names.join(', ') %>
+              <% } %>
+            </p>
+            <%- include('../partials/status-updates', { updates: incident.updates, UPDATE_LABEL: UPDATE_LABEL }) %>
+          </article>
+        <% }); %>
+      </section>
+    <% } %>
+
+    <% if (active.length > 0) { %>
+      <section class="module">
+        <div class="module-header"><h2>Open incidents</h2></div>
+        <% active.forEach(function (incident) { %>
+          <article class="status-incident">
+            <h3><%= incident.title %></h3>
+            <p class="status-incident-meta">
+              <span class="pill pill-danger"><%= IMPACT_LABEL[incident.impact] %></span>
+              Started <%= incident.startedLong %>
+              <% if (incident.component_names.length > 0) { %>
+                &middot; affects <%= incident.component_names.join(', ') %>
+              <% } %>
+            </p>
+            <%- include('../partials/status-updates', { updates: incident.updates, UPDATE_LABEL: UPDATE_LABEL }) %>
+          </article>
+        <% }); %>
+      </section>
+    <% } %>
+
+    <section class="module">
+      <div class="module-header">
+        <h2>Current status</h2>
+        <a class="module-action" href="/status.json">status.json</a>
+      </div>
+      <ul class="status-components">
+        <% components.forEach(function (component) { %>
+          <li class="status-component">
+            <span class="status-component-name">
+              <%= component.name %>
+              <% if (component.description) { %>
+                <span class="status-component-desc"><%= component.description %></span>
+              <% } %>
+            </span>
+            <span class="status-component-state">
+              <span class="status-dot <%= DOT[component.status] %>"></span>
+              <%= labels[component.status] %>
+            </span>
+          </li>
+        <% }); %>
+        <% if (components.length === 0) { %>
+          <li class="status-component"><span class="status-component-name">No components are being reported on yet.</span></li>
+        <% } %>
+      </ul>
+    </section>
+
+    <section class="module">
+      <div class="module-header"><h2>Past incidents</h2></div>
+      <% if (recent.length === 0) { %>
+        <div class="empty-state">
+          <strong>No incidents in the last 14 days</strong>
+          When something goes wrong, what happened and when will be written here.
+        </div>
+      <% } else { %>
+        <% recent.forEach(function (incident) { %>
+          <article class="status-incident is-resolved">
+            <h3><%= incident.title %></h3>
+            <p class="status-incident-meta">
+              <span class="pill pill-success">Resolved</span>
+              <%= incident.startedLong %> &rarr; <%= incident.resolvedLong %>
+              <% if (incident.component_names.length > 0) { %>
+                &middot; <%= incident.component_names.join(', ') %>
+              <% } %>
+            </p>
+            <%- include('../partials/status-updates', { updates: incident.updates, UPDATE_LABEL: UPDATE_LABEL }) %>
+          </article>
+        <% }); %>
+      <% } %>
+    </section>
+
+    <p class="status-footnote">
+      This page is served separately from the rest of <%= brand.name %> and stays up during
+      maintenance. Watching automatically? Poll <a href="/status.json">/status.json</a>.
+    </p>
+  </main>
+  <%- include('../partials/page-footer') %>
+</div>

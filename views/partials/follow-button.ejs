@@ -1,0 +1,34 @@
+<%
+  var rel = person.relationship || {};
+  var isFollowing = rel.following === true || person.viewerFollows === true;
+  var isPending = rel.requested === true;
+  var isBlocking = rel.blocking === true;
+  var action = isFollowing ? 'unfollow' : 'follow';
+  var size = typeof buttonSize === 'undefined' ? 'btn-sm' : buttonSize;
+%>
+<% if (currentUser && currentUser.username !== person.username) { %>
+  <% if (isBlocking) { %>
+    <form class="inline-form" method="post" action="/<%= person.username %>/unblock">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn <%= size %>">Blocked</button>
+    </form>
+  <% } else if (isPending) { %>
+    <form class="inline-form" method="post" action="/<%= person.username %>/unfollow">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn <%= size %> btn-follow is-pending">Pending</button>
+    </form>
+  <% } else { %>
+    <form class="inline-form" method="post" action="/<%= person.username %>/<%= action %>" data-follow-form>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn <%= size %> btn-follow<%= isFollowing ? ' is-following' : '' %>"
+              data-follow-button data-username="<%= person.username %>"
+              aria-pressed="<%= isFollowing ? 'true' : 'false' %>">
+        <span class="label-follow"><%= person.isProtected ? 'Request' : 'Follow' %></span>
+        <span class="label-following">Following</span>
+        <span class="label-unfollow">Unfollow</span>
+      </button>
+    </form>
+  <% } %>
+<% } else if (!currentUser) { %>
+  <a class="btn <%= size %>" href="/login">Follow</a>
+<% } %>

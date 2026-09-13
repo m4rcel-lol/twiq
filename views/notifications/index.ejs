@@ -1,0 +1,25 @@
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/rail', { side: side, railComposer: true }) %>
+    </aside>
+    <main class="content" id="main">
+      <section class="module">
+        <nav class="connect-tabs" aria-label="Notification filters">
+          <a href="/connect" class="<%= filter === 'all' ? 'is-active' : '' %>">All</a>
+          <a href="/connect?filter=mentions" class="<%= filter === 'mentions' ? 'is-active' : '' %>">Mentions</a>
+        </nav>
+        <div data-stream>
+          <% if (notifications.length === 0) { %>
+            <div class="empty-state">
+              <strong>Nothing to see here yet</strong>
+              When somebody follows you, retweets you or favorites one of your Tweets, it will show up here.
+            </div>
+          <% } else { %>
+            <%- include('../partials/notification-items', { notifications: notifications, nextCursor: nextCursor, timelineUrl: timelineUrl }) %>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

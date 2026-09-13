@@ -1,0 +1,114 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav') %>
+  <main class="content content-wide" id="main">
+    <div class="admin-split">
+      <section class="module">
+        <div class="module-header">
+          <h2>Computed worldwide</h2>
+          <form class="inline-form" method="post" action="/admin/trends/refresh">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-sm">Recompute</button>
+          </form>
+        </div>
+        <div class="module-body admin-muted admin-note">
+          score = (3 &times; distinct people + uses + 4 &times; uses in the last 6h) &divide; (1 + hours since last use &divide; 12),
+          over a 48 hour window.
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>#</th><th>Tag</th><th class="admin-num">People</th><th class="admin-num">Uses</th><th class="admin-num">6h</th><th class="admin-num">Score</th></tr></thead>
+          <tbody>
+            <% if (computed.length === 0) { %>
+              <tr><td colspan="6" class="admin-muted">No hashtags used in the last 48 hours.</td></tr>
+            <% } %>
+            <% computed.forEach(function (row, i) { %>
+              <tr>
+                <td class="admin-muted"><%= i + 1 %></td>
+                <td><a href="/search?q=<%= encodeURIComponent('#' + row.tag) %>">#<%= row.tag %></a></td>
+                <td class="admin-num"><%= row.unique_users %></td>
+                <td class="admin-num"><%= row.uses %></td>
+                <td class="admin-num"><%= row.recent_uses %></td>
+                <td class="admin-num"><strong><%= row.score %></strong></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="module">
+        <div class="module-header"><h2>Pin a trend</h2></div>
+        <div class="module-body">
+          <form method="post" action="/admin/trends" class="admin-form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div>
+              <label class="form-label" for="scope_type">Scope</label>
+              <select id="scope_type" name="scope_type">
+                <option value="global">worldwide</option>
+                <option value="country">country</option>
+                <option value="city">city</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="scope_name">Location</label>
+              <input id="scope_name" type="text" name="scope_name" value="Worldwide" maxlength="60" required>
+            </div>
+            <div>
+              <label class="form-label" for="tag">Tag</label>
+              <input id="tag" type="text" name="tag" maxlength="80" placeholder="baking" required>
+            </div>
+            <div>
+              <label class="form-label" for="query">Search query</label>
+              <input id="query" type="text" name="query" maxlength="120" placeholder="#baking">
+            </div>
+            <div>
+              <label class="form-label" for="volume">Shown volume</label>
+              <input id="volume" type="number" name="volume" value="0" min="0">
+            </div>
+            <div>
+              <label class="form-label" for="position">Position</label>
+              <input id="position" type="number" name="position" value="0" min="0" max="50">
+            </div>
+            <div class="admin-form-actions">
+              <button type="submit" class="btn btn-primary">Pin trend</button>
+            </div>
+          </form>
+          <p class="admin-muted admin-note">
+            A pinned trend sits above the computed ones for its location. A location with no
+            pinned trends falls back to the worldwide list, so the sidebar is never empty.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <section class="module">
+      <div class="module-header">
+        <h2>Stored trends</h2>
+        <span class="module-action admin-muted"><%= scopes.length %> location(s) offered to members</span>
+      </div>
+      <table class="admin-table">
+        <thead><tr><th>Scope</th><th>Location</th><th>Tag</th><th class="admin-num">Volume</th><th>Source</th><th class="admin-num">Position</th><th>Computed</th><th></th></tr></thead>
+        <tbody>
+          <% if (trends.length === 0) { %>
+            <tr><td colspan="8" class="admin-muted">Nothing stored yet. Recompute or pin a trend.</td></tr>
+          <% } %>
+          <% trends.forEach(function (row) { %>
+            <tr>
+              <td><span class="pill"><%= row.scope_type %></span></td>
+              <td><%= row.scope_name %></td>
+              <td><a href="/search?q=<%= encodeURIComponent('#' + row.tag) %>">#<%= row.tag %></a></td>
+              <td class="admin-num"><%= fmt.fullCount(row.tweet_volume) %></td>
+              <td><%= row.is_manual ? '<span class="pill pill-info">pinned</span>' : '<span class="pill">computed</span>' %></td>
+              <td class="admin-num"><%= row.position %></td>
+              <td class="admin-nowrap admin-muted"><%= fmt.shortTimestamp(row.computed_at) %></td>
+              <td>
+                <form class="inline-form" method="post" action="/admin/trends/<%= row.id %>/delete">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="btn btn-sm">Remove</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div></div>

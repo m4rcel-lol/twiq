@@ -1,0 +1,70 @@
+<%
+  var VERBS = {
+    follow: 'followed you',
+    follow_request: 'asked to follow you',
+    favorite: 'favorited your Tweet',
+    retweet: 'retweeted your Tweet',
+    reply: 'replied to you',
+    mention: 'mentioned you'
+  };
+  var ICONS = {
+    follow: 'ic-user', follow_request: 'ic-lock', favorite: 'ic-star',
+    retweet: 'ic-retweet', reply: 'ic-reply', mention: 'ic-at'
+  };
+%>
+<% notifications.forEach(function (item) { %>
+  <div class="notification type-<%= item.type %><%= item.isUnread ? ' is-unread' : '' %>">
+    <div class="notification-icon">
+      <svg class="icon" aria-hidden="true"><use href="#<%= ICONS[item.type] %>"></use></svg>
+    </div>
+    <div class="notification-body">
+      <div class="notification-headline">
+        <a href="<%= item.actor.profileUrl %>"><%= item.actor.displayName %></a>
+        <% if (item.actor.isVerified) { %>
+          <svg class="verified-badge" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+        <% } %>
+        <span style="color:var(--muted-text);">@<%= item.actor.username %></span>
+        <%= VERBS[item.type] %>
+        <span class="notification-time">&middot;
+          <time datetime="<%= item.timeIso %>"><%= item.timeShort %></time>
+        </span>
+      </div>
+
+      <% if (item.type === 'follow' || item.type === 'follow_request') { %>
+        <div class="notification-avatars">
+          <a href="<%= item.actor.profileUrl %>"><img src="<%= item.actor.avatarUrl %>" alt=""></a>
+        </div>
+        <% if (item.actor.bio) { %>
+          <div class="notification-quote"><%= item.actor.bio %></div>
+        <% } %>
+        <div class="notification-actions">
+          <% if (item.type === 'follow_request') { %>
+            <form class="inline-form" method="post" action="/<%= item.actor.username %>/approve">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-primary btn-sm">Accept</button>
+            </form>
+            <form class="inline-form" method="post" action="/<%= item.actor.username %>/deny">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button type="submit" class="btn btn-sm">Decline</button>
+            </form>
+          <% } else { %>
+            <%- include('follow-button', { person: {
+                  username: item.actor.username,
+                  viewerFollows: item.viewerFollowsActor,
+                  relationship: { following: item.viewerFollowsActor },
+                  isProtected: false } }) %>
+          <% } %>
+        </div>
+      <% } else if (item.tweet) { %>
+        <div class="notification-quote">
+          <a href="<%= item.tweet.permalink %>" style="color:inherit;"><%- item.tweet.html %></a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+<% }); %>
+<% if (nextCursor) { %>
+  <div class="stream-footer" data-stream-footer>
+    <a href="<%= timelineUrl %>&cursor=<%= nextCursor %>">Load more</a>
+  </div>
+<% } %>

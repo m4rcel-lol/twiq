@@ -1,0 +1,91 @@
+<div class="landing-hero">
+  <div class="landing-hero-inner">
+    <div class="landing-copy">
+      <h1>Welcome to <%= brand.name %>.</h1>
+      <p>
+        <%= brand.name %> is a small, fast place for short posts. Follow the people you care about,
+        favorite the Tweets worth keeping and say what you mean in <%= brand.tweetMaxLength %> characters.
+      </p>
+    </div>
+    <% if (registrationEnabled) { %>
+      <div class="landing-form">
+        <h2>New to <%= brand.name %>?</h2>
+        <form method="post" action="/register">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-row">
+            <label class="visually-hidden" for="landing-name">Full name</label>
+            <input id="landing-name" type="text" name="display_name" placeholder="Full name" maxlength="20" required>
+          </div>
+          <div class="form-row">
+            <label class="visually-hidden" for="landing-email">Email</label>
+            <input id="landing-email" type="email" name="email" placeholder="Email" maxlength="254" required>
+          </div>
+          <div class="form-row">
+            <label class="visually-hidden" for="landing-username">Username</label>
+            <input id="landing-username" type="text" name="username" placeholder="Username" maxlength="15" required
+                   pattern="[A-Za-z0-9_]{1,15}">
+          </div>
+          <div class="form-row">
+            <label class="visually-hidden" for="landing-password">Password</label>
+            <input id="landing-password" type="password" name="password" placeholder="Password" minlength="8" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Sign up for <%= brand.name %></button>
+        </form>
+      </div>
+    <% } else { %>
+      <div class="landing-form">
+        <h2>Sign in</h2>
+        <p style="font-size:13px;color:var(--muted-text);">New accounts are closed right now.</p>
+        <a class="btn btn-primary btn-block" href="/login">Sign in</a>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="landing-columns">
+  <aside class="rail">
+    <section class="module">
+      <div class="module-header"><h2>Trends</h2></div>
+      <ul class="trend-list">
+        <% if (trends.length === 0) { %>
+          <li><span style="display:block;padding:8px 12px;color:var(--muted-text);font-size:13px;">No trends yet.</span></li>
+        <% } %>
+        <% trends.forEach(function (trend) { %>
+          <li><a href="/search?q=<%= encodeURIComponent('#' + trend.tag) %>">#<%= trend.tag %></a></li>
+        <% }); %>
+      </ul>
+    </section>
+    <section class="module">
+      <div class="module-header"><h2>Who to follow</h2></div>
+      <% suggestions.forEach(function (person) { %>
+        <div class="wtf-item">
+          <a href="<%= person.profileUrl %>"><img src="<%= person.avatarUrl %>" alt=""></a>
+          <div class="wtf-body">
+            <a class="wtf-name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
+            <span class="wtf-handle">@<%= person.username %></span>
+          </div>
+          <div class="wtf-actions"><a class="btn btn-sm" href="/login">Follow</a></div>
+        </div>
+      <% }); %>
+    </section>
+    <%- include('../partials/rail-footer') %>
+  </aside>
+
+  <main class="content" id="main">
+    <section class="module">
+      <div class="timeline-heading">Popular on <%= brand.name %></div>
+      <div class="stream">
+        <% if (popular.length === 0) { %>
+          <div class="empty-state"><strong>Nothing here yet</strong>Be the first to Tweet.</div>
+        <% } else { %>
+          <% popular.forEach(function (tweet) { %>
+            <%- include('../partials/tweet', { tweet: tweet, context: 'timeline' }) %>
+          <% }); %>
+        <% } %>
+      </div>
+      <div class="module-footer">
+        <a href="/register">Join <%= brand.name %></a> to follow these accounts and see more.
+      </div>
+    </section>
+  </main>
+</div>

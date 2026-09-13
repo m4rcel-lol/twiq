@@ -1,0 +1,42 @@
+<div class="auth-shell">
+  <div class="auth-card">
+    <h1>Report <%= tweet ? 'a Tweet' : ('@' + targetUser.username) %></h1>
+    <p style="font-size:13px;color:var(--muted-text);">
+      Tell the <%= brand.name %> moderators what is wrong. Reports are reviewed by people, not robots.
+    </p>
+
+    <% if (tweet) { %>
+      <div class="module" style="margin:10px 0;">
+        <%- include('../partials/tweet', { tweet: tweet, context: 'permalink' }) %>
+      </div>
+    <% } %>
+
+    <form method="post" action="/reports">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% if (tweet) { %><input type="hidden" name="tweet_id" value="<%= tweet.id %>"><% } %>
+      <% if (targetUser) { %><input type="hidden" name="username" value="<%= targetUser.username %>"><% } %>
+
+      <div class="form-row">
+        <label class="form-label" for="report-category">What is the problem?</label>
+        <select id="report-category" name="category" required>
+          <option value="spam">Spam or a fake account</option>
+          <option value="harassment">Harassment or targeted abuse</option>
+          <option value="abusive">Abusive or hateful content</option>
+          <option value="impersonation">Impersonation</option>
+          <option value="illegal">Illegal content</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="report-details">Anything else we should know? (optional)</label>
+        <textarea id="report-details" name="details" rows="4" maxlength="1000"></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Send report</button>
+        <a class="btn" href="<%= tweet ? tweet.permalink : ('/' + targetUser.username) %>">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

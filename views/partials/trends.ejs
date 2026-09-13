@@ -1,0 +1,38 @@
+<section class="module" aria-labelledby="trends-heading">
+  <div class="module-header">
+    <h2 id="trends-heading">Trends
+      <span style="font-weight:normal;color:var(--muted-text);font-size:12px;">&middot; <%= side.trendScope.name %></span>
+    </h2>
+    <button type="button" class="module-action" data-trend-scope-toggle
+            style="background:none;border:0;color:var(--link-color);cursor:pointer;font-size:12px;">Change</button>
+  </div>
+  <form class="trend-scope-form" method="post" action="/trends/location" data-trend-scope-form>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label class="visually-hidden" for="trend-scope">Trends location</label>
+    <select id="trend-scope" name="scope" data-trend-scope-select>
+      <% side.trendScopes.forEach(function (scope) { %>
+        <option value="<%= scope.scope_type %>|<%= scope.scope_name %>"
+          <%= side.trendScope.type === scope.scope_type && side.trendScope.name === scope.scope_name ? 'selected' : '' %>>
+          <%= scope.scope_name %><%= scope.scope_type === 'city' ? ' (city)' : (scope.scope_type === 'country' ? ' (country)' : '') %>
+        </option>
+      <% }); %>
+    </select>
+    <input type="hidden" name="scope_type" value="<%= side.trendScope.type %>" data-trend-scope-type>
+    <input type="hidden" name="scope_name" value="<%= side.trendScope.name %>" data-trend-scope-name>
+    <button type="submit" class="btn btn-primary btn-sm">Done</button>
+  </form>
+  <ul class="trend-list">
+    <% if (side.trends.length === 0) { %>
+      <li><span style="display:block;padding:8px 12px;color:var(--muted-text);font-size:13px;">No trends yet. Start a hashtag.</span></li>
+    <% } %>
+    <% side.trends.forEach(function (trend) { %>
+      <li>
+        <a href="/search?q=<%= encodeURIComponent(trend.query || ('#' + trend.tag)) %>">#<%= trend.tag %>
+          <% if (trend.uses > 0) { %>
+            <span class="trend-meta"><%= fmt.fullCount(trend.uses) %> Tweets</span>
+          <% } %>
+        </a>
+      </li>
+    <% }); %>
+  </ul>
+</section>

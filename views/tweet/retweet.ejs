@@ -1,0 +1,29 @@
+<%# The chooser the retweet control points at. With JavaScript the same two
+    options appear in a dropdown and this page is never reached; without it,
+    this is how a Tweet gets retweeted or quoted. %>
+<div class="wrapper">
+  <main class="content content-wide" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Retweet or quote</h2></div>
+      <div class="module-body">
+        <%- include('../partials/quoted-tweet', { quoted: tweet, unavailable: false }) %>
+
+        <div class="retweet-choice">
+          <form method="post" action="/tweets/<%= tweet.id %>/<%= tweet.viewerRetweeted ? 'unretweet' : 'retweet' %>">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-primary">
+              <%= tweet.viewerRetweeted ? 'Undo Retweet' : 'Retweet' %>
+            </button>
+            <p>Passes it on to your followers with the original author attached.</p>
+          </form>
+
+          <div>
+            <a class="btn" href="/compose?quote=<%= tweet.id %>">Quote Tweet</a>
+            <p>Writes a Tweet of your own with this one shown underneath it.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/page-footer') %>
+</div>

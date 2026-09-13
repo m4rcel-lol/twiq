@@ -1,0 +1,77 @@
+# ---------------------------------------------------------------------------
+# Twiq - application + PostgreSQL.
+#
+# There is deliberately NO reverse proxy service here. Caddy runs directly on
+# the host and proxies to 127.0.0.1:3000, which is the only port published.
+# ---------------------------------------------------------------------------
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: twiq-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-twiq}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-twiq_password}
+      POSTGRES_DB: ${POSTGRES_DB:-twiq}
+      # Faster, deterministic collation for the citext/trigram indexes.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-twiq} -d ${POSTGRES_DB:-twiq}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    # Not published: only the application container talks to the database.
+    expose:
+      - "5432"
+    networks:
+      - twiq
+
+  twiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: twiq-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: "3000"
+      HOST: "0.0.0.0"
+      BASE_URL: ${BASE_URL:-http://localhost:3000}
+      DATABASE_URL: ${DATABASE_URL:-postgres://twiq:twiq_password@postgres:5432/twiq}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set in .env}
+      SESSION_NAME: ${SESSION_NAME:-twiq.sid}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-720}
+      SECURE_COOKIES: ${SECURE_COOKIES:-true}
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      UPLOAD_DIR: /app/public/uploads
+      MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-15728640}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      ENABLE_WEBSOCKETS: ${ENABLE_WEBSOCKETS:-true}
+      ENABLE_REGISTRATION: ${ENABLE_REGISTRATION:-true}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-twiq}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@twiq.example.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change-this-password}
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      RUN_SEED: ${RUN_SEED:-false}
+    volumes:
+      - uploads:/app/public/uploads
+    # Bound to loopback so only the host's Caddy can reach it.
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - twiq
+
+volumes:
+  postgres-data:
+  uploads:
+
+networks:
+  twiq:
+    driver: bridge

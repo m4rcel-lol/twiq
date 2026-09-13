@@ -1,0 +1,65 @@
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <% if (side && side.viewer) { %>
+        <%- include('../partials/mini-profile', { side: side }) %>
+        <%- include('../partials/trends', { side: side }) %>
+      <% } else { %>
+        <section class="module">
+          <div class="module-header"><h2>Join <%= brand.name %></h2></div>
+          <div class="module-body" style="font-size:13px;color:var(--muted-text);">
+            <p>Follow the accounts you find here and build your own timeline.</p>
+            <a class="btn btn-primary btn-block" href="/register">Sign up</a>
+          </div>
+        </section>
+      <% } %>
+      <%- include('../partials/rail-footer') %>
+    </aside>
+
+    <main class="content" id="main">
+      <section class="module discover-section">
+        <div class="module-header"><h2>Trending</h2></div>
+        <div class="trend-cards">
+          <% if (trends.length === 0) { %>
+            <span style="color:var(--muted-text);font-size:13px;">No trends yet.</span>
+          <% } %>
+          <% trends.forEach(function (trend) { %>
+            <a class="trend-card" href="/search?q=<%= encodeURIComponent('#' + trend.tag) %>">#<%= trend.tag %>
+              <% if (trend.uses > 0) { %><span><%= fmt.fullCount(trend.uses) %></span><% } %>
+            </a>
+          <% }); %>
+        </div>
+      </section>
+
+      <section class="module discover-section">
+        <div class="module-header"><h2>Who to follow</h2></div>
+        <div class="discover-people">
+          <% suggestions.forEach(function (person) { %>
+            <div class="discover-person">
+              <a href="<%= person.profileUrl %>"><img src="<%= person.avatarUrl %>" alt=""></a>
+              <a class="name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
+              <span class="handle">@<%= person.username %></span>
+              <div class="bio"><%= person.bio %></div>
+              <%- include('../partials/follow-button', { person: { username: person.username, relationship: null, viewerFollows: false, isProtected: false } }) %>
+            </div>
+          <% }); %>
+          <% if (suggestions.length === 0) { %>
+            <div class="discover-person" style="grid-column:1/-1;color:var(--muted-text);">No suggestions yet.</div>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="module discover-section">
+        <div class="module-header"><h2>Popular Tweets</h2></div>
+        <div class="stream">
+          <% if (popular.length === 0) { %>
+            <div class="empty-state"><strong>Nothing popular yet</strong>Tweets people favorite and retweet show up here.</div>
+          <% } %>
+          <% popular.forEach(function (tweet) { %>
+            <%- include('../partials/tweet', { tweet: tweet, context: 'timeline' }) %>
+          <% }); %>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

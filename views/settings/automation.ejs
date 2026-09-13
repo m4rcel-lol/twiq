@@ -1,0 +1,58 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/settings-nav') %>
+  <main class="content" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Automation</h2></div>
+      <div class="module-body">
+        <p class="form-help">
+          If a program posts from this account rather than a person typing, say so.
+          A robot mark appears after the display name on every Tweet, and the
+          profile carries a line naming whoever runs it.
+        </p>
+
+        <% if (automatedBy) { %>
+          <div class="automation-current">
+            <svg class="icon" aria-hidden="true"><use href="#ic-robot"></use></svg>
+            <div>
+              <strong>This account is labelled automated.</strong>
+              <div>Automated by <a href="/<%= automatedBy %>">@<%= automatedBy %></a>.</div>
+            </div>
+          </div>
+          <form method="post" action="/settings/automation/clear">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn">Remove the label</button>
+          </form>
+          <hr class="form-divider">
+          <p class="form-help">To name someone else, fill the form in again.</p>
+        <% } %>
+
+        <form method="post" action="/settings/automation" autocomplete="off">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="form-row">
+            <label class="form-label" for="automation-username">Who runs this account?</label>
+            <input id="automation-username" type="text" name="username" maxlength="255"
+                   placeholder="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+                   value="">
+            <p class="form-help">The username of the person responsible for it.</p>
+          </div>
+
+          <div class="form-row">
+            <label class="form-label" for="automation-password">That account's password</label>
+            <input id="automation-password" type="password" name="password" maxlength="200"
+                   autocomplete="new-password">
+            <%# The password proves the named account agreed to be named. It is
+                checked and discarded - never stored against this account, and
+                never written to the log. %>
+            <p class="form-help">
+              Proof that the account above is yours to name. It is checked once and
+              discarded &mdash; this does not give either account access to the other.
+            </p>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </section>
+  </main>
+</div></div>

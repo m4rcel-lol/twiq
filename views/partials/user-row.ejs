@@ -1,0 +1,20 @@
+<div class="person">
+  <a href="<%= person.profileUrl %>" tabindex="-1" aria-hidden="true">
+    <img src="<%= person.avatarUrl %>" alt="">
+  </a>
+  <div class="person-body">
+    <a class="person-name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
+    <% if (person.isVerified) { %>
+      <svg class="verified-badge" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+    <% } %>
+    <a class="person-handle" href="<%= person.profileUrl %>">@<%= person.username %></a>
+    <% if (person.isProtected) { %>
+      <svg class="protected-badge" role="img" aria-label="Protected account"><use href="#ic-lock"></use></svg>
+    <% } %>
+    <% if (person.followsViewer) { %><span class="follows-you">Follows you</span><% } %>
+    <% if (person.bioHtml) { %><div class="person-bio"><%- person.bioHtml %></div><% } %>
+  </div>
+  <div class="person-actions">
+    <%- include('follow-button', { person: person }) %>
+  </div>
+</div>

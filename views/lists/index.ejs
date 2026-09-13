@@ -1,0 +1,52 @@
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/rail', { side: side, railComposer: false }) %>
+    </aside>
+    <main class="content" id="main">
+      <section class="module">
+        <div class="module-header"><h2>Your Lists</h2></div>
+        <% if (lists.length === 0) { %>
+          <div class="empty-state"><strong>You have no Lists yet</strong>A List is a curated group of accounts with its own timeline.</div>
+        <% } %>
+        <% lists.forEach(function (list) { %>
+          <div class="list-row">
+            <div class="list-body">
+              <a class="list-name" href="<%= list.url %>"><%= list.name %></a>
+              <% if (list.isPrivate) { %><span class="badge-private">Private</span><% } %>
+              <div class="list-meta"><%= fmt.fullCount(list.memberCount) %> members</div>
+              <% if (list.description) { %><div class="list-desc"><%= list.description %></div><% } %>
+            </div>
+            <div class="person-actions">
+              <a class="btn btn-sm" href="<%= list.url %>/members">Members</a>
+            </div>
+          </div>
+        <% }); %>
+      </section>
+
+      <section class="module">
+        <div class="module-header"><h2>Create a new List</h2></div>
+        <div class="module-body">
+          <form method="post" action="/lists">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="form-row">
+              <label class="form-label" for="list-name">List name</label>
+              <input id="list-name" type="text" name="name" maxlength="25" required>
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="list-description">Description</label>
+              <input id="list-description" type="text" name="description" maxlength="160">
+            </div>
+            <div class="checkbox-row">
+              <input id="list-private" type="checkbox" name="is_private">
+              <label for="list-private">Private
+                <span class="form-hint">Only you can see a private List.</span>
+              </label>
+            </div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary">Save List</button></div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

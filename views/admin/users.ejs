@@ -1,0 +1,105 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/admin-nav') %>
+  <main class="content content-wide" id="main">
+    <section class="module">
+      <div class="module-header">
+        <h2>Users</h2>
+        <span class="module-action"><%= fmt.fullCount(total) %> matching</span>
+      </div>
+
+      <form class="admin-toolbar" method="get" action="/admin/users">
+        <label class="visually-hidden" for="u-q">Search</label>
+        <input id="u-q" type="search" name="q" value="<%= term %>" placeholder="username, name or email">
+
+        <label class="visually-hidden" for="u-role">Role</label>
+        <select id="u-role" name="role">
+          <% [['any','Any role'],['user','Users'],['moderator','Moderators'],['admin','Administrators']].forEach(function (o) { %>
+            <option value="<%= o[0] %>" <%= role === o[0] ? 'selected' : '' %>><%= o[1] %></option>
+          <% }); %>
+        </select>
+
+        <label class="visually-hidden" for="u-status">Status</label>
+        <select id="u-status" name="status">
+          <% [['any','Any status'],['active','Not suspended'],['suspended','Suspended'],['verified','Verified'],['protected','Protected'],['unconfirmed','Email unconfirmed']].forEach(function (o) { %>
+            <option value="<%= o[0] %>" <%= status === o[0] ? 'selected' : '' %>><%= o[1] %></option>
+          <% }); %>
+        </select>
+
+        <label class="visually-hidden" for="u-sort">Sort</label>
+        <select id="u-sort" name="sort">
+          <% [['created','Newest first'],['active','Last seen'],['tweets','Most Tweets'],['followers','Most followers'],['username','Username']].forEach(function (o) { %>
+            <option value="<%= o[0] %>" <%= sort === o[0] ? 'selected' : '' %>><%= o[1] %></option>
+          <% }); %>
+        </select>
+
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        <a class="btn btn-sm" href="/admin/users">Reset</a>
+      </form>
+
+      <div class="admin-scroll">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Account</th><th>Email</th><th>Role</th>
+              <th class="admin-num">Tweets</th><th class="admin-num">Followers</th>
+              <th>Joined</th><th>Last seen</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (users.length === 0) { %>
+              <tr><td colspan="8" class="admin-muted">No accounts match those filters.</td></tr>
+            <% } %>
+            <% users.forEach(function (row) { %>
+              <tr class="<%= row.is_suspended ? 'is-suspended' : '' %>">
+                <td>
+                  <a href="/admin/users/<%= row.username %>"><strong>@<%= row.username %></strong></a>
+                  <div class="admin-muted"><%= row.display_name %></div>
+                  <% if (row.is_suspended) { %><span class="pill pill-danger">suspended</span><% } %>
+                  <% if (row.is_verified) { %><span class="pill pill-info">verified</span><% } %>
+                  <% if (row.is_protected) { %><span class="pill">protected</span><% } %>
+                  <% if (row.open_reports > 0) { %><span class="pill pill-danger"><%= row.open_reports %> reports</span><% } %>
+                </td>
+                <td>
+                  <code><%= row.email %></code>
+                  <% if (!row.email_verified_at) { %><div class="admin-muted">unconfirmed</div><% } %>
+                </td>
+                <td><span class="pill <%= row.role === 'admin' ? 'pill-danger' : row.role === 'moderator' ? 'pill-info' : '' %>"><%= row.role %></span></td>
+                <td class="admin-num"><%= fmt.fullCount(row.tweet_count) %></td>
+                <td class="admin-num"><%= fmt.fullCount(row.follower_count) %></td>
+                <td class="admin-nowrap"><%= fmt.shortTimestamp(row.created_at) %></td>
+                <td class="admin-nowrap admin-muted"><%= row.last_login_at ? fmt.shortTimestamp(row.last_login_at) : 'never' %></td>
+                <td class="admin-nowrap">
+                  <a class="btn btn-sm" href="/admin/users/<%= row.username %>">Open</a>
+                  <% if (row.is_suspended) { %>
+                    <form class="inline-form" method="post" action="/admin/users/<%= row.username %>/unsuspend">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-sm">Unsuspend</button>
+                    </form>
+                  <% } else if (row.role !== 'admin') { %>
+                    <form class="inline-form" method="post" action="/admin/users/<%= row.username %>/suspend"
+                          data-confirm="Suspend @<%= row.username %> and end their sessions?">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button type="submit" class="btn btn-sm">Suspend</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if (page > 0 || hasMore) { %>
+        <div class="module-footer admin-pager">
+          <% var qs = 'q=' + encodeURIComponent(term) + '&role=' + role + '&status=' + status + '&sort=' + sort; %>
+          <% if (page > 0) { %><a href="/admin/users?<%= qs %>&amp;page=<%= page - 1 %>">&larr; Previous</a><% } %>
+          <span class="admin-muted">
+            <%= fmt.fullCount(page * perPage + 1) %>&ndash;<%= fmt.fullCount(page * perPage + users.length) %>
+            of <%= fmt.fullCount(total) %>
+          </span>
+          <% if (hasMore) { %><a href="/admin/users?<%= qs %>&amp;page=<%= page + 1 %>">Next &rarr;</a><% } %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</div></div>

@@ -1,0 +1,81 @@
+<% var hasRail = Boolean(side && side.viewer); %>
+<div class="wrapper">
+  <div class="grid">
+    <%# Signed out there is nothing to put in the rail, so the results take
+        the full width instead of sitting beside an empty column. %>
+    <% if (hasRail) { %>
+      <aside class="rail">
+        <%- include('../partials/mini-profile', { side: side }) %>
+        <%- include('../partials/who-to-follow', { side: side }) %>
+        <%- include('../partials/trends', { side: side }) %>
+        <%- include('../partials/rail-footer') %>
+      </aside>
+    <% } %>
+
+    <main class="content<%= hasRail ? '' : ' content-wide' %>" id="main">
+      <%# The top bar's field collapses to an icon on a phone, so the search
+          page carries a full-width field of its own. %>
+      <section class="module">
+        <form class="page-search" action="/search" method="get" role="search">
+          <label class="visually-hidden" for="page-search-field">Search <%= brand.name %></label>
+          <input id="page-search-field" type="search" name="q" maxlength="140"
+                 placeholder="Search <%= brand.name %>" value="<%= q %>">
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+      </section>
+
+      <% if (!q) { %>
+        <section class="module">
+          <div class="empty-state">
+            <strong>Search <%= brand.name %></strong>
+            Look for Tweets, people and hashtags.
+          </div>
+        </section>
+      <% } else { %>
+        <% if (people.length > 0 && mode !== 'people') { %>
+          <section class="module">
+            <div class="module-header">
+              <h2>People</h2>
+              <a class="module-action" href="/search?q=<%= encodeURIComponent(q) %>&amp;mode=people">View all</a>
+            </div>
+            <div class="people-list">
+              <% people.forEach(function (person) { %>
+                <%- include('../partials/user-row', { person: person }) %>
+              <% }); %>
+            </div>
+          </section>
+        <% } %>
+
+        <section class="module">
+          <div class="search-heading">
+            <h1><%= mode === 'people' ? 'People matching' : 'Tweets matching' %> &ldquo;<%= q %>&rdquo;</h1>
+            <span class="search-sub">
+              <a href="/search?q=<%= encodeURIComponent(q) %>">Tweets</a> &middot;
+              <a href="/search?q=<%= encodeURIComponent(q) %>&amp;mode=people">People</a>
+            </span>
+          </div>
+          <div class="stream" data-stream>
+            <% if (mode === 'people') { %>
+              <div class="people-list">
+                <% if (people.length === 0) { %>
+                  <div class="empty-state"><strong>No people found</strong>Try a different search.</div>
+                <% } %>
+                <% people.forEach(function (person) { %>
+                  <%- include('../partials/user-row', { person: person }) %>
+                <% }); %>
+              </div>
+            <% } else if (tweets.length === 0) { %>
+              <div class="empty-state">
+                <strong>No results for &ldquo;<%= q %>&rdquo;</strong>
+                Try a different search, or <a href="/discover">browse Discover</a>.
+              </div>
+            <% } else { %>
+              <%- include('../partials/timeline-items', { tweets: tweets, nextCursor: nextCursor, timelineUrl: timelineUrl }) %>
+            <% } %>
+          </div>
+        </section>
+      <% } %>
+    </main>
+  </div>
+  <% if (!hasRail) { %><%- include('../partials/page-footer') %><% } %>
+</div>

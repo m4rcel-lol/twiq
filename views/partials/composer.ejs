@@ -1,0 +1,57 @@
+<%
+  var replyTarget = typeof replyTo === 'undefined' ? null : replyTo;
+  var placeholder = replyTarget ? ('Reply to @' + replyTarget.author.username)
+    : (typeof quoting !== 'undefined' && quoting ? 'Add a comment...' : 'Compose new Tweet...');
+  var initial = typeof prefill === 'undefined' || !prefill ? (replyTarget ? '@' + replyTarget.author.username + ' ' : '') : prefill;
+  var startExpanded = typeof expanded !== 'undefined' && expanded;
+  var quoteTarget = typeof quoting === 'undefined' ? null : quoting;
+  // Several composers can share a page (the rail and the modal), so every
+  // id has to be unique for the labels to point at the right control.
+  var uid = typeof composerId === 'undefined' ? 'rail' : composerId;
+  var inModal = uid === 'modal';
+%>
+<div class="<%= inModal ? '' : 'module ' %>composer<%= startExpanded ? ' is-expanded' : '' %>" data-composer>
+  <% if (!inModal) { %>
+    <div class="composer-collapsed" data-composer-open role="button" tabindex="0" aria-expanded="false">
+      <img src="<%= currentUser.avatarUrl %>" alt="">
+      <span><%= placeholder %></span>
+    </div>
+  <% } %>
+  <div class="composer-expanded">
+    <form method="post" action="/tweets" data-compose-form>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% if (quoteTarget) { %>
+        <input type="hidden" name="quote_of" value="<%= quoteTarget.id %>">
+      <% } %>
+      <% if (replyTarget) { %>
+        <input type="hidden" name="in_reply_to" value="<%= replyTarget.id %>">
+        <div class="composer-reply-context">
+          Replying to <a href="<%= replyTarget.permalink %>">@<%= replyTarget.author.username %></a>
+        </div>
+      <% } %>
+      <input type="hidden" name="media_ids" value="" data-media-ids>
+      <div class="composer-row">
+        <img class="composer-avatar" src="<%= currentUser.avatarUrl %>" alt="">
+        <div style="flex:1 1 auto; min-width:0;">
+          <label class="visually-hidden" for="composer-body-<%= uid %>">What is happening?</label>
+          <textarea id="composer-body-<%= uid %>" name="body" class="composer-textarea" rows="2"
+                    placeholder="<%= placeholder %>" data-compose-input
+                    maxlength="<%= brand.tweetHardLimit %>"><%= initial %></textarea>
+          <div class="composer-media-preview" data-media-preview></div>
+          <div class="composer-toolbar">
+            <button type="button" class="composer-tool" data-media-button
+                    title="Add a photo or video" aria-label="Add a photo or video">
+              <svg class="icon" aria-hidden="true"><use href="#ic-camera"></use></svg>
+            </button>
+            <%# Uploaded to /media by twiq.js as soon as a file is chosen, so it
+                carries no name and is never part of this form's submission. %>
+            <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm"
+                   data-media-input class="visually-hidden" aria-label="Add a photo or video">
+            <span class="composer-counter" data-counter aria-live="polite"><%= brand.tweetMaxLength %></span>
+            <button type="submit" class="btn btn-primary btn-sm" data-compose-submit disabled>Tweet</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<ol class="status-updates">
+  <% updates.forEach(function (update) { %>
+    <li>
+      <span class="status-update-label"><%= UPDATE_LABEL[update.status] || update.status %></span>
+      <p class="status-update-body"><%= update.body %></p>
+      <p class="status-update-time">
+        <time datetime="<%= fmt.isoDate(update.created_at) %>"><%= update.timeLong %></time>
+        <% if (update.author_username) { %>&middot; @<%= update.author_username %><% } %>
+      </p>
+    </li>
+  <% }); %>
+  <% if (updates.length === 0) { %>
+    <li><p class="status-update-body">No updates posted yet.</p></li>
+  <% } %>
+</ol>

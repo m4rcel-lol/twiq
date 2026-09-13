@@ -1,0 +1,25 @@
+<div class="wrapper">
+  <div class="grid">
+    <aside class="rail">
+      <%- include('../partials/rail', { side: side, railComposer: true }) %>
+    </aside>
+
+    <main class="content" id="main">
+      <section class="module timeline" aria-labelledby="timeline-heading">
+        <div class="timeline-heading" id="timeline-heading">Tweets</div>
+        <button type="button" class="new-tweets-bar" data-new-tweets data-since="<%= newestId %>" hidden></button>
+        <div class="stream" data-stream>
+          <% if (tweets.length === 0) { %>
+            <div class="empty-state">
+              <strong>Your timeline is quiet</strong>
+              Follow a few accounts and their Tweets will show up here.
+              <div style="margin-top:12px;"><a class="btn btn-primary btn-sm" href="/discover">Find people to follow</a></div>
+            </div>
+          <% } else { %>
+            <%- include('../partials/timeline-items', { tweets: tweets, nextCursor: nextCursor, timelineUrl: timelineUrl }) %>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

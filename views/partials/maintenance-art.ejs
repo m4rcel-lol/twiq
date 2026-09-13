@@ -1,0 +1,62 @@
+<%# An original illustration for the maintenance page: a snail carrying the
+    message, and the Twiq bubble mark waiting for it. Flat shapes, drawn for
+    this page - nothing traced from anyone else's artwork. %>
+<svg class="maintenance-art" viewBox="0 0 640 310" role="img"
+     aria-label="A snail carrying a letter, being hurried along by the Twiq speech bubble.">
+
+  <!-- speech bubble: the snail -->
+  <g class="art-bubble">
+    <rect x="26" y="6" width="286" height="90" rx="18"/>
+    <path d="M206 94 h44 l16 34 z"/>
+  </g>
+  <text class="art-says" x="52" y="44">IT'S FINE,</text>
+  <text class="art-says" x="52" y="76">I'M ALMOST THERE.</text>
+
+  <!-- speech bubble: Twiq -->
+  <g class="art-bubble">
+    <rect x="418" y="52" width="196" height="82" rx="18"/>
+    <path d="M418 92 v26 l-30 22 z"/>
+  </g>
+  <text class="art-says" x="442" y="88">IT'S 300</text>
+  <text class="art-says" x="442" y="118">CHARACTERS.</text>
+
+  <!-- the snail -->
+  <g>
+    <path class="art-snail-body"
+          d="M74 282 c-16 0 -22 -10 -18 -22 8 -24 34 -44 66 -44 22 0 34 8 52 22
+             18 14 34 20 52 20 18 0 30 -6 40 -14 8 -6 18 -4 22 4 5 10 0 20 -10 26
+             -16 10 -34 14 -56 14 z"/>
+    <circle class="art-shell" cx="168" cy="196" r="62"/>
+    <path class="art-shell-spiral"
+          d="M168 150 a46 46 0 1 1 -32 79 a32 32 0 1 1 34 -52 a18 18 0 1 1 -16 28"/>
+    <!-- eye stalks -->
+    <path class="art-stalk" d="M250 252 C246 214 242 190 240 172"/>
+    <path class="art-stalk" d="M270 256 C276 224 280 200 282 182"/>
+    <circle class="art-eye" cx="240" cy="166" r="9"/>
+    <circle class="art-eye" cx="283" cy="176" r="9"/>
+    <ellipse class="art-mouth" cx="262" cy="278" rx="18" ry="6"/>
+    <!-- the letter it is carrying, resting on the shell -->
+    <g class="art-letter" transform="rotate(-7 168 118)">
+      <rect x="138" y="98" width="62" height="40" rx="4"/>
+      <path d="M140 103 l29 21 l29 -21"/>
+    </g>
+  </g>
+
+  <!-- the Twiq mark itself, waiting. The body is the logo path, scaled, so
+       the character is unmistakably the brand rather than a generic blob. -->
+  <g>
+    <path class="art-limb" d="M458 218 C438 228 428 244 426 262"/>
+    <path class="art-limb" d="M552 206 C572 198 582 186 584 172"/>
+    <path class="art-limb" d="M504 256 L500 296"/>
+    <path class="art-limb" d="M534 252 L542 294"/>
+    <path class="art-foot" d="M490 296 h22"/>
+    <path class="art-foot" d="M532 294 h22"/>
+    <g transform="translate(443 148) scale(4.3)">
+      <path class="art-twiq"
+            d="M14 2C7.4 2 2 6.9 2 12.9c0 3.5 1.9 6.7 4.8 8.7v5.2l5-3a14.6 14.6 0 0 0 2.2.2c6.6 0 12-4.9 12-10.9C26 6.9 20.6 2 14 2z"/>
+    </g>
+    <circle class="art-eye" cx="486" cy="199" r="7"/>
+    <circle class="art-eye" cx="521" cy="199" r="7"/>
+    <path class="art-frown" d="M492 224 c7 -7 18 -7 25 0"/>
+  </g>
+</svg>

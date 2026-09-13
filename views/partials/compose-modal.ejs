@@ -1,0 +1,17 @@
+<%# The Tweet button in the top bar opens this. Without JavaScript the button
+    is an ordinary link to /compose, which renders the same composer as a page. %>
+<div class="modal" id="compose-modal" data-compose-modal role="dialog" aria-modal="true"
+     aria-labelledby="compose-modal-title" hidden>
+  <div class="modal-dialog" role="document">
+    <div class="modal-header">
+      <h2 id="compose-modal-title">Compose new Tweet</h2>
+      <button type="button" class="modal-close" data-compose-modal-close aria-label="Close">
+        <span class="modal-close-label">Cancel</span>
+        <svg class="icon icon-sm" aria-hidden="true"><use href="#ic-close"></use></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <%- include('composer', { expanded: true, composerId: 'modal' }) %>
+    </div>
+  </div>
+</div>

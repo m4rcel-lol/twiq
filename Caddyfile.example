@@ -1,0 +1,49 @@
+# ---------------------------------------------------------------------------
+# Twiq - example Caddyfile for the HOST's Caddy installation.
+#
+# Caddy is installed on the host, not in Docker Compose. docker compose
+# publishes the application on 127.0.0.1:3000; Caddy terminates TLS and
+# proxies to it. Copy this to /etc/caddy/Caddyfile, edit the hostname, then:
+#
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+# ---------------------------------------------------------------------------
+
+twiq.example.com {
+	reverse_proxy 127.0.0.1:3000
+}
+
+# The block above is all Twiq needs: Caddy sets X-Forwarded-For,
+# X-Forwarded-Proto and X-Forwarded-Host by default, and proxies the
+# WebSocket upgrade on /ws without extra configuration.
+#
+# A slightly more explicit version, with compression, an upload-sized body
+# limit and access logging:
+#
+# twiq.example.com {
+# 	encode zstd gzip
+#
+# 	request_body {
+# 		max_size 20MB
+# 	}
+#
+# 	log {
+# 		output file /var/log/caddy/twiq.access.log {
+# 			roll_size 50mb
+# 			roll_keep 10
+# 		}
+# 	}
+#
+# 	# Media is content-addressed and immutable, so let clients keep it.
+# 	@uploads path /uploads/*
+# 	header @uploads Cache-Control "public, max-age=2592000, immutable"
+#
+# 	reverse_proxy 127.0.0.1:3000 {
+# 		health_uri /healthz
+# 		health_interval 30s
+# 		flush_interval -1
+# 	}
+# }
+#
+# Remember to set BASE_URL=https://twiq.example.com, SECURE_COOKIES=true and
+# TRUST_PROXY=1 in .env so cookies, redirects and client IPs are correct.

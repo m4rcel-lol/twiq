@@ -1,0 +1,41 @@
+<div class="wrapper"><div class="grid">
+  <%- include('../partials/settings-nav') %>
+  <main class="content" id="main">
+    <section class="module">
+      <div class="module-header"><h2>Security and privacy</h2></div>
+      <div class="module-body">
+        <form method="post" action="/settings/privacy">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="checkbox-row">
+            <input id="is_protected" type="checkbox" name="is_protected" <%= profile.isProtected ? 'checked' : '' %>>
+            <label for="is_protected">Protect my Tweets
+              <span class="form-hint">Only approved followers see your Tweets, and they cannot be retweeted.</span>
+            </label>
+          </div>
+          <div class="form-row">
+            <label class="form-label" for="dm_policy">Who can send you Direct Messages?</label>
+            <select id="dm_policy" name="dm_policy">
+              <option value="followers" <%= settings.dm_policy === 'followers' ? 'selected' : '' %>>People who follow you</option>
+              <option value="everyone" <%= settings.dm_policy === 'everyone' ? 'selected' : '' %>>Anyone on <%= brand.name %></option>
+              <option value="nobody" <%= settings.dm_policy === 'nobody' ? 'selected' : '' %>>Nobody</option>
+            </select>
+          </div>
+          <div class="checkbox-row">
+            <input id="discoverable_by_email" type="checkbox" name="discoverable_by_email" <%= settings.discoverable_by_email ? 'checked' : '' %>>
+            <label for="discoverable_by_email">Let people find me by my email address</label>
+          </div>
+          <div class="checkbox-row">
+            <input id="show_sensitive_media" type="checkbox" name="show_sensitive_media" <%= settings.show_sensitive_media ? 'checked' : '' %>>
+            <label for="show_sensitive_media">Show me media that may contain sensitive content</label>
+          </div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">Save changes</button></div>
+        </form>
+      </div>
+      <div class="module-footer">
+        <a href="/settings/blocked">Blocked accounts</a> &middot;
+        <a href="/settings/muted">Muted accounts</a> &middot;
+        <a href="/settings/requests">Follower requests</a>
+      </div>
+    </section>
+  </main>
+</div></div>
