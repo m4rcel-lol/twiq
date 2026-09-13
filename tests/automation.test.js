@@ -47,7 +47,7 @@ test('the label shows on the profile and beside every Tweet', async () => {
   assert.match(profile.text, /Automated by\s*<a href="\/labelrunner">@labelrunner<\/a>/);
 
   // The robot mark rides with the display name wherever a Tweet is shown.
-  assert.match(profile.text, /class="automated-badge"[^>]*aria-label="Automated account"/);
+  assert.match(profile.text, /class="automated-badge[^"]*"[^>]*>\s*<title>Automated account/);
   const home = await bot.get('/home');
   assert.match(home.text, /class="automated-badge"/);
 });

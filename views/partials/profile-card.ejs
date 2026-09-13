@@ -1,16 +1,8 @@
 <div class="profile-card">
   <h1 class="profile-name"><%= profile.displayName %>
-    <% if (profile.isVerified) { %>
-      <svg class="verified-badge<%= profile.isAdmin ? ' is-admin' : '' %>" style="width:18px;height:18px;" role="img" aria-label="<%= profile.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
-    <% } %>
-    <% if (profile.isAutomated) { %>
-      <svg class="automated-badge" style="width:17px;height:17px;" role="img" aria-label="Automated account"><use href="#ic-robot"></use></svg>
-    <% } %>
+    <%- include('badges', { person: profile, large: true }) %>
   </h1>
   <span class="profile-handle">@<%= profile.username %>
-    <% if (profile.isProtected) { %>
-      <svg class="protected-badge" role="img" aria-label="Protected account"><use href="#ic-lock"></use></svg>
-    <% } %>
     <% if (profile.relationship && profile.relationship.followed_by) { %>
       <span class="follows-you">Follows you</span>
     <% } %>

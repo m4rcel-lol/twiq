@@ -1,0 +1,14 @@
+<%
+  // The badges that follow a display name, in one place so they stay
+  // identical everywhere - timelines, profiles, quote cards, Connect,
+  // Who to follow and Direct Messages all include this.
+  //
+  // Each <title> is the element's tooltip on hover and its accessible name,
+  // so the meaning is not carried by colour alone.
+  var who = person;
+  var big = typeof large !== 'undefined' && large;
+%><% if (who.isVerified) { %><svg class="verified-badge<%= who.isAdmin ? ' is-admin' : '' %><%= big ? ' is-large' : '' %>" role="img"><title><%= who.isAdmin
+    ? 'Verified administrator — this account is authentic and runs ' + brand.name
+    : 'Verified account — ' + brand.name + ' has confirmed this account is authentic' %></title><use href="#ic-verified"></use></svg><% } %><% if (who.isAutomated) { %><svg class="automated-badge<%= big ? ' is-large' : '' %>" role="img"><title><%= who.automatedBy
+    ? 'Automated account — run by @' + who.automatedBy.username
+    : 'Automated account — posts here are made by a program' %></title><use href="#ic-robot"></use></svg><% } %><% if (who.isProtected) { %><svg class="protected-badge<%= big ? ' is-large' : '' %>" role="img"><title>Protected account — only approved followers can see these Tweets</title><use href="#ic-lock"></use></svg><% } %>

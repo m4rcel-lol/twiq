@@ -10,9 +10,7 @@
     </a>
     <div class="wtf-body">
       <a class="wtf-name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
-      <% if (person.isVerified) { %>
-        <svg class="verified-badge<%= person.isAdmin ? ' is-admin' : '' %>" role="img" aria-label="<%= person.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
-      <% } %>
+      <%- include('badges', { person: person }) %>
       <span class="wtf-handle">@<%= person.username %></span>
       <% if (person.mutualCount > 0 && person.mutualNames.length > 0) { %>
         <div class="wtf-meta">

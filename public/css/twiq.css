@@ -904,7 +904,18 @@ hr { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
    fill:currentColor - without it they paint the default black. */
 .verified-badge,
 .protected-badge,
-.automated-badge { fill: currentColor; }
+.automated-badge {
+  fill: currentColor;
+  /* These sit beside a name in two kinds of container. Inline, the badge is
+     nudged down off the baseline by vertical-align. In a flex row - the
+     Tweet header is `align-items: baseline` - an <svg> has no baseline, so
+     the browser takes its bottom edge as one and hangs the whole badge
+     above the text; vertical-align is ignored there entirely. align-self
+     centres it instead, and each property is inert in the other's context,
+     so the two coexist. */
+  align-self: center;
+  cursor: help;
+}
 .verified-badge { color: var(--twiq-blue); width: 14px; height: 14px; vertical-align: -2px; }
 .protected-badge { color: var(--muted-text); width: 12px; height: 12px; vertical-align: -1px; }
 /* Grey like the lock, not blue like the tick: it is a statement of fact
@@ -913,6 +924,11 @@ hr { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
 /* A verified administrator's tick is red. Higher specificity than the rule
    above, so it wins wherever the badge is drawn. */
 .verified-badge.is-admin { color: var(--badge-admin); }
+
+/* The profile heading sets a larger name, so its badges scale with it. */
+.verified-badge.is-large { width: 18px; height: 18px; }
+.automated-badge.is-large { width: 17px; height: 17px; }
+.protected-badge.is-large { width: 15px; height: 15px; }
 
 .stream-footer { padding: 9px 12px; text-align: center; border-top: 1px solid var(--border-color); }
 .stream-footer a, .stream-footer button {

@@ -26,15 +26,7 @@
     <div class="tweet-header">
       <span class="tweet-name-wrap">
         <a class="tweet-name" href="<%= tweet.author.profileUrl %>"><%= tweet.author.displayName %></a>
-        <% if (tweet.author.isVerified) { %>
-          <svg class="verified-badge<%= tweet.author.isAdmin ? ' is-admin' : '' %>" role="img" aria-label="<%= tweet.author.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
-        <% } %>
-        <% if (tweet.author.isAutomated) { %>
-          <svg class="automated-badge" role="img" aria-label="Automated account"><use href="#ic-robot"></use></svg>
-        <% } %>
-        <% if (tweet.author.isProtected) { %>
-          <svg class="protected-badge" role="img" aria-label="Protected account"><use href="#ic-lock"></use></svg>
-        <% } %>
+        <%- include('../partials/badges', { person: tweet.author }) %>
         <a class="tweet-handle" href="<%= tweet.author.profileUrl %>">@<%= tweet.author.username %></a>
       </span>
       <a class="tweet-time" href="<%= tweet.permalink %>">

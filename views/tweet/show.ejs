@@ -25,12 +25,7 @@
             <a href="<%= tweet.author.profileUrl %>"><img src="<%= tweet.author.avatarUrl %>" alt=""></a>
             <div>
               <a class="permalink-name" href="<%= tweet.author.profileUrl %>"><%= tweet.author.displayName %>
-                <% if (tweet.author.isVerified) { %>
-                  <svg class="verified-badge<%= tweet.author.isAdmin ? ' is-admin' : '' %>" role="img" aria-label="<%= tweet.author.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
-                <% } %>
-                <% if (tweet.author.isAutomated) { %>
-                  <svg class="automated-badge" role="img" aria-label="Automated account"><use href="#ic-robot"></use></svg>
-                <% } %>
+                <%- include('../partials/badges', { person: tweet.author }) %>
               </a>
               <span class="permalink-handle">@<%= tweet.author.username %></span>
             </div>

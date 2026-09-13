@@ -102,7 +102,7 @@ test('the verified and protected badges inherit their colour', async () => {
 
   // These <svg> elements do not carry the .icon class, so they need their own
   // fill rule or they paint black instead of taking the colour beside them.
-  const fillRule = /((?:\.[a-z-]+-badge,\s*\n?\s*)+\.[a-z-]+-badge)\s*\{\s*fill:\s*currentColor;?\s*\}/.exec(css.text);
+  const fillRule = /((?:\.[a-z-]+-badge,\s*\n?\s*)+\.[a-z-]+-badge)\s*\{[^}]*fill:\s*currentColor;/.exec(css.text);
   assert.ok(fillRule, 'the badges should share one fill rule');
   for (const badge of ['verified', 'protected', 'automated']) {
     assert.match(fillRule[1], new RegExp(`\\.${badge}-badge\\b`), `${badge} needs the fill`);
@@ -119,7 +119,7 @@ test('a verified account shows the badge and an unverified one does not', async 
   await db.query(`UPDATE users SET is_verified = true WHERE username = 'sealedaccount'`);
 
   const verified = await viewer.get('/sealedaccount');
-  assert.match(verified.text, /class="verified-badge"[^>]*>\s*<use href="#ic-verified">/);
+  assert.match(verified.text, /class="verified-badge[^"]*"[^>]*>(?:<title>[^<]*<\/title>)?\s*<use href="#ic-verified">/);
 
   const plain = await viewer.get('/plainaccount');
   assert.ok(!plain.text.includes('#ic-verified'));
@@ -390,13 +390,13 @@ test('a verified administrator gets a red tick, a verified member the accent one
   await db.query("UPDATE users SET role = 'admin' WHERE username = 'redtickboss'");
 
   const adminProfile = await request(app).get('/redtickboss');
-  assert.match(adminProfile.text, /class="verified-badge is-admin"/);
-  assert.match(adminProfile.text, /aria-label="Verified administrator"/);
+  assert.match(adminProfile.text, /class="verified-badge is-admin is-large"/);
+  assert.match(adminProfile.text, /<title>Verified administrator[^<]*<\/title>/);
 
   const memberProfile = await request(app).get('/bluetickmember');
-  assert.match(memberProfile.text, /class="verified-badge"/);
+  assert.match(memberProfile.text, /class="verified-badge is-large"/);
   assert.ok(!memberProfile.text.includes('is-admin'), 'an ordinary member keeps the accent tick');
-  assert.match(memberProfile.text, /aria-label="Verified account"/);
+  assert.match(memberProfile.text, /<title>Verified account[^<]*<\/title>/);
 
   // And it follows the account onto its Tweets, not just its profile.
   await boss.post('/api/tweets').set('X-CSRF-Token', boss.csrfToken).send({ body: 'From the office' });
@@ -416,6 +416,45 @@ test('a moderator is not given the administrator tick', async () => {
   await db.query("UPDATE users SET is_verified = true, role = 'moderator' WHERE username = 'justamod'");
 
   const page = await request(app).get('/justamod');
-  assert.match(page.text, /class="verified-badge"/);
+  assert.match(page.text, /class="verified-badge is-large"/);
   assert.ok(!page.text.includes('is-admin'), 'only administrators get the red one');
+});
+
+test('every badge explains itself on hover, from one shared partial', async () => {
+  const request = require('supertest');
+  const bot = await helpers.signedUpAgent(app, 'hoverbot');
+  const runner = await helpers.signedUpAgent(app, 'hoverrunner');
+  const db = require('../src/config/db');
+  await db.query("UPDATE users SET is_verified = true, is_protected = true WHERE username = 'hoverbot'");
+  await bot.post('/settings/automation').type('form')
+    .send({ _csrf: bot.csrfToken, username: 'hoverrunner', password: 'correct horse battery' });
+
+  const page = await request(app).get('/hoverbot');
+  // An SVG's tooltip comes from a <title> child, not a title attribute.
+  assert.match(page.text, /<title>Verified account — [^<]+<\/title>/);
+  assert.match(page.text, /<title>Automated account — run by @hoverrunner<\/title>/);
+  assert.match(page.text, /<title>Protected account — [^<]+<\/title>/);
+
+  // The markup comes from one partial, so no view hand-rolls a badge.
+  const fs = require('fs');
+  const path = require('path');
+  const views = path.join(__dirname, '..', 'views');
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true })
+    .flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
+  const offenders = walk(views)
+    .filter((f) => path.basename(f) !== 'badges.ejs')
+    .filter((f) => /class="(verified|protected|automated)-badge/.test(fs.readFileSync(f, 'utf8')));
+  assert.deepEqual(offenders, [], 'badges must come from partials/badges.ejs');
+});
+
+test('badges centre against the name rather than hanging off its baseline', async () => {
+  const request = require('supertest');
+  const css = (await request(app).get('/css/twiq.css')).text;
+  const rule = /\.verified-badge,\s*\n\.protected-badge,\s*\n\.automated-badge \{([\s\S]*?)\n\}/.exec(css);
+  assert.ok(rule, 'the badges should share one rule');
+  // The Tweet header is a baseline-aligned flex row, where an <svg> has no
+  // baseline and vertical-align does nothing; align-self is what applies.
+  assert.match(rule[1], /align-self:\s*center/);
+  assert.match(rule[1], /cursor:\s*help/);
+  assert.match(css, /\.tweet-name-wrap \{[^}]*align-items: baseline/);
 });
