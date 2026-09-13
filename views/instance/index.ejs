@@ -1,0 +1,141 @@
+<div class="wrapper">
+  <main class="content content-wide" id="main">
+
+    <section class="module">
+      <div class="module-header"><h2>About this instance</h2></div>
+      <div class="module-body">
+        <p class="instance-lead">
+          This is an installation of <strong><%= software.name %></strong>, running at
+          <code><%= baseUrl.replace(/^https?:\/\//, '') %></code><% if (stats.opened) { %>,
+          open since <%= stats.opened %><% } %>.
+        </p>
+        <%# Said plainly, and near the top: this is original software that
+            reconstructs an old interface, not the service it resembles. %>
+        <p class="instance-disclaimer">
+          <%= software.name %> is independent software. It is not affiliated with,
+          endorsed by, or connected to Twitter, X Corp. or any of their services,
+          and it carries none of their code, data or branding.
+        </p>
+      </div>
+    </section>
+
+    <section class="module">
+      <div class="module-header"><h2>Who runs it</h2></div>
+      <div class="module-body">
+        <% if (official) { %>
+          <div class="instance-operator">
+            <a href="<%= official.profileUrl %>"><img src="<%= official.avatarUrl %>" alt="" width="48" height="48"></a>
+            <div>
+              <a class="instance-operator-name" href="<%= official.profileUrl %>"><%= official.displayName %></a>
+              <%- include('../partials/badges', { person: official }) %>
+              <div class="instance-operator-handle">@<%= official.username %></div>
+              <% if (official.bio) { %><p><%= official.bio %></p><% } %>
+            </div>
+          </div>
+          <p class="form-help">
+            Questions about this instance go to
+            <a href="<%= official.profileUrl %>">@<%= official.username %></a>.
+          </p>
+        <% } else { %>
+          <p class="form-help">This instance has not named an official account.</p>
+        <% } %>
+
+        <% if (staff.length > 0) { %>
+          <h3 class="instance-subhead">Moderation</h3>
+          <ul class="instance-staff">
+            <% staff.forEach(function (person) { %>
+              <li>
+                <a href="<%= person.profileUrl %>">
+                  <img src="<%= person.avatarUrl %>" alt="" width="24" height="24">
+                  <b><%= person.displayName %></b>
+                  <span>@<%= person.username %></span>
+                </a>
+                <span class="pill"><%= person.role %></span>
+              </li>
+            <% }); %>
+          </ul>
+          <p class="form-help">
+            These accounts can review reports and act on them. Reporting a Tweet or an
+            account sends it to them, not to anyone else.
+          </p>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="module">
+      <div class="module-header"><h2>The numbers</h2></div>
+      <div class="module-body">
+        <div class="instance-figures">
+          <div><b><%= stats.accounts %></b><span>accounts</span></div>
+          <div><b><%= stats.tweets %></b><span>Tweets</span></div>
+          <div><b><%= stats.activeThisWeek %></b><span>posted this week</span></div>
+          <div><b><%= stats.uploads %></b><span>uploads</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="module">
+      <div class="module-header"><h2>How this instance is set up</h2></div>
+      <div class="module-body">
+        <dl class="instance-facts">
+          <dt>Sign-ups</dt>
+          <dd>
+            <% if (setup.readOnly) { %>
+              Closed &mdash; the instance is read-only right now.
+            <% } else if (setup.registrationOpen) { %>
+              Open. <a href="/register">Anyone can join</a>.
+            <% } else { %>
+              Closed. The operator is not accepting new accounts at the moment.
+            <% } %>
+          </dd>
+
+          <dt>Tweet length</dt>
+          <dd><%= setup.tweetMaxLength %> characters.</dd>
+
+          <dt>Bio length</dt>
+          <dd><%= setup.bioMaxLength %> characters.</dd>
+
+          <dt>Uploads</dt>
+          <dd>Photos and video, up to <%= setup.uploadMaxSize %> each.</dd>
+
+          <dt>Timeline</dt>
+          <dd>Reverse chronological. Nothing is ranked, promoted or hidden from you.</dd>
+
+          <dt>Direct Messages</dt>
+          <dd>From people you follow by default; each account can widen or close that.</dd>
+
+          <dt>Live updates</dt>
+          <dd>
+            <%= setup.liveUpdates ? 'On. New Tweets and notifications arrive without a refresh.'
+                                  : 'Off. Pages refresh on their own schedule instead.' %>
+          </dd>
+
+          <dt>Current status</dt>
+          <dd><a href="<%= setup.statusUrl %>">Service status and incident history</a>.</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="module">
+      <div class="module-header"><h2>The software</h2></div>
+      <div class="module-body">
+        <dl class="instance-facts">
+          <dt>Version</dt>
+          <dd><%= software.name %> <%= software.version %><% if (software.license) { %>, <%= software.license %> licensed<% } %>.</dd>
+          <% if (software.source) { %>
+            <dt>Source</dt>
+            <dd><a href="<%= software.source %>" rel="noopener noreferrer" target="_blank"><%= software.source.replace(/^https?:\/\//, '') %></a></dd>
+          <% } %>
+          <dt>Your data</dt>
+          <dd>
+            What this instance stores and what happens to it is set out in the
+            <a href="/privacy">privacy notice</a>; the rules you agree to are in the
+            <a href="/terms">terms</a>.
+          </dd>
+        </dl>
+      </div>
+    </section>
+
+  </main>
+  <%- include('../partials/page-footer') %>
+</div>

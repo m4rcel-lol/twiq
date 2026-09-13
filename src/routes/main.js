@@ -8,6 +8,7 @@ const discover = require('../controllers/discover');
 const search = require('../controllers/search');
 const tweets = require('../controllers/tweets');
 const oembed = require('../controllers/oembed');
+const instance = require('../controllers/instance');
 const pages = require('../controllers/pages');
 const status = require('../controllers/status');
 const { requireAuth } = require('../middleware/auth');
@@ -39,6 +40,7 @@ router.get('/status.json', asyncHandler(status.json));
 
 // The pages the footer links to.
 router.get('/about', pages.show('about'));
+router.get('/instance', asyncHandler(instance.show));
 router.get('/help', pages.show('help'));
 router.get('/terms', pages.show('terms'));
 router.get('/privacy', pages.show('privacy'));

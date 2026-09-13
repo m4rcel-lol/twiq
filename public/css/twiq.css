@@ -2374,6 +2374,51 @@ body.is-leaving .page-body {
   .nav-progress span { transition: none; }
 }
 
+/* ---------------------------------------------------- instance page --- */
+.instance-lead { font-size: 15px; line-height: 21px; margin: 0 0 10px; }
+.instance-disclaimer {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--panel-alt-background);
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--muted-text);
+}
+
+.instance-operator { display: flex; gap: 11px; align-items: flex-start; }
+.instance-operator img { border-radius: 3px; }
+.instance-operator-name { font-weight: bold; color: var(--text-color); }
+.instance-operator-handle { color: var(--muted-text); font-size: 13px; }
+.instance-operator p { margin: 5px 0 0; font-size: 13px; line-height: 18px; }
+
+.instance-subhead { font-size: 13px; margin: 18px 0 7px; }
+.instance-staff { list-style: none; margin: 0; padding: 0; }
+.instance-staff li {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; border-top: 1px solid var(--border-color);
+}
+.instance-staff a { display: flex; align-items: center; gap: 7px; color: var(--text-color); }
+.instance-staff img { border-radius: 2px; }
+.instance-staff span { color: var(--muted-text); font-size: 13px; }
+
+.instance-figures { display: flex; flex-wrap: wrap; gap: 28px; }
+.instance-figures div { display: flex; flex-direction: column; }
+.instance-figures b { font-size: 22px; line-height: 26px; font-variant-numeric: tabular-nums; }
+.instance-figures span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em; color: var(--muted-text); }
+
+.instance-facts { margin: 0; display: grid; grid-template-columns: 160px 1fr; gap: 0; }
+.instance-facts dt {
+  padding: 8px 0; font-weight: bold; font-size: 13px;
+  border-top: 1px solid var(--border-color);
+}
+.instance-facts dd {
+  padding: 8px 0; margin: 0; font-size: 13px; line-height: 19px;
+  border-top: 1px solid var(--border-color);
+}
+.instance-facts dt:first-of-type, .instance-facts dd:first-of-type { border-top: 0; }
+
 /* The footer when a page has no sidebar to hang it in. */
 .page-footer {
   padding: 14px 2px 24px;

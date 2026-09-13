@@ -38,5 +38,9 @@
   },
   "devDependencies": {
     "supertest": "^7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/m4rcel-lol/twiq"
   }
 }
