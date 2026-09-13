@@ -87,7 +87,7 @@ const PEOPLE = [
     displayName: 'Dev Account',
     email: 'dev@example.com',
     bio: 'Test account for local development. Nothing here is interesting on purpose.',
-    location: 'localhost:3000',
+    location: 'localhost:40437',
     website: '',
   },
   {

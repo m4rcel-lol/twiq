@@ -62,9 +62,9 @@ const config = {
   isTest,
   isDevelopment: nodeEnv === 'development',
 
-  port: int('PORT', 3000),
+  port: int('PORT', 40437),
   host: str('HOST', '0.0.0.0'),
-  baseUrl: str('BASE_URL', 'http://localhost:3000').replace(/\/+$/, ''),
+  baseUrl: str('BASE_URL', 'http://localhost:40437').replace(/\/+$/, ''),
   trustProxy: trustProxyValue(),
 
   db: {

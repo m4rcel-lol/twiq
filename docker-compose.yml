@@ -2,7 +2,7 @@
 # Twiq - application + PostgreSQL.
 #
 # There is deliberately NO reverse proxy service here. Caddy runs directly on
-# the host and proxies to 127.0.0.1:3000, which is the only port published.
+# the host and proxies to 127.0.0.1:40437, which is the only port published.
 # ---------------------------------------------------------------------------
 
 services:
@@ -41,9 +41,9 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: ${NODE_ENV:-production}
-      PORT: "3000"
+      PORT: "40437"
       HOST: "0.0.0.0"
-      BASE_URL: ${BASE_URL:-http://localhost:3000}
+      BASE_URL: ${BASE_URL:-http://localhost:40437}
       DATABASE_URL: ${DATABASE_URL:-postgres://twiq:twiq_password@postgres:5432/twiq}
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set in .env}
       SESSION_NAME: ${SESSION_NAME:-twiq.sid}
@@ -64,7 +64,7 @@ services:
       - uploads:/app/public/uploads
     # Bound to loopback so only the host's Caddy can reach it.
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:40437:40437"
     networks:
       - twiq
 

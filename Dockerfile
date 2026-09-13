@@ -19,7 +19,7 @@ RUN npm ci --omit=dev --no-audit --no-fund || npm install --omit=dev --no-audit 
 # --------------------------------------------------------------------------
 FROM node:22-bookworm-slim AS runtime
 ENV NODE_ENV=production \
-    PORT=3000 \
+    PORT=40437 \
     NPM_CONFIG_UPDATE_NOTIFIER=false
 
 RUN apt-get update \
@@ -44,10 +44,10 @@ RUN mkdir -p /app/public/uploads \
 
 USER node
 
-EXPOSE 3000
+EXPOSE 40437
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:3000/healthz || exit 1
+  CMD curl -fsS http://127.0.0.1:40437/healthz || exit 1
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "src/server.js"]

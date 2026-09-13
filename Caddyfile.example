@@ -2,7 +2,7 @@
 # Twiq - example Caddyfile for the HOST's Caddy installation.
 #
 # Caddy is installed on the host, not in Docker Compose. docker compose
-# publishes the application on 127.0.0.1:3000; Caddy terminates TLS and
+# publishes the application on 127.0.0.1:40437; Caddy terminates TLS and
 # proxies to it. Copy this to /etc/caddy/Caddyfile, edit the hostname, then:
 #
 #   sudo caddy validate --config /etc/caddy/Caddyfile
@@ -10,7 +10,7 @@
 # ---------------------------------------------------------------------------
 
 twiq.example.com {
-	reverse_proxy 127.0.0.1:3000
+	reverse_proxy 127.0.0.1:40437
 }
 
 # The block above is all Twiq needs: Caddy sets X-Forwarded-For,
@@ -38,7 +38,7 @@ twiq.example.com {
 # 	@uploads path /uploads/*
 # 	header @uploads Cache-Control "public, max-age=2592000, immutable"
 #
-# 	reverse_proxy 127.0.0.1:3000 {
+# 	reverse_proxy 127.0.0.1:40437 {
 # 		health_uri /healthz
 # 		health_interval 30s
 # 		flush_interval -1

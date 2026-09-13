@@ -48,7 +48,7 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 | Variable | Purpose |
 | --- | --- |
 | `NODE_ENV` | `production` in deployment, `development` locally |
-| `PORT` / `HOST` | where the Node server listens (`3000` / `0.0.0.0` in Docker) |
+| `PORT` / `HOST` | where the Node server listens (`40437` / `0.0.0.0` in Docker) |
 | `BASE_URL` | public origin, used for canonical URLs, Open Graph tags and email links |
 | `DATABASE_URL` | PostgreSQL connection string |
 | `DATABASE_POOL_MAX` | connection pool ceiling (default 10) |
@@ -74,14 +74,14 @@ cp .env.example .env
 $EDITOR .env                      # set SESSION_SECRET, ADMIN_PASSWORD, BASE_URL
 docker compose up -d --build
 docker compose ps
-curl -fsS http://127.0.0.1:3000/healthz
+curl -fsS http://127.0.0.1:40437/healthz
 ```
 
 Compose starts exactly two services:
 
 * **`postgres`** — PostgreSQL 16, data in the `postgres-data` volume, not
   published to the host at all.
-* **`twiq`** — the application, published on **`127.0.0.1:3000`** only, so
+* **`twiq`** — the application, published on **`127.0.0.1:40437`** only, so
   nothing but the host itself (i.e. Caddy) can reach it.
 
 There is deliberately **no Caddy container** and no `caddy` image is pulled.
@@ -152,7 +152,7 @@ npm run seed
 npm run dev                # node --watch
 ```
 
-Then open <http://localhost:3000> and sign in as `alice` / `twiqtwiq`.
+Then open <http://localhost:40437> and sign in as `alice` / `twiqtwiq`.
 
 Run the tests (they create and migrate a separate `<database>_test`, so your
 development data is untouched):
@@ -209,7 +209,7 @@ complete working file; the minimum is:
 
 ```caddyfile
 twiq.example.com {
-	reverse_proxy 127.0.0.1:3000
+	reverse_proxy 127.0.0.1:40437
 }
 ```
 
