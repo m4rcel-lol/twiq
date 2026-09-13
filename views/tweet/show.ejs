@@ -79,7 +79,7 @@
               <% } %>
             </div>
             <div class="permalink-faces">
-              <% retweeters.concat(favorites).slice(0, 18).forEach(function (person) { %>
+              <% faces.forEach(function (person) { %>
                 <a href="<%= person.profileUrl %>" title="@<%= person.username %>">
                   <img src="<%= person.avatarUrl %>" alt="@<%= person.username %>">
                 </a>

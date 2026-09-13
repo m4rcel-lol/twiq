@@ -372,3 +372,30 @@ test('the retweet control is a dropdown that still works without JavaScript', as
   assert.match(chooser.text, new RegExp(`action="/tweets/${id}/retweet"`));
   assert.match(chooser.text, new RegExp(`href="/compose\\?quote=${id}"`));
 });
+
+test('someone who both retweets and favorites appears once in the faces row', async () => {
+  const author = await helpers.signedUpAgent(app, 'faceauthor');
+  const both = await helpers.signedUpAgent(app, 'didboth');
+  const onlyFav = await helpers.signedUpAgent(app, 'onlyfaved');
+
+  const created = await author.post('/api/tweets').set('X-CSRF-Token', author.csrfToken)
+    .send({ body: 'Engagement goes here' });
+  const id = created.body.tweet.id;
+
+  await both.post(`/api/tweets/${id}/retweet`).set('X-CSRF-Token', both.csrfToken);
+  await both.post(`/api/tweets/${id}/favorite`).set('X-CSRF-Token', both.csrfToken);
+  await onlyFav.post(`/api/tweets/${id}/favorite`).set('X-CSRF-Token', onlyFav.csrfToken);
+
+  const page = await author.get(`/faceauthor/status/${id}`);
+  const faces = page.text.slice(page.text.indexOf('class="permalink-faces"'));
+  const row = faces.slice(0, faces.indexOf('</div>'));
+
+  const appearances = (row.match(/@didboth/g) || []).length;
+  // Two attributes carry the handle - title and alt - so one face is two hits.
+  assert.equal(appearances, 2, 'the person who did both should be drawn once');
+  assert.equal((row.match(/@onlyfaved/g) || []).length, 2);
+
+  // The counts themselves still count both actions separately.
+  assert.match(page.text, /<b>1<\/b> RETWEETS/);
+  assert.match(page.text, /<b>2<\/b> FAVORITES/);
+});

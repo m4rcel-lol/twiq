@@ -103,11 +103,27 @@ exports.show = async (req, res) => {
     author: present.user(author, { relationship }),
     ancestors: present.tweets(thread.ancestors, { viewerId }),
     replies: present.tweets(thread.replies, { viewerId }),
-    favorites: favorites.map(present.compactUser),
-    retweeters: retweeters.map(present.compactUser),
+    // One row of the people who engaged, retweeters first. Someone who both
+    // retweeted and favorited is one person, so they appear once - the two
+    // lists overlap and concatenating them showed such a face twice.
+    faces: uniqueBy(
+      retweeters.map(present.compactUser).concat(favorites.map(present.compactUser)),
+      (person) => person.id
+    ).slice(0, 18),
     side,
   });
 };
+
+/** First occurrence wins, so the earlier list keeps its order. */
+function uniqueBy(items, key) {
+  const seen = new Set();
+  return items.filter((item) => {
+    const id = key(item);
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
 
 /** POST /tweets/:id/delete */
 exports.destroy = async (req, res) => {
