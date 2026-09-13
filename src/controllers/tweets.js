@@ -45,10 +45,12 @@ exports.create = async (req, res) => {
   const hydrated = await tweetModel.findById(created.id, req.user.id);
   const view = present.tweet(hydrated, { viewerId: req.user.id });
 
-  // Nudge anyone mentioned or replied to that has a live socket open.
-  if (hydrated.in_reply_to_user_id && Number(hydrated.in_reply_to_user_id) !== Number(req.user.id)) {
-    realtime.publish(hydrated.in_reply_to_user_id, { type: 'notification' });
+  // Nudge anyone this Tweet raised a notification for - a reply, a quote or
+  // a mention all land in the same table, so one lookup covers them.
+  for (const userId of await tweetModel.notifiedBy(created.id)) {
+    if (Number(userId) !== Number(req.user.id)) realtime.publish(userId, { type: 'notification' });
   }
+  await announceToTimelines(req.user.id, view.author.username);
 
   if (wantsJson(req)) {
     const html = await new Promise((resolve, reject) => {
@@ -62,6 +64,22 @@ exports.create = async (req, res) => {
   req.flash('success', 'Your Tweet was posted.');
   return res.redirect(parsed.data.in_reply_to || parsed.data.quote_of ? view.permalink : backTo(req, '/home'));
 };
+
+/**
+ * Tell followers with a socket open that their timeline has moved on.
+ *
+ * Only a hint: the client asks the server what is actually new rather than
+ * trusting anything in the message, and the polling fallback still runs for
+ * anyone without a socket.
+ */
+async function announceToTimelines(authorId, username) {
+  const listening = realtime.connectedUserIds();
+  if (listening.length === 0) return;
+  const followers = await tweetModel.followersAmong(authorId, listening);
+  for (const followerId of followers) {
+    realtime.publish(followerId, { type: 'timeline', from: username });
+  }
+}
 
 /** GET /:username/status/:id - the permalink page. */
 exports.show = async (req, res) => {
@@ -160,6 +178,8 @@ function interaction(action) {
 
     const result = await action(req.user.id, id);
     if (result.notifyUserId) realtime.publish(result.notifyUserId, { type: 'notification' });
+    // A retweet puts the Tweet into the retweeter's followers' timelines too.
+    if (result.retweeted === true) await announceToTimelines(req.user.id, req.user.username);
 
     if (wantsJson(req)) return res.json({ id, ...result });
     return res.redirect(backTo(req));

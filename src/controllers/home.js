@@ -94,8 +94,10 @@ exports.compose = async (req, res) => {
 /** Small JSON poll used by the "N new Tweets" bar. */
 exports.newCount = async (req, res) => {
   const sinceId = Number(req.query.since_id || 0);
-  const count = await tweetModel.countNewerInHome(req.user.id, sinceId);
-  return res.json({ count });
+  // `accounts` is how many people posted, not how many Tweets they wrote -
+  // that is what the bar counts.
+  const { count, accounts } = await tweetModel.countNewerInHome(req.user.id, sinceId);
+  return res.json({ count, accounts });
 };
 
 /** "Who to follow" refresh, rendered as an HTML fragment. */

@@ -793,12 +793,49 @@ async function countNewerInHome(viewerId, sinceId) {
        SELECT followee_id AS id FROM follows WHERE follower_id = $1
        UNION SELECT $1::bigint
      )
-     SELECT count(*)::int AS n
+     SELECT count(*)::int AS n,
+            count(DISTINCT t.user_id)::int AS accounts
        FROM tweets t JOIN sources s ON s.id = t.user_id
-      WHERE t.is_deleted = false AND t.id > $2 AND t.user_id <> $1`,
+      WHERE t.is_deleted = false AND t.id > $2 AND t.user_id <> $1
+        AND NOT EXISTS (SELECT 1 FROM mutes m
+                         WHERE m.muter_id = $1 AND m.muted_id = t.user_id)
+        AND NOT EXISTS (SELECT 1 FROM blocks b
+                         WHERE (b.blocker_id = $1 AND b.blocked_id = t.user_id)
+                            OR (b.blocker_id = t.user_id AND b.blocked_id = $1))`,
     [viewerId, sinceId || 0]
   );
-  return row ? row.n : 0;
+  return { count: row ? row.n : 0, accounts: row ? row.accounts : 0 };
+}
+
+/**
+ * Which of `candidateIds` follow this author and would actually see the
+ * Tweet - muted and blocked pairs are left out, so the bar never announces
+ * something the timeline will not show.
+ */
+async function followersAmong(authorId, candidateIds) {
+  const list = (candidateIds || []).map(Number).filter(Boolean);
+  if (list.length === 0) return [];
+  const rows = await db.many(
+    `SELECT f.follower_id AS id
+       FROM follows f
+      WHERE f.followee_id = $1 AND f.follower_id = ANY($2::bigint[])
+        AND NOT EXISTS (SELECT 1 FROM mutes m
+                         WHERE m.muter_id = f.follower_id AND m.muted_id = $1)
+        AND NOT EXISTS (SELECT 1 FROM blocks b
+                         WHERE (b.blocker_id = f.follower_id AND b.blocked_id = $1)
+                            OR (b.blocker_id = $1 AND b.blocked_id = f.follower_id))`,
+    [authorId, list]
+  );
+  return rows.map((r) => Number(r.id));
+}
+
+/** Everyone a Tweet raised a notification for, so they can be nudged. */
+async function notifiedBy(tweetId) {
+  const rows = await db.many(
+    'SELECT DISTINCT user_id AS id FROM notifications WHERE tweet_id = $1',
+    [tweetId]
+  );
+  return rows.map((r) => Number(r.id));
 }
 
 module.exports = {
@@ -828,4 +865,6 @@ module.exports = {
   engagementScore,
   countForHashtag,
   countNewerInHome,
+  followersAmong,
+  notifiedBy,
 };

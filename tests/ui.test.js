@@ -458,3 +458,27 @@ test('badges centre against the name rather than hanging off its baseline', asyn
   assert.match(rule[1], /cursor:\s*help/);
   assert.match(css, /\.tweet-name-wrap \{[^}]*align-items: baseline/);
 });
+
+test('the live updates degrade to polling and never trust the wire', async () => {
+  const request = require('supertest');
+  const js = (await request(app).get('/js/twiq.js')).text;
+
+  // The bar counts accounts, not Tweets.
+  assert.match(js, /New Tweets from 1 account/);
+  assert.match(js, /New Tweets from ' \+ accounts \+ ' accounts/);
+
+  // A socket message is a hint: it triggers a fetch rather than carrying a
+  // count the page would display unchecked.
+  assert.match(js, /payload\.type === 'timeline' && checkNew\) checkNew\(\)/);
+  assert.match(js, /payload\.type === 'message' && pollThread\) pollThread\(\)/);
+  // Scoped to the socket listener: `payload.count` is fine elsewhere, where
+  // it is a fetch's own reply being read.
+  const listener = /socket\.addEventListener\('message'[\s\S]*?\n      \}\);/.exec(js);
+  assert.ok(listener, 'the socket message listener should be findable');
+  assert.ok(!/payload\.(count|accounts|body|html)/.test(listener[0]),
+    'no content or number from the socket is rendered; it only triggers a fetch');
+
+  // And the intervals survive, for anyone whose socket never opened.
+  assert.match(js, /setInterval\(checkNew, 45000\)/);
+  assert.match(js, /setInterval\(pollThread, 20000\)/);
+});

@@ -96,6 +96,17 @@ function publish(userId, payload) {
   }
 }
 
+/**
+ * The ids with a socket open right now.
+ *
+ * A new Tweet has to reach its author's followers, and that list can be
+ * long. Asking who is actually listening first means the fan-out query only
+ * considers people who could receive anything.
+ */
+function connectedUserIds() {
+  return [...clients.keys()];
+}
+
 async function close() {
   if (!wss) return;
   for (const ws of wss.clients) ws.close(1001, 'server shutting down');
@@ -104,4 +115,4 @@ async function close() {
   wss = null;
 }
 
-module.exports = { attach, publish, close };
+module.exports = { attach, publish, connectedUserIds, close };

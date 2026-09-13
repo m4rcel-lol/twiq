@@ -713,30 +713,41 @@
   }
 
   /* ------------------------------------------------------ new Tweet bar --- */
+  var checkNew = null;
   var newBar = $('[data-new-tweets]');
   if (newBar && window.fetch) {
     var sinceId = newBar.getAttribute('data-since') || '0';
-    var pending = 0;
+    var checking = false;
 
-    function checkNew() {
+    // The bar counts the people who posted, not the Tweets they wrote: one
+    // account writing nine times is one reason to look, not nine.
+    checkNew = function () {
+      if (checking) return;
+      checking = true;
       getJson('/home/new-count?since_id=' + encodeURIComponent(sinceId))
         .then(function (payload) {
-          pending = payload.count || 0;
-          if (pending > 0) {
-            newBar.textContent = pending === 1 ? '1 new Tweet' : pending + ' new Tweets';
+          var accounts = payload.accounts || 0;
+          if (accounts > 0) {
+            newBar.textContent = accounts === 1
+              ? 'New Tweets from 1 account'
+              : 'New Tweets from ' + accounts + ' accounts';
             newBar.hidden = false;
             newBar.classList.add('is-visible');
           }
         })
-        .catch(function () { /* the timeline is still perfectly readable */ });
-    }
+        .catch(function () { /* the timeline is still perfectly readable */ })
+        .then(function () { checking = false; });
+    };
 
     newBar.addEventListener('click', function () { window.location.reload(); });
+    // The socket makes this near-instant; the interval is the fallback for
+    // anyone whose connection never opened or has since dropped.
     window.setInterval(checkNew, 45000);
     window.setTimeout(checkNew, 8000);
   }
 
   /* -------------------------------------------------- direct messages --- */
+  var pollThread = null;
   var dmMessages = $('[data-dm-messages]');
   if (dmMessages) {
     dmMessages.scrollTop = dmMessages.scrollHeight;
@@ -790,7 +801,9 @@
       });
     }
 
-    window.setInterval(function () {
+    // Named, so the socket can pull the thread forward the moment the other
+    // side sends something instead of waiting out the interval.
+    pollThread = function () {
       var conversationId = dmMessages.getAttribute('data-conversation');
       var lastId = dmMessages.getAttribute('data-last-id') || '0';
       getJson('/messages/' + conversationId + '/poll?since_id=' + lastId)
@@ -800,7 +813,8 @@
           });
         })
         .catch(function () { /* polling is best effort */ });
-    }, 20000);
+    };
+    window.setInterval(pollThread, 20000);
   }
 
   /* ---------------------------------------------------- colour pickers --- */
@@ -837,6 +851,10 @@
         var payload;
         try { payload = JSON.parse(event.data); } catch (err) { return; }
         if (payload.type === 'notification' || payload.type === 'message') refreshBadges();
+        // A hint, not the count: ask the server what is actually new rather
+        // than trusting a number that arrived over the wire.
+        if (payload.type === 'timeline' && checkNew) checkNew();
+        if (payload.type === 'message' && pollThread) pollThread();
       });
       socket.addEventListener('close', function () {
         if (attempt > 5) return;
