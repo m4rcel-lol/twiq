@@ -7,6 +7,7 @@
       <div class="admin-identity-body">
         <h1>
           <%= account.display_name %>
+          <% if (account.is_official) { %><span class="pill pill-info">official</span><% } %>
           <% if (account.is_verified) { %><span class="pill pill-info">verified</span><% } %>
           <% if (account.is_suspended) { %><span class="pill pill-danger">suspended</span><% } %>
           <% if (account.is_protected) { %><span class="pill">protected</span><% } %>
@@ -69,6 +70,11 @@
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <input type="hidden" name="verified" value="<%= account.is_verified ? 'false' : 'true' %>">
                 <button type="submit" class="btn btn-sm"><%= account.is_verified ? 'Remove verification' : 'Mark verified' %></button>
+              </form>
+              <form class="inline-form" method="post" action="/admin/users/<%= account.username %>/official">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="official" value="<%= account.is_official ? 'false' : 'true' %>">
+                <button type="submit" class="btn btn-sm"><%= account.is_official ? 'Remove official mark' : 'Mark official' %></button>
               </form>
               <form class="inline-form" method="post" action="/admin/users/<%= account.username %>/reset-link"
                     data-confirm="Generate a one-time password reset link for @<%= account.username %>?">

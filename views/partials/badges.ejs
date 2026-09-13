@@ -7,7 +7,12 @@
   // so the meaning is not carried by colour alone.
   var who = person;
   var big = typeof large !== 'undefined' && large;
-%><% if (who.isVerified) { %><svg class="verified-badge<%= who.isAdmin ? ' is-admin' : '' %><%= big ? ' is-large' : '' %>" role="img"><title><%= who.isAdmin
+  // The marks of standing are mutually exclusive, strongest first: nothing
+  // is more verified than being the site itself, so the official mark
+  // replaces the tick rather than sitting beside it. The robot and the lock
+  // say something else entirely and still stack on top.
+
+%><% if (who.isOfficial) { %><svg class="official-badge<%= big ? ' is-large' : '' %>" role="img"><title>Official account — run by this instance's operator</title><use href="#ic-official"></use></svg><% } else if (who.isVerified) { %><svg class="verified-badge<%= who.isAdmin ? ' is-admin' : '' %><%= big ? ' is-large' : '' %>" role="img"><title><%= who.isAdmin
     ? 'Verified administrator — this account is authentic and runs ' + brand.name
     : 'Verified account — ' + brand.name + ' has confirmed this account is authentic' %></title><use href="#ic-verified"></use></svg><% } %><% if (who.isAutomated) { %><svg class="automated-badge<%= big ? ' is-large' : '' %>" role="img"><title><%= who.automatedBy
     ? 'Automated account — run by @' + who.automatedBy.username

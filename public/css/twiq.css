@@ -904,7 +904,8 @@ hr { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
    fill:currentColor - without it they paint the default black. */
 .verified-badge,
 .protected-badge,
-.automated-badge {
+.automated-badge,
+.official-badge {
   fill: currentColor;
   /* These sit beside a name in two kinds of container. Inline, the badge is
      nudged down off the baseline by vertical-align. In a flex row - the
@@ -924,6 +925,11 @@ hr { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
 /* A verified administrator's tick is red. Higher specificity than the rule
    above, so it wins wherever the badge is drawn. */
 .verified-badge.is-admin { color: var(--badge-admin); }
+
+/* The mark is 28x30, not square like the other glyphs, so it gets its own
+   box rather than being squeezed into the 14px one. */
+.official-badge { color: var(--twiq-blue); width: 13px; height: 14px; vertical-align: -2px; }
+.official-badge.is-large { width: 17px; height: 18px; }
 
 /* The profile heading sets a larger name, so its badges scale with it. */
 .verified-badge.is-large { width: 18px; height: 18px; }

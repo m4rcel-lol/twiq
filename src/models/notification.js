@@ -13,6 +13,7 @@ const SELECT = `
          a.id AS actor_id, a.username AS actor_username,
          a.display_name AS actor_display_name, a.avatar_path AS actor_avatar_path,
          a.is_verified AS actor_is_verified, (a.role = 'admin') AS actor_is_admin,
+         a.is_official AS actor_is_official,
          a.bio AS actor_bio,
          (af.follower_id IS NOT NULL) AS viewer_follows_actor
     FROM notifications n

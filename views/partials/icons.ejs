@@ -54,6 +54,16 @@
   <symbol id="ic-lock" viewBox="0 0 16 16">
     <path d="M11.5 7V5a3.5 3.5 0 1 0-7 0v2H3.4v7h9.2V7zM5.9 5a2.1 2.1 0 1 1 4.2 0v2H5.9z"/>
   </symbol>
+  <%# The official-account mark: the Twiq bubble from the favicon, but with
+      the three dots cut out as holes rather than painted white. A badge has
+      to survive being recoloured - the accent, the red of an administrator,
+      a profile's own accent - and white dots would only ever be right on
+      one background. fill-rule="evenodd" makes the subpaths knock through,
+      so the page shows between them and the glyph inherits currentColor
+      like every other icon here. %>
+  <symbol id="ic-official" viewBox="0 0 28 30">
+    <path fill-rule="evenodd" d="M14 2C7.4 2 2 6.9 2 12.9c0 3.5 1.9 6.7 4.8 8.7v5.2l5-3a14.6 14.6 0 0 0 2.2.2c6.6 0 12-4.9 12-10.9C26 6.9 20.6 2 14 2z M7.2 13a1.8 1.8 0 1 0 3.6 0 1.8 1.8 0 1 0-3.6 0z M12.2 13a1.8 1.8 0 1 0 3.6 0 1.8 1.8 0 1 0-3.6 0z M17.2 13a1.8 1.8 0 1 0 3.6 0 1.8 1.8 0 1 0-3.6 0z"/>
+  </symbol>
   <%# Automated account. Drawn flat and solid at the same 16px weight as the
       lock, so the badges sit together after a display name without one of
       them shouting. A head, two eyes, an aerial. %>

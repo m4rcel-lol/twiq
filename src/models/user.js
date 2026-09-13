@@ -7,7 +7,7 @@ const { conflict } = require('../utils/errors');
 const PUBLIC_COLUMNS = `
   u.id, u.username, u.display_name, u.bio, u.location, u.website,
   u.avatar_path, u.header_path, u.role, u.is_protected, u.is_verified,
-  u.is_suspended, u.tweet_count, u.follower_count, u.following_count,
+  u.is_suspended, u.is_official, u.tweet_count, u.follower_count, u.following_count,
   u.favorite_count, u.list_count, u.created_at,
   u.automated_by_user_id,
   (SELECT au.username FROM users au WHERE au.id = u.automated_by_user_id) AS automated_by_username
@@ -107,6 +107,13 @@ async function updateProfile(userId, fields) {
  * consents; see the automation controller, which will not accept a name
  * without that account's own password.
  */
+async function setOfficial(userId, isOfficial) {
+  await db.query(
+    'UPDATE users SET is_official = $2, updated_at = now() WHERE id = $1',
+    [userId, Boolean(isOfficial)]
+  );
+}
+
 async function setAutomatedBy(userId, operatorId) {
   await db.query(
     `UPDATE users
@@ -308,6 +315,7 @@ module.exports = {
   create,
   updateProfile,
   setAutomatedBy,
+  setOfficial,
   setAvatar,
   setHeader,
   updateEmail,

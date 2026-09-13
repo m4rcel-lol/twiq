@@ -234,6 +234,19 @@ exports.setVerified = async (req, res) => {
   return res.redirect(back(req, '/admin/users'));
 };
 
+exports.setOfficial = async (req, res) => {
+  requireAdmin(req);
+  const target = await loadTarget(req);
+  const official = String(req.body.official) === 'true';
+  await userModel.setOfficial(target.id, official);
+  await audit(req, 'admin.user.official', {
+    targetType: 'user', targetId: target.id,
+    metadata: { username: String(target.username), official },
+  });
+  req.flash('success', `@${target.username} is ${official ? 'now marked official' : 'no longer official'}.`);
+  return res.redirect(back(req, '/admin/users'));
+};
+
 exports.signOutUser = async (req, res) => {
   const target = await loadTarget(req);
   const count = await adminModel.purgeUserSessions(target.id);

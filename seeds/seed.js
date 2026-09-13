@@ -246,6 +246,8 @@ async function main() {
     admin = await userModel.findById(created.id);
   }
   await userModel.setRole(admin.id, 'admin');
+  // The brand's own account carries the Twiq mark rather than a tick.
+  await userModel.setOfficial(admin.id, true);
   logger.info({ username: adminUsername }, 'administrator ready');
 
   if ((await db.one('SELECT count(*)::int AS n FROM tweets')).n > 0) {

@@ -24,6 +24,7 @@ router.post(`/users/:username(${USERNAME})/unsuspend`, asyncHandler(admin.unsusp
 router.post(`/users/:username(${USERNAME})/sign-out`, asyncHandler(admin.signOutUser));
 router.post(`/users/:username(${USERNAME})/role`, asyncHandler(admin.setRole));
 router.post(`/users/:username(${USERNAME})/verified`, asyncHandler(admin.setVerified));
+router.post(`/users/:username(${USERNAME})/official`, asyncHandler(admin.setOfficial));
 router.post(`/users/:username(${USERNAME})/reset-link`, limits.passwordReset, asyncHandler(admin.resetLink));
 router.post(`/users/:username(${USERNAME})/delete`, asyncHandler(admin.deleteUser));
 

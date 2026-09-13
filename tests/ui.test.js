@@ -450,12 +450,16 @@ test('every badge explains itself on hover, from one shared partial', async () =
 test('badges centre against the name rather than hanging off its baseline', async () => {
   const request = require('supertest');
   const css = (await request(app).get('/css/twiq.css')).text;
-  const rule = /\.verified-badge,\s*\n\.protected-badge,\s*\n\.automated-badge \{([\s\S]*?)\n\}/.exec(css);
+  const rule = /((?:\.[a-z-]+-badge,\s*\n)+\.[a-z-]+-badge) \{([\s\S]*?)\n\}/.exec(css);
   assert.ok(rule, 'the badges should share one rule');
   // The Tweet header is a baseline-aligned flex row, where an <svg> has no
   // baseline and vertical-align does nothing; align-self is what applies.
-  assert.match(rule[1], /align-self:\s*center/);
-  assert.match(rule[1], /cursor:\s*help/);
+  assert.match(rule[2], /align-self:\s*center/);
+  assert.match(rule[2], /cursor:\s*help/);
+  // Every badge shares it, the official mark included.
+  for (const badge of ['verified', 'protected', 'automated', 'official']) {
+    assert.match(rule[1], new RegExp(`\\.${badge}-badge\\b`), `${badge} must share the rule`);
+  }
   assert.match(css, /\.tweet-name-wrap \{[^}]*align-items: baseline/);
 });
 
@@ -481,4 +485,50 @@ test('the live updates degrade to polling and never trust the wire', async () =>
   // And the intervals survive, for anyone whose socket never opened.
   assert.match(js, /setInterval\(checkNew, 45000\)/);
   assert.match(js, /setInterval\(pollThread, 20000\)/);
+});
+
+test('the official mark replaces the tick, and outranks the red one', async () => {
+  const request = require('supertest');
+  const brand = await helpers.signedUpAgent(app, 'brandaccount', { displayName: 'The Brand' });
+  const db = require('../src/config/db');
+  // Official *and* a verified admin - the strongest claim should win.
+  await db.query(`UPDATE users SET is_official = true, is_verified = true, role = 'admin'
+                   WHERE username = 'brandaccount'`);
+
+  const profile = await request(app).get('/brandaccount');
+  assert.match(profile.text, /class="official-badge is-large"/);
+  assert.match(profile.text, /<title>Official account — run by this instance's operator<\/title>/);
+  assert.ok(!profile.text.includes('verified-badge'), 'the tick is replaced, not joined');
+
+  // And it follows the account onto its Tweets.
+  await brand.post('/api/tweets').set('X-CSRF-Token', brand.csrfToken).send({ body: 'from the brand' });
+  const timeline = await brand.get('/home');
+  assert.match(timeline.text, /class="official-badge"/);
+});
+
+test('the official glyph is a knock-out, so it survives recolouring', async () => {
+  const request = require('supertest');
+  const page = await request(app).get('/');
+  const symbol = /<symbol id="ic-official"[\s\S]*?<\/symbol>/.exec(page.text);
+  assert.ok(symbol, 'the symbol should be in the sprite');
+
+  // White dots would only ever be right on one background. They must be
+  // holes, so the glyph takes the accent, the admin red or a profile's own
+  // colour and still reads in both themes.
+  assert.match(symbol[0], /fill-rule="evenodd"/);
+  assert.ok(!/#fff|#ffffff|white/i.test(symbol[0]), 'no painted-on white may creep back in');
+
+  const css = (await request(app).get('/css/twiq.css')).text;
+  assert.match(css, /\.official-badge \{[^}]*color: var\(--twiq-blue\)/);
+});
+
+test('an ordinary verified account is unaffected by the new mark', async () => {
+  const request = require('supertest');
+  await helpers.signedUpAgent(app, 'plainverified');
+  const db = require('../src/config/db');
+  await db.query("UPDATE users SET is_verified = true WHERE username = 'plainverified'");
+
+  const page = await request(app).get('/plainverified');
+  assert.match(page.text, /class="verified-badge is-large"/);
+  assert.ok(!page.text.includes('official-badge'));
 });
