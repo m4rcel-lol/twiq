@@ -23,6 +23,7 @@ const HYDRATE_SQL = `
          u.display_name    AS author_display_name,
          u.avatar_path     AS author_avatar_path,
          u.is_verified     AS author_is_verified,
+         (u.role = 'admin') AS author_is_admin,
          u.is_protected    AS author_is_protected,
          (u.automated_by_user_id IS NOT NULL) AS author_is_automated,
          ru.username       AS reply_to_username,

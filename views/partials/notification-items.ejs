@@ -21,7 +21,7 @@
       <div class="notification-headline">
         <a href="<%= item.actor.profileUrl %>"><%= item.actor.displayName %></a>
         <% if (item.actor.isVerified) { %>
-          <svg class="verified-badge" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+          <svg class="verified-badge<%= item.actor.isAdmin ? ' is-admin' : '' %>" role="img" aria-label="<%= item.actor.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
         <% } %>
         <span style="color:var(--muted-text);">@<%= item.actor.username %></span>
         <%= VERBS[item.type] %>

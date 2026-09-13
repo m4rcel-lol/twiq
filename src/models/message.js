@@ -80,7 +80,7 @@ async function conversations(userId, { limit = 30 } = {}) {
     `SELECT c.id, c.last_message_at,
             o.id AS other_id, o.username AS other_username,
             o.display_name AS other_display_name, o.avatar_path AS other_avatar_path,
-            o.is_verified AS other_is_verified,
+            o.is_verified AS other_is_verified, (o.role = 'admin') AS other_is_admin,
             lm.body AS last_body, lm.sender_id AS last_sender_id,
             (lm.media_id IS NOT NULL) AS last_has_media,
             (SELECT count(*) FROM messages m

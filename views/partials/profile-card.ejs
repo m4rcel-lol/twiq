@@ -1,7 +1,7 @@
 <div class="profile-card">
   <h1 class="profile-name"><%= profile.displayName %>
     <% if (profile.isVerified) { %>
-      <svg class="verified-badge" style="width:18px;height:18px;" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+      <svg class="verified-badge<%= profile.isAdmin ? ' is-admin' : '' %>" style="width:18px;height:18px;" role="img" aria-label="<%= profile.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
     <% } %>
     <% if (profile.isAutomated) { %>
       <svg class="automated-badge" style="width:17px;height:17px;" role="img" aria-label="Automated account"><use href="#ic-robot"></use></svg>

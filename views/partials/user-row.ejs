@@ -5,7 +5,7 @@
   <div class="person-body">
     <a class="person-name" href="<%= person.profileUrl %>"><%= person.displayName %></a>
     <% if (person.isVerified) { %>
-      <svg class="verified-badge" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+      <svg class="verified-badge<%= person.isAdmin ? ' is-admin' : '' %>" role="img" aria-label="<%= person.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
     <% } %>
     <a class="person-handle" href="<%= person.profileUrl %>">@<%= person.username %></a>
     <% if (person.isProtected) { %>

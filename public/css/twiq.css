@@ -32,6 +32,7 @@
   --retweet-green: #19a974;
   --favorite-gold: #e8a33d;
   --danger: #cc3333;
+  --badge-admin: #c1272d;
   --warning: #e8a33d;
 
   --rail-width: 290px;
@@ -126,6 +127,7 @@
     --retweet-green: #2fbd86;
     --favorite-gold: #f0b04a;
     --danger: #e5615c;
+  --badge-admin: #ef6a66;
     --warning: #f0b04a;
 
     --field-background: #141b21;
@@ -190,6 +192,7 @@
   --retweet-green: #2fbd86;
   --favorite-gold: #f0b04a;
   --danger: #e5615c;
+  --badge-admin: #ef6a66;
   --warning: #f0b04a;
 
   --field-background: #141b21;
@@ -907,6 +910,9 @@ hr { border: 0; border-top: 1px solid var(--border-color); margin: 12px 0; }
 /* Grey like the lock, not blue like the tick: it is a statement of fact
    about the account, not a mark of standing. */
 .automated-badge { color: var(--muted-text); width: 13px; height: 13px; vertical-align: -2px; }
+/* A verified administrator's tick is red. Higher specificity than the rule
+   above, so it wins wherever the badge is drawn. */
+.verified-badge.is-admin { color: var(--badge-admin); }
 
 .stream-footer { padding: 9px 12px; text-align: center; border-top: 1px solid var(--border-color); }
 .stream-footer a, .stream-footer button {

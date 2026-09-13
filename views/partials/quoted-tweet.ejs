@@ -8,7 +8,7 @@
       <img class="quoted-avatar" src="<%= quoted.author.avatarUrl %>" alt="" width="16" height="16">
       <b class="quoted-name"><%= quoted.author.displayName %></b>
       <% if (quoted.author.isVerified) { %>
-        <svg class="verified-badge" role="img" aria-label="Verified account"><use href="#ic-verified"></use></svg>
+        <svg class="verified-badge<%= quoted.author.isAdmin ? ' is-admin' : '' %>" role="img" aria-label="<%= quoted.author.isAdmin ? 'Verified administrator' : 'Verified account' %>"><use href="#ic-verified"></use></svg>
       <% } %>
       <% if (quoted.author.isAutomated) { %>
         <svg class="automated-badge" role="img" aria-label="Automated account"><use href="#ic-robot"></use></svg>

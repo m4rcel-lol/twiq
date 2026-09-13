@@ -379,3 +379,43 @@ test('every page carries the footer, including the pages the footer links to', a
   const messages = await agent.get('/messages');
   assert.match(messages.text, /class="page-footer"/);
 });
+
+test('a verified administrator gets a red tick, a verified member the accent one', async () => {
+  const request = require('supertest');
+  const boss = await helpers.signedUpAgent(app, 'redtickboss');
+  const member = await helpers.signedUpAgent(app, 'bluetickmember');
+
+  const db = require('../src/config/db');
+  await db.query("UPDATE users SET is_verified = true WHERE username IN ('redtickboss', 'bluetickmember')");
+  await db.query("UPDATE users SET role = 'admin' WHERE username = 'redtickboss'");
+
+  const adminProfile = await request(app).get('/redtickboss');
+  assert.match(adminProfile.text, /class="verified-badge is-admin"/);
+  assert.match(adminProfile.text, /aria-label="Verified administrator"/);
+
+  const memberProfile = await request(app).get('/bluetickmember');
+  assert.match(memberProfile.text, /class="verified-badge"/);
+  assert.ok(!memberProfile.text.includes('is-admin'), 'an ordinary member keeps the accent tick');
+  assert.match(memberProfile.text, /aria-label="Verified account"/);
+
+  // And it follows the account onto its Tweets, not just its profile.
+  await boss.post('/api/tweets').set('X-CSRF-Token', boss.csrfToken).send({ body: 'From the office' });
+  const timeline = await boss.get('/home');
+  assert.match(timeline.text, /class="verified-badge is-admin"/);
+
+  // The colour is a token of its own, declared in every theme state.
+  const css = (await request(app).get('/css/twiq.css')).text;
+  assert.match(css, /\.verified-badge\.is-admin \{ color: var\(--badge-admin\); \}/);
+  assert.equal((css.match(/--badge-admin:/g) || []).length, 3, 'light plus both dark blocks');
+});
+
+test('a moderator is not given the administrator tick', async () => {
+  const request = require('supertest');
+  await helpers.signedUpAgent(app, 'justamod');
+  const db = require('../src/config/db');
+  await db.query("UPDATE users SET is_verified = true, role = 'moderator' WHERE username = 'justamod'");
+
+  const page = await request(app).get('/justamod');
+  assert.match(page.text, /class="verified-badge"/);
+  assert.ok(!page.text.includes('is-admin'), 'only administrators get the red one');
+});
