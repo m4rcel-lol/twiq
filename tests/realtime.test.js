@@ -107,3 +107,18 @@ test('a reply, a quote and a mention all raise a nudgeable notification', async 
   assert.deepEqual(await tweetModel.notifiedBy(reply.body.tweet.id), [authorId]);
   assert.deepEqual(await tweetModel.notifiedBy(quote.body.tweet.id), [authorId]);
 });
+
+test('both the form post and the JSON API announce a new Tweet', async () => {
+  // These had drifted: a Tweet written through /api/tweets told nobody.
+  const fs = require('fs');
+  const path = require('path');
+  const read = (f) => fs.readFileSync(path.join(__dirname, '..', 'src', 'controllers', f), 'utf8');
+  for (const file of ['tweets.js', 'api.js']) {
+    assert.match(read(file), /announce\.tweetCreated\(/, `${file} should announce new Tweets`);
+    assert.match(read(file), /announce\.retweeted\(/, `${file} should announce retweets`);
+  }
+  // And neither hand-rolls the fan-out any more.
+  for (const file of ['tweets.js', 'api.js']) {
+    assert.ok(!/followersAmong/.test(read(file)), `${file} should go through the service`);
+  }
+});

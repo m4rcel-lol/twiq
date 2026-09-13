@@ -12,6 +12,8 @@
 const tweetModel = require('../models/tweet');
 const userModel = require('../models/user');
 const graphModel = require('../models/graph');
+const realtime = require('../services/realtime');
+const announce = require('../services/announce');
 const notificationModel = require('../models/notification');
 const messageModel = require('../models/message');
 const present = require('../services/present');
@@ -80,7 +82,11 @@ exports.createTweet = async (req, res) => {
     quotedTweetId: parsed.data.quote_of,
   });
   const row = await tweetModel.findById(created.id, req.user.id);
-  res.status(201).json({ tweet: present.tweet(row, { viewerId: req.user.id }) });
+  const view = present.tweet(row, { viewerId: req.user.id });
+  await announce.tweetCreated({
+    tweetId: created.id, authorId: req.user.id, username: view.author.username,
+  });
+  res.status(201).json({ tweet: view });
 };
 
 exports.deleteTweet = async (req, res) => {
@@ -98,6 +104,13 @@ function interaction(fn) {
     const author = await userModel.findById(raw.user_id);
     if (!(await graphModel.canViewTweets(req.user.id, author))) throw forbidden();
     const result = await fn(req.user.id, id);
+    if (result.retweeted === true) {
+      await announce.retweeted({
+        userId: req.user.id, username: req.user.username, notifyUserId: result.notifyUserId,
+      });
+    } else if (result.notifyUserId) {
+      realtime.publish(result.notifyUserId, { type: 'notification' });
+    }
     res.json({ id, ...result });
   };
 }
